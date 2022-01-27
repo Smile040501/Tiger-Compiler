@@ -2,6 +2,8 @@
 
 All the weekly changes made in the project as a summary.
 
+## [Unreleased]
+
 ## [0.0.1] - 2022-01-27
 
 ### Added
@@ -12,4 +14,5 @@ All the weekly changes made in the project as a summary.
     -   `make clean`: remove all generated/intermediate files from the repository (in this case only the executable file `tc`)
 -   `.gitignore`: Global gitignore file.
 
+[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/0.0.1...master
 [0.0.1]: https://gitlab.com/singlamayank001/111901030-compilers/-/releases#0.0.1
