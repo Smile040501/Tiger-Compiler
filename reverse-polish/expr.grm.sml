@@ -19,37 +19,44 @@ structure Token = Token
 local open LrTable in 
 val table=let val actionRows =
 "\
-\\001\000\001\000\005\000\000\000\
-\\001\000\002\000\011\000\003\000\010\000\004\000\009\000\005\000\008\000\
-\\007\000\007\000\000\000\
-\\001\000\006\000\000\000\000\000\
-\\018\000\007\000\006\000\000\000\
-\\019\000\000\000\
-\\020\000\001\000\005\000\000\000\
-\\021\000\000\000\
+\\001\000\001\000\006\000\006\000\005\000\000\000\
+\\001\000\002\000\012\000\003\000\011\000\004\000\010\000\005\000\009\000\
+\\007\000\019\000\000\000\
+\\001\000\002\000\012\000\003\000\011\000\004\000\010\000\005\000\009\000\
+\\009\000\008\000\000\000\
+\\001\000\008\000\000\000\000\000\
+\\021\000\009\000\007\000\000\000\
 \\022\000\000\000\
-\\023\000\004\000\009\000\005\000\008\000\000\000\
-\\024\000\004\000\009\000\005\000\008\000\000\000\
+\\023\000\001\000\006\000\006\000\005\000\000\000\
+\\024\000\000\000\
 \\025\000\000\000\
-\\026\000\000\000\
+\\026\000\004\000\010\000\005\000\009\000\000\000\
+\\027\000\004\000\010\000\005\000\009\000\000\000\
+\\028\000\000\000\
+\\029\000\000\000\
+\\030\000\000\000\
 \"
 val actionRowNumbers =
-"\005\000\003\000\001\000\007\000\
-\\004\000\005\000\000\000\000\000\
-\\000\000\000\000\006\000\011\000\
-\\010\000\009\000\008\000\002\000"
+"\006\000\004\000\002\000\000\000\
+\\008\000\005\000\006\000\000\000\
+\\000\000\000\000\000\000\001\000\
+\\007\000\012\000\011\000\010\000\
+\\009\000\013\000\003\000"
 val gotoT =
 "\
-\\001\000\002\000\002\000\001\000\003\000\015\000\000\000\
+\\001\000\002\000\002\000\001\000\003\000\018\000\000\000\
 \\000\000\
 \\000\000\
-\\000\000\
-\\000\000\
-\\001\000\002\000\002\000\010\000\000\000\
 \\001\000\011\000\000\000\
-\\001\000\012\000\000\000\
+\\000\000\
+\\000\000\
+\\001\000\002\000\002\000\012\000\000\000\
 \\001\000\013\000\000\000\
 \\001\000\014\000\000\000\
+\\001\000\015\000\000\000\
+\\001\000\016\000\000\000\
+\\000\000\
+\\000\000\
 \\000\000\
 \\000\000\
 \\000\000\
@@ -57,8 +64,8 @@ val gotoT =
 \\000\000\
 \\000\000\
 \"
-val numstates = 16
-val numrules = 9
+val numstates = 19
+val numrules = 10
 val s = ref "" and index = ref 0
 val string_to_int = fn () => 
 let val i = !index
@@ -135,22 +142,24 @@ fn _ => false
 val preferred_change : (term list * term list) list = 
 nil
 val noShift = 
-fn (T 5) => true | _ => false
+fn (T 7) => true | _ => false
 val showTerminal =
 fn (T 0) => "CONST"
   | (T 1) => "PLUS"
   | (T 2) => "MINUS"
   | (T 3) => "MUL"
   | (T 4) => "DIV"
-  | (T 5) => "EOF"
-  | (T 6) => "NEWLINE"
+  | (T 5) => "LPAREN"
+  | (T 6) => "RPAREN"
+  | (T 7) => "EOF"
+  | (T 8) => "NEWLINE"
   | _ => "bogus-term"
 local open Header in
 val errtermvalue=
 fn _ => MlyValue.VOID
 end
 val terms : term list = nil
- $$ (T 6) $$ (T 5) $$ (T 4) $$ (T 3) $$ (T 2) $$ (T 1)end
+ $$ (T 8) $$ (T 7) $$ (T 6) $$ (T 5) $$ (T 4) $$ (T 3) $$ (T 2) $$ (T 1)end
 structure Actions =
 struct 
 exception mlyAction of int
@@ -159,41 +168,45 @@ val actions =
 fn (i392,defaultPos,stack,
     (()):arg) =>
 case (i392,stack)
-of  ( 0, ( ( _, ( MlyValue.EXPS EXPS, EXPS1left, EXPS1right)) :: rest671)) => let val  result = MlyValue.PROGRAM ((*#line 43.33 "expr.grm"*) EXPS (*#line 162.1 "expr.grm.sml"*)
+of  ( 0, ( ( _, ( MlyValue.EXPS EXPS, EXPS1left, EXPS1right)) :: rest671)) => let val  result = MlyValue.PROGRAM ((*#line 45.33 "expr.grm"*) EXPS (*#line 171.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 2, ( result, EXPS1left, EXPS1right), rest671)
 end
-|  ( 1, ( ( _, ( _, _, NEWLINE1right)) :: ( _, ( MlyValue.EXPS EXPS, EXPS1left, _)) :: rest671)) => let val  result = MlyValue.PROGRAM ((*#line 44.26 "expr.grm"*) EXPS (*#line 166.1 "expr.grm.sml"*)
+|  ( 1, ( ( _, ( _, _, NEWLINE1right)) :: ( _, ( MlyValue.EXPS EXPS, EXPS1left, _)) :: rest671)) => let val  result = MlyValue.PROGRAM ((*#line 46.26 "expr.grm"*) EXPS (*#line 175.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 2, ( result, EXPS1left, NEWLINE1right), rest671)
 end
-|  ( 2, ( rest671)) => let val  result = MlyValue.EXPS ((*#line 46.33 "expr.grm"*) []                  (*#line 170.1 "expr.grm.sml"*)
+|  ( 2, ( rest671)) => let val  result = MlyValue.EXPS ((*#line 48.33 "expr.grm"*) []                  (*#line 179.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 1, ( result, defaultPos, defaultPos), rest671)
 end
-|  ( 3, ( ( _, ( MlyValue.EXPS EXPS, _, EXPS1right)) :: _ :: ( _, ( MlyValue.EXP EXP, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXPS ((*#line 47.26 "expr.grm"*) EXP :: EXPS         (*#line 174.1 "expr.grm.sml"*)
+|  ( 3, ( ( _, ( MlyValue.EXPS EXPS, _, EXPS1right)) :: _ :: ( _, ( MlyValue.EXP EXP, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXPS ((*#line 49.26 "expr.grm"*) EXP :: EXPS         (*#line 183.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 1, ( result, EXP1left, EXPS1right), rest671)
 end
-|  ( 4, ( ( _, ( MlyValue.CONST CONST, CONST1left, CONST1right)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 49.33 "expr.grm"*) Ast.Const CONST     (*#line 178.1 "expr.grm.sml"*)
+|  ( 4, ( ( _, ( MlyValue.CONST CONST, CONST1left, CONST1right)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 51.33 "expr.grm"*) Ast.Const CONST     (*#line 187.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 0, ( result, CONST1left, CONST1right), rest671)
 end
-|  ( 5, ( ( _, ( MlyValue.EXP EXP2, _, EXP2right)) :: _ :: ( _, ( MlyValue.EXP EXP1, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 50.33 "expr.grm"*) Ast.plus  EXP1 EXP2 (*#line 182.1 "expr.grm.sml"*)
+|  ( 5, ( ( _, ( MlyValue.EXP EXP2, _, EXP2right)) :: _ :: ( _, ( MlyValue.EXP EXP1, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 52.33 "expr.grm"*) Ast.plus  EXP1 EXP2 (*#line 191.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 0, ( result, EXP1left, EXP2right), rest671)
 end
-|  ( 6, ( ( _, ( MlyValue.EXP EXP2, _, EXP2right)) :: _ :: ( _, ( MlyValue.EXP EXP1, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 51.26 "expr.grm"*) Ast.minus EXP1 EXP2 (*#line 186.1 "expr.grm.sml"*)
+|  ( 6, ( ( _, ( MlyValue.EXP EXP2, _, EXP2right)) :: _ :: ( _, ( MlyValue.EXP EXP1, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 53.26 "expr.grm"*) Ast.minus EXP1 EXP2 (*#line 195.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 0, ( result, EXP1left, EXP2right), rest671)
 end
-|  ( 7, ( ( _, ( MlyValue.EXP EXP2, _, EXP2right)) :: _ :: ( _, ( MlyValue.EXP EXP1, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 52.26 "expr.grm"*) Ast.mul   EXP1 EXP2 (*#line 190.1 "expr.grm.sml"*)
+|  ( 7, ( ( _, ( MlyValue.EXP EXP2, _, EXP2right)) :: _ :: ( _, ( MlyValue.EXP EXP1, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 54.26 "expr.grm"*) Ast.mul   EXP1 EXP2 (*#line 199.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 0, ( result, EXP1left, EXP2right), rest671)
 end
-|  ( 8, ( ( _, ( MlyValue.EXP EXP2, _, EXP2right)) :: _ :: ( _, ( MlyValue.EXP EXP1, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 53.29 "expr.grm"*) Ast.div   EXP1 EXP2 (*#line 194.1 "expr.grm.sml"*)
+|  ( 8, ( ( _, ( MlyValue.EXP EXP2, _, EXP2right)) :: _ :: ( _, ( MlyValue.EXP EXP1, EXP1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 55.29 "expr.grm"*) Ast.div   EXP1 EXP2 (*#line 203.1 "expr.grm.sml"*)
 )
  in ( LrTable.NT 0, ( result, EXP1left, EXP2right), rest671)
+end
+|  ( 9, ( ( _, ( _, _, RPAREN1right)) :: ( _, ( MlyValue.EXP EXP1, _, _)) :: ( _, ( _, LPAREN1left, _)) :: rest671)) => let val  result = MlyValue.EXP ((*#line 56.29 "expr.grm"*) EXP1                (*#line 207.1 "expr.grm.sml"*)
+)
+ in ( LrTable.NT 0, ( result, LPAREN1left, RPAREN1right), rest671)
 end
 | _ => raise (mlyAction i392)
 end
@@ -212,7 +225,9 @@ fun PLUS (p1,p2) = Token.TOKEN (ParserData.LrTable.T 1,(ParserData.MlyValue.VOID
 fun MINUS (p1,p2) = Token.TOKEN (ParserData.LrTable.T 2,(ParserData.MlyValue.VOID,p1,p2))
 fun MUL (p1,p2) = Token.TOKEN (ParserData.LrTable.T 3,(ParserData.MlyValue.VOID,p1,p2))
 fun DIV (p1,p2) = Token.TOKEN (ParserData.LrTable.T 4,(ParserData.MlyValue.VOID,p1,p2))
-fun EOF (p1,p2) = Token.TOKEN (ParserData.LrTable.T 5,(ParserData.MlyValue.VOID,p1,p2))
-fun NEWLINE (p1,p2) = Token.TOKEN (ParserData.LrTable.T 6,(ParserData.MlyValue.VOID,p1,p2))
+fun LPAREN (p1,p2) = Token.TOKEN (ParserData.LrTable.T 5,(ParserData.MlyValue.VOID,p1,p2))
+fun RPAREN (p1,p2) = Token.TOKEN (ParserData.LrTable.T 6,(ParserData.MlyValue.VOID,p1,p2))
+fun EOF (p1,p2) = Token.TOKEN (ParserData.LrTable.T 7,(ParserData.MlyValue.VOID,p1,p2))
+fun NEWLINE (p1,p2) = Token.TOKEN (ParserData.LrTable.T 8,(ParserData.MlyValue.VOID,p1,p2))
 end
 end
