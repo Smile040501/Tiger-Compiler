@@ -8,7 +8,7 @@ state 0:
 
 	EXP	goto 2
 	EXPS	goto 1
-	PROGRAM	goto 13
+	PROGRAM	goto 15
 
 	.	reduce by rule 2
 
@@ -29,11 +29,13 @@ state 2:
 	EXP : EXP . PLUS EXP 
 	EXP : EXP . MINUS EXP 
 	EXP : EXP . MUL EXP 
+	EXP : EXP . DIV EXP 
 	EXPS : EXP . NEWLINE EXPS 
 
-	PLUS	shift 8
-	MINUS	shift 7
-	MUL	shift 6
+	PLUS	shift 9
+	MINUS	shift 8
+	MUL	shift 7
+	DIV	shift 6
 	NEWLINE	shift 5
 
 
@@ -65,25 +67,14 @@ state 5:
 	CONST	shift 3
 
 	EXP	goto 2
-	EXPS	goto 9
+	EXPS	goto 10
 
 	.	reduce by rule 2
 
 
 state 6:
 
-	EXP : EXP MUL . EXP 
-
-	CONST	shift 3
-
-	EXP	goto 10
-
-	.	error
-
-
-state 7:
-
-	EXP : EXP MINUS . EXP 
+	EXP : EXP DIV . EXP 
 
 	CONST	shift 3
 
@@ -92,9 +83,9 @@ state 7:
 	.	error
 
 
-state 8:
+state 7:
 
-	EXP : EXP PLUS . EXP 
+	EXP : EXP MUL . EXP 
 
 	CONST	shift 3
 
@@ -103,7 +94,29 @@ state 8:
 	.	error
 
 
+state 8:
+
+	EXP : EXP MINUS . EXP 
+
+	CONST	shift 3
+
+	EXP	goto 13
+
+	.	error
+
+
 state 9:
+
+	EXP : EXP PLUS . EXP 
+
+	CONST	shift 3
+
+	EXP	goto 14
+
+	.	error
+
+
+state 10:
 
 	EXPS : EXP NEWLINE EXPS .  (reduce by rule 3)
 
@@ -112,45 +125,63 @@ state 9:
 	.	reduce by rule 3
 
 
-state 10:
+state 11:
+
+	EXP : EXP . PLUS EXP 
+	EXP : EXP . MINUS EXP 
+	EXP : EXP . MUL EXP 
+	EXP : EXP . DIV EXP 
+	EXP : EXP DIV EXP .  (reduce by rule 8)
+
+
+
+	.	reduce by rule 8
+
+
+state 12:
 
 	EXP : EXP . PLUS EXP 
 	EXP : EXP . MINUS EXP 
 	EXP : EXP . MUL EXP 
 	EXP : EXP MUL EXP .  (reduce by rule 7)
+	EXP : EXP . DIV EXP 
 
 
 
 	.	reduce by rule 7
 
 
-state 11:
+state 13:
 
 	EXP : EXP . PLUS EXP 
 	EXP : EXP . MINUS EXP 
 	EXP : EXP MINUS EXP .  (reduce by rule 6)
 	EXP : EXP . MUL EXP 
+	EXP : EXP . DIV EXP 
 
-	MUL	shift 6
+	MUL	shift 7
+	DIV	shift 6
 
 
 	.	reduce by rule 6
 
 
-state 12:
+state 14:
 
 	EXP : EXP . PLUS EXP 
 	EXP : EXP PLUS EXP .  (reduce by rule 5)
 	EXP : EXP . MINUS EXP 
 	EXP : EXP . MUL EXP 
+	EXP : EXP . DIV EXP 
 
-	MUL	shift 6
+	MUL	shift 7
+	DIV	shift 6
 
 
 	.	reduce by rule 5
 
 
-state 13:
+state 15:
 
 
 	EOF	accept
@@ -158,5 +189,5 @@ state 13:
 
 	.	error
 
-10 of 27 action table entries left after compaction
-8 goto table entries
+13 of 33 action table entries left after compaction
+9 goto table entries

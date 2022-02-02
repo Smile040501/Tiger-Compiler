@@ -4,6 +4,7 @@ type ('a,'b) token
 type svalue
 val NEWLINE:  'a * 'a -> (svalue,'a) token
 val EOF:  'a * 'a -> (svalue,'a) token
+val DIV:  'a * 'a -> (svalue,'a) token
 val MUL:  'a * 'a -> (svalue,'a) token
 val MINUS:  'a * 'a -> (svalue,'a) token
 val PLUS:  'a * 'a -> (svalue,'a) token
