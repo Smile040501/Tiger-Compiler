@@ -8,6 +8,8 @@ it is empty *)
     | MINUS
     | MUL
     | DIV
+    | LPAREN
+    | RPAREN
     | EOF
     | NEWLINE
 
@@ -51,3 +53,4 @@ EXP     : CONST                ( Ast.Const CONST     )
 	| EXP MINUS EXP        ( Ast.minus EXP1 EXP2 )
 	| EXP MUL   EXP        ( Ast.mul   EXP1 EXP2 )
     | EXP DIV   EXP        ( Ast.div   EXP1 EXP2 )
+    | LPAREN EXP RPAREN    ( EXP1                )
