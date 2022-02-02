@@ -68,3 +68,4 @@ digit = [0-9];
 "+"           => ( Tokens.PLUS  (!lineRef,!lineRef) );
 "-"           => ( Tokens.MINUS  (!lineRef,!lineRef) );
 "*"           => ( Tokens.MUL (!lineRef,!lineRef) );
+"/"           => ( Tokens.DIV (!lineRef,!lineRef) );
