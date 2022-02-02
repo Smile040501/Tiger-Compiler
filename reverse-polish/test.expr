@@ -1,8 +1,15 @@
 # This is a test file for input to the expression compiler ec.
 40 + 2
 56
+
 # Sample Test Case 1 for Division
 2 * 3 / 4
 
 # Sample Test Case 2 for Division - Checking Precedence
 2 + 3 / 4
+
+# Sample Test Case 1 for Parentheses
+(2 + 3) * (15 / 5) + 4 / 2
+
+# Sample Test Case 2 for Parentheses
+(4 * 5) / 8
