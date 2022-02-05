@@ -4,15 +4,21 @@ All the weekly changes made in the project as a summary.
 
 ## [Unreleased]
 
-## [2022-01-27] - 2022-02-02
+## [2022-01-27] - 2022-02-05
 
 ### Added
 
+-   `reverse-polish` directory for the reverse polish compiler.
 -   Support for division and parentheses to evaluate expressions using reverse-polish.
     -   DIV has been added to the AST of the source.
-    -   DIV, LPAREN and RPAREN have been added to the list of terminals in `expr.grm`
+    -   DIV, LPAREN and RPAREN have been added to the list of terminals in `expr.grm` in reverse polish
     -   Regex for division and parentheses have been added to the lexer.
--   Sample test cases for division and parentheses in `test.expr`
+-   Sample test cases for division and parentheses in `test.expr` in reverse polish
+-   `ANSWERS.md` in reverse polish which contains answers to the questions asked in README.md of the reverse-polish lab statement.
+
+### Modified
+
+-   Global `.gitignore` to ignore more temporary files
 
 ## [0.0.1] - 2022-01-27
 
