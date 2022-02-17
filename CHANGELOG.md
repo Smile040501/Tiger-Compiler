@@ -4,6 +4,12 @@ All the weekly changes made in the project as a summary.
 
 ## [Unreleased]
 
+## [2022-02-10] - 2022-02-17
+
+### Added
+
+-   `target/mips.sml` file in the root of the repository containing the AST of the MIPS assembly language.
+
 ## [2022-01-27] - 2022-02-05
 
 ### Added
@@ -30,6 +36,7 @@ All the weekly changes made in the project as a summary.
     -   `make clean`: remove all generated/intermediate files from the repository (in this case only the executable file `tc`)
 -   `.gitignore`: Global gitignore file.
 
-[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-01-27...master
+[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-10...master
+[2022-02-10]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-01-27...2022-02-10
 [2022-01-27]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/v0.0.1...2022-01-27
 [0.0.1]: https://gitlab.com/singlamayank001/111901030-compilers/-/releases#v0.0.1
