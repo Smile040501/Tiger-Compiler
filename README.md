@@ -1,8 +1,7 @@
 # Compiler Design
 
-## Name: Mayank Singla
-
-## Roll No.: 111901030
+**Name**: Mayank Singla\
+**Roll No.**: 111901030
 
 ## License
 
