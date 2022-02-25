@@ -3,17 +3,17 @@ struct
 
     (* The 32 registers of the MIPS machine *)
     datatype Reg =
-        zero                 (* 0    : Constant 0                                      *)
-        | at                 (* 1    : Reserved for assembler                          *)
-        | v0 | v1            (* 2-3  : Expression evaluation and results of a function *)
-        | a0 | a1 | a2 | a3  (* 4-7  : Argument 1-4                                    *)
-        | t0 | t1 | t2 | t3 | t4 | t5 | t6 | t7 | t8 | t9  (* 8-15, 24-25 : Temporary (not preserved across call) *)
-        | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7  (* 16-23 : Saved temporary (preserved across call) *) 
-        | k0 | k1  (* 26-27 : Reserved for OS kernel                 *)
-        | gp       (* 28    : Pointer to global area                 *)
-        | sp       (* 29    : Stack pointer                          *)
-        | fp       (* 30    : Frame pointer                          *)
-        | ra       (* 31    : Return address (used by function call) *)
+          ZERO               (* 0    : Constant 0                                      *)
+        | AT                 (* 1    : Reserved for assembler                          *)
+        | V0 | V1            (* 2-3  : Expression evaluation and results of a function *)
+        | A0 | A1 | A2 | A3  (* 4-7  : Argument 1-4                                    *)
+        | T0 | T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8 | T9  (* 8-15, 24-25 : Temporary (not preserved across call) *)
+        | S0 | S1 | S2 | S3 | S4 | S5 | S6 | S7            (* 16-23 : Saved temporary (preserved across call) *) 
+        | K0 | K1  (* 26-27 : Reserved for OS kernel                 *)
+        | GP       (* 28    : Pointer to global area                 *)
+        | SP       (* 29    : Stack pointer                          *)
+        | FP       (* 30    : Frame pointer                          *)
+        | RA       (* 31    : Return address (used by function call) *)
 
     (* Type alias for Immediate values *)
     type Imm = int
@@ -224,38 +224,38 @@ struct
     
     (* Prints the registers *)
     fun prReg (reg : Reg) : string = case reg of
-                    zero => "$zero"
-                    | at => "$at"
-                    | v0 => "$v0"
-                    | v1 => "$v1"
-                    | a0 => "$a0"
-                    | a1 => "$a1"
-                    | a2 => "$a2"
-                    | a3 => "$a3"
-                    | t0 => "$t0"
-                    | t1 => "$t1"
-                    | t2 => "$t2"
-                    | t3 => "$t3"
-                    | t4 => "$t4"
-                    | t5 => "$t5"
-                    | t6 => "$t6"
-                    | t7 => "$t7"
-                    | t8 => "$t8"
-                    | t9 => "$t9"
-                    | s0 => "$s0"
-                    | s1 => "$s1"
-                    | s2 => "$s2"
-                    | s3 => "$s3"
-                    | s4 => "$s4"
-                    | s5 => "$s5"
-                    | s6 => "$s6"
-                    | s7 => "$s7"
-                    | k0 => "$k0"
-                    | k1 => "$k1"
-                    | gp => "$gp"
-                    | sp => "$sp"
-                    | fp => "$fp"
-                    | ra => "$ra"
+                      ZERO => "$zero"
+                    | AT   => "$at"
+                    | V0   => "$v0"
+                    | V1   => "$v1"
+                    | A0   => "$a0"
+                    | A1   => "$a1"
+                    | A2   => "$a2"
+                    | A3   => "$a3"
+                    | T0   => "$t0"
+                    | T1   => "$t1"
+                    | T2   => "$t2"
+                    | T3   => "$t3"
+                    | T4   => "$t4"
+                    | T5   => "$t5"
+                    | T6   => "$t6"
+                    | T7   => "$t7"
+                    | T8   => "$t8"
+                    | T9   => "$t9"
+                    | S0   => "$s0"
+                    | S1   => "$s1"
+                    | S2   => "$s2"
+                    | S3   => "$s3"
+                    | S4   => "$s4"
+                    | S5   => "$s5"
+                    | S6   => "$s6"
+                    | S7   => "$s7"
+                    | K0   => "$k0"
+                    | K1   => "$k1"
+                    | GP   => "$gp"
+                    | SP   => "$sp"
+                    | FP   => "$fp"
+                    | RA   => "$ra"
 
     (* Prints the immediate value *)
     fun prImm (imm : Imm) : string = Int.toString imm
