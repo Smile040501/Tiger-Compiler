@@ -8,14 +8,19 @@ struct
         | V0 | V1            (* 2-3  : Expression evaluation and results of a function *)
         | A0 | A1 | A2 | A3  (* 4-7  : Argument 1-4                                    *)
         | T0 | T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8 | T9  (* 8-15, 24-25 : Temporary (not preserved across call) *)
-        | S0 | S1 | S2 | S3 | S4 | S5 | S6 | S7            (* 16-23 : Saved temporary (preserved across call) *) 
+        | S0 | S1 | S2 | S3 | S4 | S5 | S6 | S7            (* 16-23 : Saved temporary (preserved across call) *)
         | K0 | K1  (* 26-27 : Reserved for OS kernel                 *)
         | GP       (* 28    : Pointer to global area                 *)
         | SP       (* 29    : Stack pointer                          *)
         | FP       (* 30    : Frame pointer                          *)
         | RA       (* 31    : Return address (used by function call) *)
+        (*
+            The multiply and divide unit produces its result in two additional registers, `hi` and `lo`.
+            These instructions move values to and from these registers.
+        *)
 
     (* Type alias for Immediate values *)
+    (* 16-bit integer *)
     type Imm = int
 
     (* The instruction datatype of the MIPS machine *)
@@ -28,182 +33,282 @@ struct
         - Have documented a summary of working of instructions also in comments
         - Since the compiler only supports Integer data types, so therefore not including Floating Point instructions
     *)
-    datatype  ('l,'t) Instruction = 
-    (* Arithimatic and Logical Instructions *)
-        Abs of {dest: 't, src1: 't}  (* Absolute Value *)
+    (* Types of instructions based on its input arguments *)
+    type ('l, 't) DL       = {dest: 'l}
+    type ('l, 't) DR       = {dest: 't}
+    type ('l, 't) DR_I     = {dest: 't, imm: Imm}
+    type ('l, 't) DR_SL    = {dest: 't, src1: 'l}
+    type ('l, 't) DR_SR    = {dest: 't, src1: 't}
+    type ('l, 't) DR_SR_I  = {dest: 't, src1: 't, imm: Imm}
+    type ('l, 't) DR_SR_SR = {dest: 't, src1: 't, src2: 't}
+    type ('l, 't) SR_DL    = {src1: 't, dest: 'l}
+    type ('l, 't) SR_SR    = {src1: 't, src2: 't}
+    type ('l, 't) SR_SI_DL = {src1: 't, imm: Imm, dest: 'l}
+    type ('l, 't) SR_SR_DL = {src1: 't, src2: 't, dest: 'l}
 
-        | Add   of {dest: 't, src1: 't, src2: 't}  (* Addition (with overflow)           *)
-        | Addi  of {dest: 't, src1: 't, imm: Imm}  (* Addition Immediate (with overflow) *)
-        | Addu  of {dest: 't, src1: 't, src2: 't}  (* Addition (with overflow)           *)
-        | Addiu of {dest: 't, src1: 't, imm: Imm}  (* Addition Immediate (with overflow) *)
+    datatype ('l, 't) Instruction =
+              DL_Inst           of DL_Inst__       * (('l, 't) DL      )
+            | DR_Inst           of DR_Inst__       * (('l, 't) DR      )
+            | DR_I_Inst         of DR_I_Inst__     * (('l, 't) DR_I    )
+            | DR_SL_Inst        of DR_SL_Inst__    * (('l, 't) DR_SL   )
+            | DR_SR_Inst        of DR_SR_Inst__    * (('l, 't) DR_SR   )
+            | DR_SR_I_Inst      of DR_SR_I_Inst__  * (('l, 't) DR_SR_I )
+            | DR_SR_SR_Inst     of DR_SR_SR_Inst__ * (('l, 't) DR_SR_SR)
+            | SR_DL_Inst        of SR_DL_Inst__    * (('l, 't) SR_DL   )
+            | SR_SR_Inst        of SR_SR_Inst__    * (('l, 't) SR_SR   )
+            | SR_SI_DL_Inst     of SR_SI_DL_Inst__ * (('l, 't) SR_SI_DL)
+            | SR_SR_DL_Inst     of SR_SR_DL_Inst__ * (('l, 't) SR_SR_DL)
+            | ExceptionTrapInst of ExceptionTrapInst__
 
-        | And   of {dest: 't, src1: 't, src2: 't}  (* AND           *)
-        | Andi  of {dest: 't, src1: 't, imm: Imm}  (* AND Immediate *)
+    and DL_Inst__ =
+              B               (* Branch Instruction         *)
+            | Bczt            (* Branch Coprocessor z True  *)
+            | Bczf            (* Branch Coprocessor z False *)
+            | J               (* Jump                       *)
 
-        (*
-            Divide the contents of the two registers.
-            Leave the quotient in register `lo` and the remainder in register `hi`
-        *)
-        | Div   of {src1: 't, src2: 't}  (* Divide (signed)   *)
-        | Divu  of {src1: 't, src2: 't}  (* Divide (unsigned) *)
-        
-        (* Put the quotient of integers from register src1 and src2 in register dest   *)
-        | Divq  of {dest: 't, src1: 't, src2: 't}  (* Divide (signed, with overflow)   *)
-        | Divuq of {dest: 't, src1: 't, src2: 't}  (* Divide (unsigned, with overflow) *)
+            (* Save the address of the next instruction in register 31 *)
+            | Jal             (* Jump and Link *)
 
-        | Mul   of {dest: 't, src1: 't, src2: 't}  (* Multiply (without overflow)       *)
-        | Mulo  of {dest: 't, src1: 't, src2: 't}  (* Multiply (with overflow)          *)
-        | Mulou of {dest: 't, src1: 't, src2: 't}  (* Unsigned Multiply (with overflow) *)
+    and DR_Inst__ =
+              (* Save the address of the next instruction in register 31 *)
+              Jalr            (* Jump and Link Register *)
 
-        (*
-            Multiply the contents of the two registers.
-            Leave the low-order word of the product in register `lo`, and
-            the high-word in register `hi`
-        *)
-        | Mult  of {src1: 't, src2: 't}  (* Multiply          *)
-        | Multu of {src1: 't, src2: 't}  (* Unsigned Multiply *)
+            | Jr              (* Jump Register *)
+            | Mfhi            (* Move From hi  *)
+            | Mflo            (* Move From lo  *)
+            | Mthi            (* Move To hi    *)
+            | Mtlo            (* Move To lo    *)
 
-        | Neg  of {dest: 't, src1: 't}            (* Negate Value (with overflow)    *)
-        | Negu of {dest: 't, src1: 't}            (* Negate Value (without overflow) *)
-        | Nor  of {dest: 't, src1: 't, src2: 't}  (* NOR                             *)
-        | Not  of {dest: 't, src1: 't}            (* NOT                             *)
-        | Or   of {dest: 't, src1: 't, src2: 't}  (* OR                              *)
-        | Ori  of {dest: 't, src1: 't, imm: Imm}  (* OR Immediate                    *)
+    and DR_I_Inst__ =
+        (*Constant-Manipulation Instructions *)
+            (* Move the immediate imm into register Rdest. *)
+              Li              (* Load Immediate *)
 
-        | Rem  of {dest: 't, src1: 't, src2: 't}  (* Remainder          *)
-        | Remu of {dest: 't, src1: 't, src2: 't}  (* Unsigned Remainder *)
+            (*
+                Load the lower halfword of the immediate `imm` into the upper halfword of register Rdest.
+                The lower bits of the register are set to 0.
+            *)
+            | Lui             (* Load Upper Immediate *)
 
-        | Rol  of {dest: 't, src1: 't, src2: 't}  (* Rotate Left  *)
-        | Ror  of {dest: 't, src1: 't, src2: 't}  (* Rotate Right *)
+    and DR_SL_Inst__ =
+        (* Load Instructions *)
+              (* Load computed address, not the contents of the location, into register Rdest. *)
+              La              (* Load Address *)
 
-        | Sll  of {dest: 't, src1: 't, src2: 't}  (* Shift Left Logical              *)
-        | Sllv of {dest: 't, src1: 't, src2: 't}  (* Shift Left Logical Variable     *)
-        | Sra  of {dest: 't, src1: 't, src2: 't}  (* Sift Right Arithmetic           *)
-        | Srav of {dest: 't, src1: 't, src2: 't}  (* Shift Right Arithmetic Variable *)
-        | Srl  of {dest: 't, src1: 't, src2: 't}  (* Shift Right Logical             *)
-        | Srlv of {dest: 't, src1: 't, src2: 't}  (* Shift Right Logical Variable    *)
+            (* Load the byte at address into register Rdest. *)
+            | Lb              (* Load Byte          *)
+            | Lbu             (* Load Unsigned Byte *)
 
-        | Sub  of {dest: 't, src1: 't, src2: 't}  (* Subtract (with overflow)    *)
-        | Subu of {dest: 't, src1: 't, src2: 't}  (* Subtract (without overflow) *)
+            (* Load the 64-bit quantity at address into registers Rdest and Rdest + 1 *)
+            | Ld              (* Load Double-Word *)
 
-        | Xor  of {dest: 't, src1: 't, src2: 't}  (* XOR           *)
-        | Xori of {dest: 't, src1: 't, imm: Imm}  (* XOR Immediate *)
+            (* Load the 16-bit quantity (halfword) at address into destination register *)
+            | Lh              (* Load Halfword          *)
+            | Lhu             (* Load Unsigned Halfword *)
 
-    (*Constant-Manipulation Instructions *)
-        | Li   of {dest: 't, imm: Imm}  (* Load Immediate       *)
-        | Lui  of {dest: 't, imm: Imm}  (* Load Upper Immediate *)
+            (* Load the 32-bit quantity (word) at address into destination register *)
+            | Lw              (* Load Word *)
 
-    (*Comparison Instructions*)
-        | Seq   of {dest: 't, src1: 't, src2: 't}  (* Set Equal                        *)
-        | Sge   of {dest: 't, src1: 't, src2: 't}  (* Set Greater Than Equal           *)
-        | Sgeu  of {dest: 't, src1: 't, src2: 't}  (* Set Greater Than Equal Unsigned  *)
-        | Sgt   of {dest: 't, src1: 't, src2: 't}  (* Set Greater Than                 *)
-        | Sgtu  of {dest: 't, src1: 't, src2: 't}  (* Set Greater Than Unsigned        *)
-        | Sle   of {dest: 't, src1: 't, src2: 't}  (* Set Less Than Equal              *)
-        | Sleu  of {dest: 't, src1: 't, src2: 't}  (* Set Less Than Equal Unsigned     *)
-        | Slt   of {dest: 't, src1: 't, src2: 't}  (* Set Less Than                    *)
-        | Slti  of {dest: 't, src1: 't, imm: Imm}  (* Set Less Than Immediate          *) 
-        | Sltu  of {dest: 't, src1: 't, src2: 't}  (* Set Less Than Unsigned           *)
-        | Sltiu of {dest: 't, src1: 't, imm: Imm}  (* Set Less Than Unsigned Immediate *)
-        | Sne   of {dest: 't, src1: 't, src2: 't}  (* Set Not Equal                    *)
+            (* Load the 32-bit quantity (word) at address into dest. register of coprocessor z (0-3) *)
+            | Lwcz            (* Load Word Coprocessor *)
 
-    (*Branch and Jump Instructions*)
-        | B      of {dest: 'l}                      (* Branch Instruction         *)
-        | Bczt   of {dest: 'l}                      (* Branch Coprocessor z True  *)
-        | Bczf   of {dest: 'l}                      (* Branch Coprocessor z False *)
+            (* Load the left(right) bytes from the word at the possibly-unaligned address into Rdest *)
+            | Lwl             (* Load Word Left  *)
+            | Lwr             (* Load Word Right *)
 
-        | Beq    of {src1: 't, src2: 't, dest: 'l}  (* Branch on Equal                   *)
-        | Beqz   of {src1: 't, dest: 'l}            (* Branch on Equal Zero              *)
-        | Bge    of {src1: 't, src2: 't, dest: 'l}  (* Branch on Greater Than Equal      *)
-        | Bgeu   of {src1: 't, src2: 't, dest: 'l}  (* Branch on GTE Unsigned            *)
-        | Bgez   of {src1: 't, dest: 'l}            (* Branch on Greater Than Equal Zero *)
-        | Bgt    of {src1: 't, src2: 't, dest: 'l}  (* Branch on Greater Than            *)
-        | Bgtu   of {src1: 't, src2: 't, dest: 'l}  (* Branch on Greater Than Unsigned   *)
-        | Bgtz   of {src1: 't, dest: 'l}            (* Branch on Greater Than Zero       *)
-        | Ble    of {src1: 't, src2: 't, dest: 'l}  (* Branch on Less Than Equal         *)
-        | Bleu   of {src1: 't, src2: 't, dest: 'l}  (* Branch on LTE Unsigned            *)
-        | Blez   of {src1: 't, dest: 'l}            (* Branch on Less Than Equal Zero    *)
+            (* Load at the possibly-unaligned address *)
+            | Ulh             (* Unaligned Load Halfword          *)
+            | Ulhu            (* Unaligned Load Halfword Unsigned *)
+            | Ulw             (* Unaligned Load Word              *)
 
-        (* Save the address of the next instruction in register 31 *)
-        | Bgezal of {src1: 't, dest: 'l}            (* Branch on Greater Than Equal Zero And Link *)
-        | Bltzal of {src1: 't, dest: 'l}            (* Branch on Less Than Zero And Link          *)
+    and DR_SR_Inst__ =
+              Abs             (* Absolute Value                  *)
+            | Neg             (* Negate Value (with overflow)    *)
+            | Negu            (* Negate Value (without overflow) *)
+            | Not             (* NOT                             *)
+            | Move            (* Move                            *)
+            | Mfcz            (* Move From Coprocessor z         *)
+            | Mtcz            (* Move To Coprocessor z           *)
 
-        | Blt    of {src1: 't, src2: 't, dest: 'l}  (* Branch on Less Than               *)
-        | Bltu   of {src1: 't, src2: 't, dest: 'l}  (* Branch on Less Than Unsigned      *)
-        | Bltz   of {src1: 't, dest: 'l}            (* Branch on Less Than Zero          *)
-        | Bne    of {src1: 't, src2: 't, dest: 'l}  (* Branch on Not Equal               *)
-        | Bnez   of {src1: 't, dest: 'l}            (* Branch on Not Equal Zero          *)
+    and DR_SR_I_Inst__ =
+              Addi            (* Addition Immediate (with overflow) *)
+            | Addiu           (* Addition Immediate (with overflow) *)
+            | Andi            (* AND Immediate                      *)
 
-        | J      of {dest: 'l}  (* Jump                   *)
-        | Jal    of {dest: 'l}  (* Jump and Link          *)
-        | Jalr   of {dest: 't}  (* Jump and Link Register *)
-        | Jr     of {dest: 't}  (* Jump Register          *)
+            (* Put the quotient of integers from register src1 and src2 in register dest *)
+            | Div_QI          (* Divide Immediate (signed, with overflow)   *)
+            | Divu_QI         (* Divide Immediate (unsigned, with overflow) *)
 
-    (* Load Instructions *)
-        | La    of {dest: 't, src1: 'l}  (* Load Address                     *)
-        | Lb    of {dest: 't, src1: 'l}  (* Load Byte                        *)
-        | Lbu   of {dest: 't, src1: 'l}  (* Load Unsigned Byte               *)
+            | Mul_I           (* Multiply Immediate (without overflow)       *)
+            | Mulo_I          (* Multiply Immediate (with overflow)          *)
+            | Mulou_I         (* Unsigned Immediate Multiply (with overflow) *)
 
-        (* Load the 64-bit quantity at address into registers Rdest and Rdest + 1 *)
-        | Ld    of {dest: 't, src1: 'l}  (* Load Double-Word                 *)
+            | Nor_I           (* NOR Immediate *)
+            | Ori             (* OR Immediate  *)
+            | Xori            (* XOR Immediate *)
 
-        (* Load the 16-bit quantity (halfword) at address into destination register *)
-        | Lh    of {dest: 't, src1: 'l}  (* Load Halfword                    *)
-        | Lhu   of {dest: 't, src1: 'l}  (* Load Unsigned Halfword           *)
+            | Rem_I           (* Remainder Immediate          *)
+            | Remu_I          (* Unsigned Remainder Immediate *)
 
-        (* Load the 32-bit quantity (word) at address into destination register *)
-        | Lw    of {dest: 't, src1: 'l}  (* Load Word                        *)
+            | Rol_I           (* Rotate Left Immediate  *)
+            | Ror_I           (* Rotate Right Immediate *)
 
-        (* Load the 32-bit quantity (word) at address into dest. register of coprocessor z (0-3) *)
-        | Lwcz  of {dest: 't, src1: 'l}  (* Load Word Coprocessor            *)
+            | Sll_I           (* Shift Left Logical Immediate          *)
+            | Sra_I           (* Sift Right Arithmetic Immediate       *)
+            | Srl_I           (* Shift Right Logical Immediate         *)
+            | Sub_I           (* Subtract (with overflow) Immediate    *)
+            | Subu_I          (* Subtract (without overflow) Immediate *)
 
-        (* Load the left (right) bytes from the word at the possibly-unaligned address into Rdest *)
-        | Lwl   of {dest: 't, src1: 'l}  (* Load Word Left                   *)
-        | Lwr   of {dest: 't, src1: 'l}  (* Load Word Right                  *)
+        (* Comparison Instructions *)
+        (* Set register Rdest to 1 if (Rsrc1 op Rsrc2) satisfies, 0 otherwise *)
+            | Seq_I           (* Set Equal Immediate                       *)
+            | Sge_I           (* Set Greater Than Equal Immediate          *)
+            | Sgeu_I          (* Set Greater Than Equal Unsigned Immediate *)
+            | Sgt_I           (* Set Greater Than Immediate                *)
+            | Sgtu_I          (* Set Greater Than Unsigned Immediate       *)
+            | Sle_I           (* Set Less Than Equal Immediate             *)
+            | Sleu_I          (* Set Less Than Equal Unsigned Immediate    *)
+            | Slti            (* Set Less Than Immediate                   *)
+            | Sltiu           (* Set Less Than Unsigned Immediate          *)
+            | Sne_I           (* Set Not Equal Immediate                   *)
 
+    and DR_SR_SR_Inst__ =
+              Add             (* Addition (with overflow) *)
+            | Addu            (* Addition (with overflow) *)
+            | And             (* AND                      *)
 
-        | Ulh   of {dest: 't, src1: 'l}  (* Unaligned Load Halfword          *)
-        | Ulhu  of {dest: 't, src1: 'l}  (* Unaligned Load Halfword Unsigned *)
-        | Ulw   of {dest: 't, src1: 'l}  (* Unaligned Load Word              *)
+            (* Put the quotient of integers from register src1 and src2 in register dest *)
+            | Div_Q           (* Divide (signed, with overflow)   *)
+            | Divu_Q          (* Divide (unsigned, with overflow) *)
 
-    (* Store Instructions *)
-        (* Store the low byte from register Rsrc at address *)
-        | Sb   of {src1: 't, dest: 'l}  (* Store Byte               *)
+            | Mul             (* Multiply (without overflow)       *)
+            | Mulo            (* Multiply (with overflow)          *)
+            | Mulou           (* Unsigned Multiply (with overflow) *)
 
-        (* Store the 64-bit quantity in registers Rsrc and Rsrc + 1 at address *)
-        | Sd   of {src1: 't, dest: 'l}  (* Store Double-Word        *)
+            | Nor             (* NOR *)
+            | Or              (* OR  *)
+            | Xor             (* XOR *)
 
-        (* Store the low halfword/word from register Rsrc at address *)
-        | Sh   of {src1: 't, dest: 'l}  (* Store Halfword           *)
-        | Sw   of {src1: 't, dest: 'l}  (* Store Word               *)
+            | Rem             (* Remainder          *)
+            | Remu            (* Unsigned Remainder *)
 
-        (* Store the word from register Rsrc of coprocessor z at address *)
-        | Swcz of {src1: 't, dest: 'l}  (* Store Word Coprocessor   *)
+            | Rol             (* Rotate Left  *)
+            | Ror             (* Rotate Right *)
 
-        (* Store the left (right) bytes from register Rsrc at the possibly-unaligned address *)
-        | Swl  of {src1: 't, dest: 'l}  (* Store Word Left          *)
-        | Swr  of {src1: 't, dest: 'l}  (* Store Word Right         *)
+            | Sll             (* Shift Left Logical              *)
+            | Sllv            (* Shift Left Logical Variable     *)
+            | Sra             (* Sift Right Arithmetic           *)
+            | Srav            (* Shift Right Arithmetic Variable *)
+            | Srl             (* Shift Right Logical             *)
+            | Srlv            (* Shift Right Logical Variable    *)
+            | Sub             (* Subtract (with overflow)        *)
+            | Subu            (* Subtract (without overflow)     *)
 
-        (* Store the low halfword/word from register Rsrc at the possibly-unaligned address *)
-        | Ush  of {src1: 't, dest: 'l}  (* Unaligned Store Halfword *)
-        | Usw  of {src1: 't, dest: 'l}  (* Unaligned Store Word     *)
-    
-    (* Data Movement Instructions *)
-        | Move of {dest: 't, src1: 't}  (* Move         *)
-        | Mfhi of {dest: 't}            (* Move From hi *)
-        | Mflo of {dest: 't}            (* Move From lo *)
-        | Mthi of {dest: 't}            (* Move To hi   *)
-        | Mtlo of {dest: 't}            (* Move To lo   *)
+        (* Comparison Instructions *)
+        (* Set register Rdest to 1 if (Rsrc1 op Rsrc2) satisfies, 0 otherwise *)
+            | Seq             (* Set Equal                       *)
+            | Sge             (* Set Greater Than Equal          *)
+            | Sgeu            (* Set Greater Than Equal Unsigned *)
+            | Sgt             (* Set Greater Than                *)
+            | Sgtu            (* Set Greater Than Unsigned       *)
+            | Sle             (* Set Less Than Equal             *)
+            | Sleu            (* Set Less Than Equal Unsigned    *)
+            | Slt             (* Set Less Than                   *)
+            | Sltu            (* Set Less Than Unsigned          *)
+            | Sne             (* Set Not Equal                   *)
 
-    (* Exception and Trap Instructions *)
-        | Rfe      (* Return From Exception *)
-        | Syscall  (* System Call           *)
-        | Break    (* Break                 *)
-        | Nop      (* No operation          *)
+    and SR_DL_Inst__ =
+              Beqz            (* Branch on Equal Zero              *)
+            | Bgez            (* Branch on Greater Than Equal Zero *)
+            | Bgtz            (* Branch on Greater Than Zero       *)
+            | Blez            (* Branch on Less Than Equal Zero    *)
+            | Bltz            (* Branch on Less Than Zero          *)
+            | Bnez            (* Branch on Not Equal Zero          *)
+
+            (* Save the address of the next instruction in register 31 *)
+            | Bgezal          (* Branch on Greater Than Equal Zero And Link *)
+            | Bltzal          (* Branch on Less Than Zero And Link          *)
+
+        (* Store Instructions *)
+            (* Store the low byte from register Rsrc at address *)
+            | Sb              (* Store Byte *)
+
+            (* Store the 64-bit quantity in registers Rsrc and Rsrc + 1 at address *)
+            | Sd              (* Store Double-Word *)
+
+            (* Store the low halfword/word from register Rsrc at address *)
+            | Sh              (* Store Halfword *)
+            | Sw              (* Store Word     *)
+
+            (* Store the word from register Rsrc of coprocessor z at address *)
+            | Swcz            (* Store Word Coprocessor *)
+
+            (* Store the left (right) bytes from register Rsrc at the possibly-unaligned address *)
+            | Swl             (* Store Word Left  *)
+            | Swr             (* Store Word Right *)
+
+            (* Store the low halfword/word from register Rsrc at the possibly-unaligned address *)
+            | Ush             (* Unaligned Store Halfword *)
+            | Usw             (* Unaligned Store Word     *)
+
+    and SR_SR_Inst__ =
+            (*
+                Divide the contents of the two registers.
+                Leave the quotient in register `lo` and the remainder in register `hi`
+            *)
+              Div             (* Divide (signed)   *)
+            | Divu            (* Divide (unsigned) *)
+
+            (*
+                Multiply the contents of the two registers.
+                Leave the low-order word of the product in register `lo`, and
+                the high-word in register `hi`
+            *)
+            | Mult            (* Multiply          *)
+            | Multu           (* Unsigned Multiply *)
+
+    and SR_SI_DL_Inst__ =
+              Beq_I           (* Branch on Equal                 *)
+            | Bge_I           (* Branch on Greater Than Equal    *)
+            | Bgeu_I          (* Branch on GTE Unsigned          *)
+            | Bgt_I           (* Branch on Greater Than          *)
+            | Bgtu_I          (* Branch on Greater Than Unsigned *)
+            | Ble_I           (* Branch on Less Than Equal       *)
+            | Bleu_I          (* Branch on LTE Unsigned          *)
+            | Blt_I           (* Branch on Less Than             *)
+            | Bltu_I          (* Branch on Less Than Unsigned    *)
+            | Bne_I           (* Branch on Not Equal             *)
+
+    and SR_SR_DL_Inst__ =
+              Beq             (* Branch on Equal                 *)
+            | Bge             (* Branch on Greater Than Equal    *)
+            | Bgeu            (* Branch on GTE Unsigned          *)
+            | Bgt             (* Branch on Greater Than          *)
+            | Bgtu            (* Branch on Greater Than Unsigned *)
+            | Ble             (* Branch on Less Than Equal       *)
+            | Bleu            (* Branch on LTE Unsigned          *)
+            | Blt             (* Branch on Less Than             *)
+            | Bltu            (* Branch on Less Than Unsigned    *)
+            | Bne             (* Branch on Not Equal             *)
+
+    and ExceptionTrapInst__ =
+        (* Exception and Trap Instructions *)
+              (* Restore the Status register *)
+              Rfe             (* Return From Exception *)
+
+            (* Register $v0 contains the system call number provided by SPIM *)
+            | Syscall         (* System Call *)
+
+            (* Cause exception n. Exception 1 is reserved for the debugger. *)
+            | Break of int    (* Break *)
+
+            (* Do nothing *)
+            | Nop             (* No operation *)
+
 
     (* Assembler Directives of the MIPS machine*)
     datatype Directive =
-            Align    of int
+              Align  of int
             | Ascii  of string
             | Asciiz of string
             | Byte   of int list
@@ -218,210 +323,321 @@ struct
             | Word   of int list
 
     (* Statements of the MIPS machine: the instructions and the assembler directives *)
-    datatype ('l, 't) Stmt = Inst of ('l, 't) Instruction
+    datatype ('l, 't) Stmt =  Inst of ('l, 't) Instruction
                             | Dir of Directive
 
-    
-    (* Prints the registers *)
-    fun prReg (reg : Reg) : string = case reg of
-                      ZERO => "$zero"
-                    | AT   => "$at"
-                    | V0   => "$v0"
-                    | V1   => "$v1"
-                    | A0   => "$a0"
-                    | A1   => "$a1"
-                    | A2   => "$a2"
-                    | A3   => "$a3"
-                    | T0   => "$t0"
-                    | T1   => "$t1"
-                    | T2   => "$t2"
-                    | T3   => "$t3"
-                    | T4   => "$t4"
-                    | T5   => "$t5"
-                    | T6   => "$t6"
-                    | T7   => "$t7"
-                    | T8   => "$t8"
-                    | T9   => "$t9"
-                    | S0   => "$s0"
-                    | S1   => "$s1"
-                    | S2   => "$s2"
-                    | S3   => "$s3"
-                    | S4   => "$s4"
-                    | S5   => "$s5"
-                    | S6   => "$s6"
-                    | S7   => "$s7"
-                    | K0   => "$k0"
-                    | K1   => "$k1"
-                    | GP   => "$gp"
-                    | SP   => "$sp"
-                    | FP   => "$fp"
-                    | RA   => "$ra"
+
+    (* Prints the register *)
+    fun printReg (reg : Reg) : string =
+        let
+            val strReg = case reg of
+                  ZERO => "zero"
+                | AT   => "at"
+                | V0   => "v0"
+                | V1   => "v1"
+                | A0   => "a0"
+                | A1   => "a1"
+                | A2   => "a2"
+                | A3   => "a3"
+                | T0   => "t0"
+                | T1   => "t1"
+                | T2   => "t2"
+                | T3   => "t3"
+                | T4   => "t4"
+                | T5   => "t5"
+                | T6   => "t6"
+                | T7   => "t7"
+                | T8   => "t8"
+                | T9   => "t9"
+                | S0   => "s0"
+                | S1   => "s1"
+                | S2   => "s2"
+                | S3   => "s3"
+                | S4   => "s4"
+                | S5   => "s5"
+                | S6   => "s6"
+                | S7   => "s7"
+                | K0   => "k0"
+                | K1   => "k1"
+                | GP   => "gp"
+                | SP   => "sp"
+                | FP   => "fp"
+                | RA   => "ra"
+        in
+            "$" ^ strReg
+        end
 
     (* Prints the immediate value *)
-    fun prImm (imm : Imm) : string = Int.toString imm
+    fun printImm (imm : Imm) : string = Int.toString imm
 
     (*=========================================================================================*)
     (* Utility functions for printing different types of records based on input *)
-    fun prRecordDS (r: {dest: Reg, src1: Reg}) = (prReg (#dest r)) ^ "," ^ (prReg (#src1 r))
-    fun prRecordDSL (r: {dest: Reg, src1: string}) = (prReg (#dest r)) ^ "," ^ (#src1 r)
-
-    fun prRecordDSS (r : {dest: Reg, src1: Reg, src2: Reg}) = (prReg (#dest r)) ^ "," ^ (prReg (#src1 r)) ^ "," ^ (prReg (#src2 r))
-    fun prRecordDSI (r: {dest: Reg, src1: Reg, imm: Imm}) = (prReg (#dest r)) ^ "," ^ (prReg (#src1 r)) ^ "," ^ (prImm (#imm r))
-    fun prRecordDI (r: {dest: Reg, imm: Imm}) = (prReg (#dest r)) ^ "," ^ (prImm (#imm r))
-    fun prRecordSS (r: {src1: Reg, src2: Reg}) = (prReg (#src1 r)) ^ "," ^ (prReg (#src2 r))
-
-    fun prRecordD (r: {dest: Reg}) = (prReg (#dest r))
-    fun prRecordDL (r: {dest: string}) = (#dest r)
-    
-    fun prRecordSDL (r: {src1: Reg, dest: string}) = (prReg (#src1 r)) ^ "," ^ (#dest r)
-    fun prRecordSSDL (r: {src1: Reg, src2: Reg, dest: string}) = (prReg (#src1 r)) ^ "," ^ (prReg (#src2 r)) ^ "," ^ (#dest r)
+    fun printRecDL (r: (string, Reg) DL) : string = (#dest r)
+    fun printRecDR (r: (string, Reg) DR) : string = (printReg (#dest r))
+    fun printRecDR_I (r: (string, Reg) DR_I) : string = (printReg (#dest r)) ^ ", " ^ (printImm (#imm r))
+    fun printRecDR_SL (r: (string, Reg) DR_SL) : string = (printReg (#dest r)) ^ ", " ^ (#src1 r)
+    fun printRecDR_SR (r: (string, Reg) DR_SR) : string = (printReg (#dest r)) ^ ", " ^ (printReg (#src1 r))
+    fun printRecDR_SR_I (r: (string, Reg) DR_SR_I) : string = (printReg (#dest r)) ^ ", " ^ (printReg (#src1 r)) ^ ", " ^ (printImm (#imm r))
+    fun printRecDR_SR_SR (r: (string, Reg) DR_SR_SR) : string = (printReg (#dest r)) ^ ", " ^ (printReg (#src1 r)) ^ ", " ^ (printReg (#src2 r))
+    fun printRecSR_DL (r: (string, Reg) SR_DL) : string = (printReg (#src1 r)) ^ ", " ^ (#dest r)
+    fun printRecSR_SR (r: (string, Reg) SR_SR) : string = (printReg (#src1 r)) ^ ", " ^ (printReg (#src2 r))
+    fun printRecSR_SI_DL (r: (string, Reg) SR_SI_DL) : string = (printReg (#src1 r)) ^ ", " ^ (printImm (#imm r)) ^ ", " ^ (#dest r)
+    fun printRecSR_SR_DL (r: (string, Reg) SR_SR_DL) : string = (printReg (#src1 r)) ^ ", " ^ (printReg (#src2 r)) ^ ", " ^ (#dest r)
     (*=========================================================================================*)
 
     (* Print the instructions when the labels are strings and registers are actual MIPS registers *)
-    fun prInst (inst : (string, Reg) Instruction) = case inst of
-    (* Arithmetic Instructions *)
-        Abs r      => "abs " ^ (prRecordDS r)
-        | Add r    => "add " ^ (prRecordDSS r)
-        | Addi r   => "addi " ^ (prRecordDSI r)
-        | Addu r   => "addu " ^ (prRecordDSS r)
-        | Addiu r  => "addiu " ^ (prRecordDSI r)
-        | And r    => "and " ^ (prRecordDSS r)
-        | Andi r   => "andi " ^ (prRecordDSI r)
-        | Div r    => "div " ^ (prRecordSS r)
-        | Divu r   => "divu " ^ (prRecordSS r)
-        | Divq r   => "div " ^ (prRecordDSS r)
-        | Divuq r  => "divu " ^ (prRecordDSS r)
-        | Mul r    => "mul " ^ (prRecordDSS r)
-        | Mulo r   => "mulo " ^ (prRecordDSS r)
-        | Mulou r  => "mulou " ^ (prRecordDSS r)
-        | Mult r   => "mult " ^ (prRecordSS r)
-        | Multu r  => "multu " ^ (prRecordSS r)
-        | Neg r    => "neg " ^ (prRecordDS r)
-        | Negu r   => "negu " ^ (prRecordDS r)
-        | Nor r    => "nor " ^ (prRecordDSS r)
-        | Not r    => "not " ^ (prRecordDS r)
-        | Or r     => "or " ^ (prRecordDSS r)
-        | Ori r    => "ori " ^ (prRecordDSI r)
-        | Rem r    => "rem " ^ (prRecordDSS r)
-        | Remu r   => "remu " ^ (prRecordDSS r)
-        | Rol r    => "rol " ^ (prRecordDSS r)
-        | Ror r    => "ror " ^ (prRecordDSS r)
-        | Sll r    => "sll " ^ (prRecordDSS r)
-        | Sllv r   => "sllv " ^ (prRecordDSS r)
-        | Sra r    => "sra " ^ (prRecordDSS r)
-        | Srav r   => "srav " ^ (prRecordDSS r)
-        | Srl r    => "srl " ^ (prRecordDSS r)
-        | Srlv r   => "srlv " ^ (prRecordDSS r)
-        | Sub r    => "sub " ^ (prRecordDSS r)
-        | Subu r   => "subu " ^ (prRecordDSS r)
-        | Xor r    => "xor " ^ (prRecordDSS r)
-        | Xori r   => "xori " ^ (prRecordDSI r)
-    (*Constant-Manipulation Instructions *)
-        | Li r     => "li " ^ (prRecordDI r)
-        | Lui r    => "lui " ^ (prRecordDI r)
-    (*Comparison Instructions*)
-        | Seq r    => "seq " ^ (prRecordDSS r)
-        | Sge r    => "sge " ^ (prRecordDSS r)
-        | Sgeu r   => "sgeu " ^ (prRecordDSS r)
-        | Sgt r    => "sgt " ^ (prRecordDSS r)
-        | Sgtu r   => "sgtu " ^ (prRecordDSS r)
-        | Sle r    => "sle " ^ (prRecordDSS r)
-        | Sleu r   => "sleu " ^ (prRecordDSS r)
-        | Slt r    => "slt " ^ (prRecordDSS r)
-        | Slti r   => "slti " ^ (prRecordDSI r)
-        | Sltu r   => "sltu " ^ (prRecordDSS r)
-        | Sltiu r  => "sltiu " ^ (prRecordDSI r)
-        | Sne r    => "sne " ^ (prRecordDSS r)
-    (*Branch and Jump Instructions*)
-        | B r      => "b " ^ (prRecordDL r)
-        | Bczt r   => "bczt " ^ (prRecordDL r)
-        | Bczf r   => "bczf " ^ (prRecordDL r)
-        | Beq r    => "beq " ^ (prRecordSSDL r)
-        | Beqz r   => "beqz " ^ (prRecordSDL r)
-        | Bge r    => "bge " ^ (prRecordSSDL r)
-        | Bgeu r   => "bgeu " ^ (prRecordSSDL r)
-        | Bgez r   => "bgez " ^ (prRecordSDL r)
-        | Bgt r    => "bgt " ^ (prRecordSSDL r)
-        | Bgtu r   => "bgtu " ^ (prRecordSSDL r)
-        | Bgtz r   => "bgtz " ^ (prRecordSDL r)
-        | Ble r    => "ble " ^ (prRecordSSDL r)
-        | Bleu r   => "bleu " ^ (prRecordSSDL r)
-        | Blez r   => "blez " ^ (prRecordSDL r)
-        | Bgezal r => "bgezal " ^ (prRecordSDL r)
-        | Bltzal r => "bltzal " ^ (prRecordSDL r)
-        | Blt r    => "blt " ^ (prRecordSSDL r)
-        | Bltu r   => "bltu " ^ (prRecordSSDL r)
-        | Bltz r   => "bltz " ^ (prRecordSDL r)
-        | Bne r    => "bne " ^ (prRecordSSDL r)
-        | Bnez r   => "bnez " ^ (prRecordSDL r)
-        | J r      => "j " ^ (prRecordDL r)
-        | Jal r    => "jal " ^ (prRecordDL r)
-        | Jalr r   => "jalr " ^ (prRecordD r)
-        | Jr r     => "jr " ^ (prRecordD r)
-    (* Load Instructions *)
-        | La r     => "la " ^ (prRecordDSL r)
-        | Lb r     => "lb " ^ (prRecordDSL r)
-        | Lbu r    => "lbu " ^ (prRecordDSL r)
-        | Ld r     => "ld " ^ (prRecordDSL r)
-        | Lh r     => "lh " ^ (prRecordDSL r)
-        | Lhu r    => "lhu " ^ (prRecordDSL r)
-        | Lw r     => "lw " ^ (prRecordDSL r)
-        | Lwcz r   => "lwcz " ^ (prRecordDSL r)
-        | Lwl r    => "lwl " ^ (prRecordDSL r)
-        | Lwr r    => "lwr " ^ (prRecordDSL r)
-        | Ulh r    => "ulh " ^ (prRecordDSL r)
-        | Ulhu r   => "ulhu " ^ (prRecordDSL r)
-        | Ulw r    => "ulw " ^ (prRecordDSL r)
-    (* Store Instructions *)
-        | Sb r     => "sb " ^ (prRecordSDL r)
-        | Sd r     => "sd " ^ (prRecordSDL r)
-        | Sh r     => "sh " ^ (prRecordSDL r)
-        | Sw r     => "sw " ^ (prRecordSDL r)
-        | Swcz r   => "swcz " ^ (prRecordSDL r)
-        | Swl r    => "swl " ^ (prRecordSDL r)
-        | Swr r    => "swr " ^ (prRecordSDL r)
-        | Ush r    => "ush " ^ (prRecordSDL r)
-        | Usw r    => "usw " ^ (prRecordSDL r)
-    (* Data Movement Instructions *)
-        | Move r   => "move " ^ (prRecordDS r)
-        | Mfhi r   => "mfhi " ^ (prRecordD r)
-        | Mflo r   => "mflo " ^ (prRecordD r)
-        | Mthi r   => "mthi " ^ (prRecordD r)
-        | Mtlo r   => "mtlo " ^ (prRecordD r)
-    (* Exception and Trap Instructions *)
-        | Rfe      => "rfe"
-        | Syscall  => "syscall"
-        | Break    => "break"
-        | Nop      => "nop"
+    fun printInst (inst : (string, Reg) Instruction) = case inst of
+        DL_Inst (i: DL_Inst__, r: (string, Reg) DL) =>
+            let
+                val iStr = case i of
+                      B    => "b"
+                    | Bczt => "bczt"
+                    | Bczf => "bczf"
+                    | J    => "j"
+                    | Jal  => "jal"
+            in
+                iStr ^ " " ^ (printRecDL r)
+            end
 
-        
+        | DR_Inst (i: DR_Inst__, r: (string, Reg) DR) =>
+            let
+                val iStr = case i of
+                      Jalr => "jalr"
+                    | Jr   => "jr"
+                    | Mfhi => "mfhi"
+                    | Mflo => "mflo"
+                    | Mthi => "mthi"
+                    | Mtlo => "mtlo"
+            in
+                iStr ^ " " ^ (printRecDR r)
+            end
+
+        | DR_I_Inst (i: DR_I_Inst__, r: (string, Reg) DR_I) =>
+            let
+                val iStr = case i of
+                      Li  => "li"
+                    | Lui => "lui"
+            in
+                iStr ^ " " ^ (printRecDR_I r)
+            end
+
+        | DR_SL_Inst (i: DR_SL_Inst__, r: (string, Reg) DR_SL) =>
+            let
+                val iStr = case i of
+                      La   => "la"
+                    | Lb   => "lb"
+                    | Lbu  => "lbu"
+                    | Ld   => "ld"
+                    | Lh   => "lh"
+                    | Lhu  => "lhu"
+                    | Lw   => "lw"
+                    | Lwcz => "lwcz"
+                    | Lwl  => "lwl"
+                    | Lwr  => "lwr"
+                    | Ulh  => "ulh"
+                    | Ulhu => "ulhu"
+                    | Ulw  => "ulw"
+            in
+                iStr ^ " " ^ (printRecDR_SL r)
+            end
+
+        | DR_SR_Inst (i: DR_SR_Inst__, r: (string, Reg) DR_SR) =>
+            let
+                val iStr = case i of
+                      Abs  => "abs"
+                    | Neg  => "neg"
+                    | Negu => "negu"
+                    | Not  => "not"
+                    | Move => "move"
+                    | Mfcz => "mfcz"
+                    | Mtcz => "mtcz"
+            in
+                iStr ^ " " ^ (printRecDR_SR r)
+            end
+
+        | DR_SR_I_Inst (i: DR_SR_I_Inst__, r: (string, Reg) DR_SR_I) =>
+            let
+                val iStr = case i of
+                      Addi    => "addi"
+                    | Addiu   => "addiu"
+                    | Andi    => "andi"
+                    | Div_QI  => "div"
+                    | Divu_QI => "divu"
+                    | Mul_I   => "mul"
+                    | Mulo_I  => "mulo"
+                    | Mulou_I => "mulou"
+                    | Nor_I   => "nor"
+                    | Ori     => "ori"
+                    | Xori    => "xori"
+                    | Rem_I   => "rem"
+                    | Remu_I  => "remu"
+                    | Rol_I   => "rol"
+                    | Ror_I   => "ror"
+                    | Sll_I   => "sll"
+                    | Sra_I   => "sra"
+                    | Srl_I   => "srl"
+                    | Sub_I   => "sub"
+                    | Subu_I  => "subu"
+                    | Seq_I   => "seq"
+                    | Sge_I   => "sge"
+                    | Sgeu_I  => "sgeu"
+                    | Sgt_I   => "sgt"
+                    | Sgtu_I  => "sgtu"
+                    | Sle_I   => "sle"
+                    | Sleu_I  => "sleu"
+                    | Slti    => "slti"
+                    | Sltiu   => "sltiu"
+                    | Sne_I   => "sne"
+            in
+                iStr ^ " " ^ (printRecDR_SR_I r)
+            end
+
+        | DR_SR_SR_Inst (i: DR_SR_SR_Inst__, r: (string, Reg) DR_SR_SR) =>
+            let
+                val iStr = case i of
+                      Add   => "add"
+                    | Addu  => "addu"
+                    | And   => "and"
+                    | Div_Q => "div"
+                    | Divu_Q=> "divu"
+                    | Mul   => "mul"
+                    | Mulo  => "mulo"
+                    | Mulou => "mulou"
+                    | Nor   => "nor"
+                    | Or    => "or"
+                    | Xor   => "xor"
+                    | Rem   => "rem"
+                    | Remu  => "remu"
+                    | Rol   => "rol"
+                    | Ror   => "ror"
+                    | Sll   => "sll"
+                    | Sllv  => "sllv"
+                    | Sra   => "sra"
+                    | Srav  => "srav"
+                    | Srl   => "srl"
+                    | Srlv  => "srlv"
+                    | Sub   => "sub"
+                    | Subu  => "subu"
+                    | Seq   => "seq"
+                    | Sge   => "sge"
+                    | Sgeu  => "sgeu"
+                    | Sgt   => "sgt"
+                    | Sgtu  => "sgtu"
+                    | Sle   => "sle"
+                    | Sleu  => "sleu"
+                    | Slt   => "slt"
+                    | Sltu  => "sltu"
+                    | Sne   => "sne"
+            in
+                iStr ^ " " ^ (printRecDR_SR_SR r)
+            end
+
+        | SR_DL_Inst (i: SR_DL_Inst__, r: (string, Reg) SR_DL) =>
+            let
+                val iStr = case i of
+                      Beqz   => "beqz"
+                    | Bgez   => "bgez"
+                    | Bgtz   => "bgtz"
+                    | Blez   => "blez"
+                    | Bltz   => "bltz"
+                    | Bnez   => "bnez"
+                    | Bgezal => "bgezal"
+                    | Bltzal => "bltzal"
+                    | Sb     => "sb"
+                    | Sd     => "sd"
+                    | Sh     => "sh"
+                    | Sw     => "sw"
+                    | Swcz   => "swcz"
+                    | Swl    => "swl"
+                    | Swr    => "swr"
+                    | Ush    => "ush"
+                    | Usw    => "usw"
+            in
+                iStr ^ " " ^ (printRecSR_DL r)
+            end
+
+        | SR_SR_Inst (i: SR_SR_Inst__, r: (string, Reg) SR_SR) =>
+            let
+                val iStr = case i of
+                      Div   => "div"
+                    | Divu  => "divu"
+                    | Mult  => "mult"
+                    | Multu => "multu"
+            in
+                iStr ^ " " ^ (printRecSR_SR r)
+            end
+
+        | SR_SI_DL_Inst (i: SR_SI_DL_Inst__, r: (string, Reg) SR_SI_DL) =>
+            let
+                val iStr = case i of
+                      Beq_I  => "beq"
+                    | Bge_I  => "bge"
+                    | Bgeu_I => "bgeu"
+                    | Bgt_I  => "bgt"
+                    | Bgtu_I => "bgtu"
+                    | Ble_I  => "ble"
+                    | Bleu_I => "bleu"
+                    | Blt_I  => "blt"
+                    | Bltu_I => "bltu"
+                    | Bne_I  => "bne"
+            in
+                iStr ^ " " ^ (printRecSR_SI_DL r)
+            end
+
+        | SR_SR_DL_Inst (i: SR_SR_DL_Inst__, r: (string, Reg) SR_SR_DL) =>
+            let
+                val iStr = case i of
+                      Beq  => "beq"
+                    | Bge  => "bge"
+                    | Bgeu => "bgeu"
+                    | Bgt  => "bgt"
+                    | Bgtu => "bgtu"
+                    | Ble  => "ble"
+                    | Bleu => "bleu"
+                    | Blt  => "blt"
+                    | Bltu => "bltu"
+                    | Bne  => "bne"
+            in
+                iStr ^ " " ^ (printRecSR_SR_DL r)
+            end
+
+        | ExceptionTrapInst (i: ExceptionTrapInst__) =>
+            case i of
+                  Rfe     => "rfe"
+                | Syscall => "syscall"
+                | Break n => "break " ^ (Int.toString n)
+                | Nop     => "nop"
 
     (* Converts the given list of integers to comma separated list of string values *)
     fun intListToCSVString ([] : int list) : string = ""
       | intListToCSVString ([x]: int list) : string = Int.toString x
       | intListToCSVString (x :: xs) : string = (Int.toString x) ^ ", " ^ (intListToCSVString xs)
-    
-    (* Prints the assembler directives *)
-    fun prDir (dir : Directive) : string = case dir of
-            Align    i => ".align " ^ (Int.toString i)
-            | Ascii  s => ".a.scii " ^ s
-            | Asciiz s => ".asciiz " ^ s
-            | Byte   l => ".byte " ^ (intListToCSVString l)
-            | Data     => ".data"
-            | Extern r => ".extern " ^ (#sym r) ^ " " ^ (Int.toString (#size r))
-            | Globl  s => ".globl " ^ s
-            | Half   l => ".half " ^ (intListToCSVString l)
-            | Kdata    => ".kdata"
-            | Ktext    => ".ktext"
-            | Space  i => ".space " ^ (Int.toString i)
-            | Text     => ".text"
-            | Word   l => ".word " ^ (intListToCSVString l)
+
+    (* Prints the assembler directive *)
+    fun printDir (dir : Directive) : string =
+        let
+            val strDir = case dir of
+                  Align  i => "align "  ^ (Int.toString i)
+                | Ascii  s => "ascii " ^ s
+                | Asciiz s => "asciiz " ^ s
+                | Byte   l => "byte "   ^ (intListToCSVString l)
+                | Data     => "data"
+                | Extern r => "extern " ^ (#sym r) ^ " " ^ (Int.toString (#size r))
+                | Globl  s => "globl "  ^ s
+                | Half   l => "half "   ^ (intListToCSVString l)
+                | Kdata    => "kdata"
+                | Ktext    => "ktext"
+                | Space  i => "space "  ^ (Int.toString i)
+                | Text     => "text"
+                | Word   l => "word "   ^ (intListToCSVString l)
+        in
+            "." ^ strDir
+        end
 
     (* Prints the statement *)
-    fun prStmt (stm : (string, Reg) Stmt) : string = case stm of
-            Inst  i => (prInst i)
-            | Dir d => (prDir d)
-    
-    (* Prints the list of statements *)
+    fun printStmt (stm : (string, Reg) Stmt) : string =
+        case stm of
+              Inst i => (printInst i)
+            | Dir  d => (printDir d)
 
 end
