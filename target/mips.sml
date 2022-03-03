@@ -43,7 +43,7 @@ struct
     type ('l, 't) DR_SR_SR = {dest: 't, src1: 't, src2: 't}
     type ('l, 't) SR_DL    = {src1: 't, dest: 'l}
     type ('l, 't) SR_SR    = {src1: 't, src2: 't}
-    type ('l, 't) SR_I_DL = {src1: 't, imm: Imm, dest: 'l}
+    type ('l, 't) SR_I_DL  = {src1: 't, imm: Imm, dest: 'l}
     type ('l, 't) SR_SR_DL = {src1: 't, src2: 't, dest: 'l}
 
     datatype ('l, 't) Instruction =
@@ -56,7 +56,7 @@ struct
             | DR_SR_SR_Inst     of DR_SR_SR_Inst__ * (('l, 't) DR_SR_SR)
             | SR_DL_Inst        of SR_DL_Inst__    * (('l, 't) SR_DL   )
             | SR_SR_Inst        of SR_SR_Inst__    * (('l, 't) SR_SR   )
-            | SR_I_DL_Inst     of SR_I_DL_Inst__ * (('l, 't) SR_I_DL)
+            | SR_I_DL_Inst      of SR_I_DL_Inst__  * (('l, 't) SR_I_DL)
             | SR_SR_DL_Inst     of SR_SR_DL_Inst__ * (('l, 't) SR_SR_DL)
             | ExceptionTrapInst of ExceptionTrapInst__
 
