@@ -43,7 +43,7 @@ struct
     type ('l, 't) DR_SR_SR = {dest: 't, src1: 't, src2: 't}
     type ('l, 't) SR_DL    = {src1: 't, dest: 'l}
     type ('l, 't) SR_SR    = {src1: 't, src2: 't}
-    type ('l, 't) SR_SI_DL = {src1: 't, imm: Imm, dest: 'l}
+    type ('l, 't) SR_I_DL = {src1: 't, imm: Imm, dest: 'l}
     type ('l, 't) SR_SR_DL = {src1: 't, src2: 't, dest: 'l}
 
     datatype ('l, 't) Instruction =
@@ -56,7 +56,7 @@ struct
             | DR_SR_SR_Inst     of DR_SR_SR_Inst__ * (('l, 't) DR_SR_SR)
             | SR_DL_Inst        of SR_DL_Inst__    * (('l, 't) SR_DL   )
             | SR_SR_Inst        of SR_SR_Inst__    * (('l, 't) SR_SR   )
-            | SR_SI_DL_Inst     of SR_SI_DL_Inst__ * (('l, 't) SR_SI_DL)
+            | SR_I_DL_Inst     of SR_I_DL_Inst__ * (('l, 't) SR_I_DL)
             | SR_SR_DL_Inst     of SR_SR_DL_Inst__ * (('l, 't) SR_SR_DL)
             | ExceptionTrapInst of ExceptionTrapInst__
 
@@ -267,7 +267,7 @@ struct
             | Mult            (* Multiply          *)
             | Multu           (* Unsigned Multiply *)
 
-    and SR_SI_DL_Inst__ =
+    and SR_I_DL_Inst__ =
               Beq_I           (* Branch on Equal                 *)
             | Bge_I           (* Branch on Greater Than Equal    *)
             | Bgeu_I          (* Branch on GTE Unsigned          *)
@@ -326,8 +326,88 @@ struct
     datatype ('l, 't) Stmt =  Inst of ('l, 't) Instruction
                             | Dir of Directive
 
+    (*=========================================================================================*)
+    (* Utility functions for mapping different types of records based on input *)
+    fun mapRecDL       (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DL)       : ('lp, 'tp) DL =
+        {dest = f (#dest r)}
+
+    fun mapRecDR       (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DR)       : ('lp, 'tp) DR       =
+        {dest = g (#dest r)}
+
+    fun mapRecDR_I     (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DR_I)     : ('lp, 'tp) DR_I     =
+        {dest = g (#dest r), imm = #imm r}
+
+    fun mapRecDR_SL    (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DR_SL)    : ('lp, 'tp) DR_SL    =
+        {dest = g (#dest r), src1 = f (#src1 r)}
+
+    fun mapRecDR_SR    (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DR_SR)    : ('lp, 'tp) DR_SR    =
+        {dest = g (#dest r), src1 = g (#src1 r)}
+
+    fun mapRecDR_SR_I  (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DR_SR_I)  : ('lp, 'tp) DR_SR_I  =
+        {dest = g (#dest r), src1 = g (#src1 r), imm = #imm r}
+
+    fun mapRecDR_SR_SR (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DR_SR_SR) : ('lp, 'tp) DR_SR_SR =
+        {dest = g (#dest r), src1 = g (#src1 r), src2 = g (#src2 r)}
+
+    fun mapRecSR_DL    (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) SR_DL)    : ('lp, 'tp) SR_DL    =
+        {src1 = g (#src1 r), dest = f (#dest r)}
+
+    fun mapRecSR_SR    (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) SR_SR)    : ('lp, 'tp) SR_SR    =
+        {src1 = g (#src1 r), src2 = g (#src2 r)}
+
+    fun mapRecSR_I_DL  (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) SR_I_DL)  : ('lp, 'tp) SR_I_DL  =
+        {src1 = g (#src1 r), imm = #imm r, dest = f (#dest r)}
+
+    fun mapRecSR_SR_DL (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) SR_SR_DL) : ('lp, 'tp) SR_SR_DL =
+        {src1 = g (#src1 r), src2 = g (#src2 r), dest = f (#dest r)}
+    (*=========================================================================================*)
+
+    (* mapInst: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Instruction -> ('lp, 'tp) Instruction *)
+    fun mapInst (f: 'l -> 'lp) (g: 't -> 'tp) (inst: ('l, 't) Instruction) = case inst of
+          DL_Inst         (i: DL_Inst__,         r: ('l, 't) DL)       =>
+                DL_Inst (i, mapRecDL f g r)
+
+        | DR_Inst         (i: DR_Inst__,         r: ('l, 't) DR)       =>
+                DR_Inst (i, mapRecDR f g r)
+
+        | DR_I_Inst        (i: DR_I_Inst__,      r: ('l, 't) DR_I)     =>
+                DR_I_Inst (i, mapRecDR_I f g r)
+
+        | DR_SL_Inst        (i: DR_SL_Inst__,    r: ('l, 't) DR_SL)    =>
+                DR_SL_Inst (i, mapRecDR_SL f g r)
+
+        | DR_SR_Inst        (i: DR_SR_Inst__,    r: ('l, 't) DR_SR)    =>
+                DR_SR_Inst (i, mapRecDR_SR f g r)
+
+        | DR_SR_I_Inst      (i: DR_SR_I_Inst__,  r: ('l, 't) DR_SR_I)  =>
+                DR_SR_I_Inst (i, mapRecDR_SR_I f g r)
+
+        | DR_SR_SR_Inst     (i: DR_SR_SR_Inst__, r: ('l, 't) DR_SR_SR) =>
+                DR_SR_SR_Inst (i, mapRecDR_SR_SR f g r)
+
+        | SR_DL_Inst        (i: SR_DL_Inst__,    r: ('l, 't) SR_DL)    =>
+                SR_DL_Inst (i, mapRecSR_DL f g r)
+
+        | SR_SR_Inst        (i: SR_SR_Inst__,    r: ('l, 't) SR_SR)    =>
+                SR_SR_Inst (i, mapRecSR_SR f g r)
+
+        | SR_I_DL_Inst      (i: SR_I_DL_Inst__,  r: ('l, 't) SR_I_DL)  =>
+                SR_I_DL_Inst (i, mapRecSR_I_DL f g r)
+
+        | SR_SR_DL_Inst     (i: SR_SR_DL_Inst__, r: ('l, 't) SR_SR_DL) =>
+                SR_SR_DL_Inst (i, mapRecSR_SR_DL f g r)
+
+        | ExceptionTrapInst (i: ExceptionTrapInst__)               =>
+                ExceptionTrapInst i
+
+    (* mapStmt: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Stmt -> ('lp, 'tp) Stmt *)
+    fun mapStmt (f: 'l -> 'lp) (g: 't -> 'tp) (stmt: ('l, 't) Stmt) =
+        case stmt of
+              Inst i => Inst (mapInst f g i)
+            | Dir d => Dir d
 
     (* Prints the register *)
+    (* printReg: Reg -> string *)
     fun printReg (reg : Reg) : string =
         let
             val strReg = case reg of
@@ -368,26 +448,49 @@ struct
         end
 
     (* Prints the immediate value *)
+    (* printImm: Imm -> string *)
     fun printImm (imm : Imm) : string = Int.toString imm
 
     (*=========================================================================================*)
     (* Utility functions for printing different types of records based on input *)
-    fun printRecDL (r: (string, Reg) DL) : string = (#dest r)
-    fun printRecDR (r: (string, Reg) DR) : string = (printReg (#dest r))
-    fun printRecDR_I (r: (string, Reg) DR_I) : string = (printReg (#dest r)) ^ ", " ^ (printImm (#imm r))
-    fun printRecDR_SL (r: (string, Reg) DR_SL) : string = (printReg (#dest r)) ^ ", " ^ (#src1 r)
-    fun printRecDR_SR (r: (string, Reg) DR_SR) : string = (printReg (#dest r)) ^ ", " ^ (printReg (#src1 r))
-    fun printRecDR_SR_I (r: (string, Reg) DR_SR_I) : string = (printReg (#dest r)) ^ ", " ^ (printReg (#src1 r)) ^ ", " ^ (printImm (#imm r))
-    fun printRecDR_SR_SR (r: (string, Reg) DR_SR_SR) : string = (printReg (#dest r)) ^ ", " ^ (printReg (#src1 r)) ^ ", " ^ (printReg (#src2 r))
-    fun printRecSR_DL (r: (string, Reg) SR_DL) : string = (printReg (#src1 r)) ^ ", " ^ (#dest r)
-    fun printRecSR_SR (r: (string, Reg) SR_SR) : string = (printReg (#src1 r)) ^ ", " ^ (printReg (#src2 r))
-    fun printRecSR_SI_DL (r: (string, Reg) SR_SI_DL) : string = (printReg (#src1 r)) ^ ", " ^ (printImm (#imm r)) ^ ", " ^ (#dest r)
-    fun printRecSR_SR_DL (r: (string, Reg) SR_SR_DL) : string = (printReg (#src1 r)) ^ ", " ^ (printReg (#src2 r)) ^ ", " ^ (#dest r)
+    fun printRecDL       (r: (string, string) DL)       =
+        (#dest r)
+
+    fun printRecDR       (r: (string, string) DR)       =
+        (#dest r)
+
+    fun printRecDR_I     (r: (string, string) DR_I)     =
+        (#dest r) ^ ", " ^ (printImm (#imm r))
+
+    fun printRecDR_SL    (r: (string, string) DR_SL)    =
+        (#dest r) ^ ", " ^ (#src1 r)
+
+    fun printRecDR_SR    (r: (string, string) DR_SR)    =
+        (#dest r) ^ ", " ^ (#src1 r)
+
+    fun printRecDR_SR_I  (r: (string, string) DR_SR_I)  =
+        (#dest r) ^ ", " ^ (#src1 r) ^ ", " ^ (printImm (#imm r))
+
+    fun printRecDR_SR_SR (r: (string, string) DR_SR_SR) =
+        (#dest r) ^ ", " ^ (#src1 r) ^ ", " ^ (#src2 r)
+
+    fun printRecSR_DL    (r: (string, string) SR_DL)    =
+        (#src1 r) ^ ", " ^ (#dest r)
+
+    fun printRecSR_SR    (r: (string, string) SR_SR)    =
+        (#src1 r) ^ ", " ^ (#src2 r)
+
+    fun printRecSR_I_DL  (r: (string, string) SR_I_DL)  =
+        (#src1 r) ^ ", " ^ (printImm (#imm r)) ^ ", " ^ (#dest r)
+
+    fun printRecSR_SR_DL (r: (string, string) SR_SR_DL) =
+        (#src1 r) ^ ", " ^ (#src2 r) ^ ", " ^ (#dest r)
     (*=========================================================================================*)
 
-    (* Print the instructions when the labels are strings and registers are actual MIPS registers *)
-    fun printInst (inst : (string, Reg) Instruction) = case inst of
-        DL_Inst (i: DL_Inst__, r: (string, Reg) DL) =>
+    (* Prints the instruction *)
+    (* printInst: (string, string) Instruction -> string *)
+    fun printInst (inst : (string, string) Instruction) = case inst of
+        DL_Inst (i: DL_Inst__, r: (string, string) DL) =>
             let
                 val iStr = case i of
                       B    => "b"
@@ -399,7 +502,7 @@ struct
                 iStr ^ " " ^ (printRecDL r)
             end
 
-        | DR_Inst (i: DR_Inst__, r: (string, Reg) DR) =>
+        | DR_Inst (i: DR_Inst__, r: (string, string) DR) =>
             let
                 val iStr = case i of
                       Jalr => "jalr"
@@ -412,7 +515,7 @@ struct
                 iStr ^ " " ^ (printRecDR r)
             end
 
-        | DR_I_Inst (i: DR_I_Inst__, r: (string, Reg) DR_I) =>
+        | DR_I_Inst (i: DR_I_Inst__, r: (string, string) DR_I) =>
             let
                 val iStr = case i of
                       Li  => "li"
@@ -421,7 +524,7 @@ struct
                 iStr ^ " " ^ (printRecDR_I r)
             end
 
-        | DR_SL_Inst (i: DR_SL_Inst__, r: (string, Reg) DR_SL) =>
+        | DR_SL_Inst (i: DR_SL_Inst__, r: (string, string) DR_SL) =>
             let
                 val iStr = case i of
                       La   => "la"
@@ -441,7 +544,7 @@ struct
                 iStr ^ " " ^ (printRecDR_SL r)
             end
 
-        | DR_SR_Inst (i: DR_SR_Inst__, r: (string, Reg) DR_SR) =>
+        | DR_SR_Inst (i: DR_SR_Inst__, r: (string, string) DR_SR) =>
             let
                 val iStr = case i of
                       Abs  => "abs"
@@ -455,7 +558,7 @@ struct
                 iStr ^ " " ^ (printRecDR_SR r)
             end
 
-        | DR_SR_I_Inst (i: DR_SR_I_Inst__, r: (string, Reg) DR_SR_I) =>
+        | DR_SR_I_Inst (i: DR_SR_I_Inst__, r: (string, string) DR_SR_I) =>
             let
                 val iStr = case i of
                       Addi    => "addi"
@@ -492,7 +595,7 @@ struct
                 iStr ^ " " ^ (printRecDR_SR_I r)
             end
 
-        | DR_SR_SR_Inst (i: DR_SR_SR_Inst__, r: (string, Reg) DR_SR_SR) =>
+        | DR_SR_SR_Inst (i: DR_SR_SR_Inst__, r: (string, string) DR_SR_SR) =>
             let
                 val iStr = case i of
                       Add   => "add"
@@ -532,7 +635,7 @@ struct
                 iStr ^ " " ^ (printRecDR_SR_SR r)
             end
 
-        | SR_DL_Inst (i: SR_DL_Inst__, r: (string, Reg) SR_DL) =>
+        | SR_DL_Inst (i: SR_DL_Inst__, r: (string, string) SR_DL) =>
             let
                 val iStr = case i of
                       Beqz   => "beqz"
@@ -556,7 +659,7 @@ struct
                 iStr ^ " " ^ (printRecSR_DL r)
             end
 
-        | SR_SR_Inst (i: SR_SR_Inst__, r: (string, Reg) SR_SR) =>
+        | SR_SR_Inst (i: SR_SR_Inst__, r: (string, string) SR_SR) =>
             let
                 val iStr = case i of
                       Div   => "div"
@@ -567,7 +670,7 @@ struct
                 iStr ^ " " ^ (printRecSR_SR r)
             end
 
-        | SR_SI_DL_Inst (i: SR_SI_DL_Inst__, r: (string, Reg) SR_SI_DL) =>
+        | SR_I_DL_Inst (i: SR_I_DL_Inst__, r: (string, string) SR_I_DL) =>
             let
                 val iStr = case i of
                       Beq_I  => "beq"
@@ -581,10 +684,10 @@ struct
                     | Bltu_I => "bltu"
                     | Bne_I  => "bne"
             in
-                iStr ^ " " ^ (printRecSR_SI_DL r)
+                iStr ^ " " ^ (printRecSR_I_DL r)
             end
 
-        | SR_SR_DL_Inst (i: SR_SR_DL_Inst__, r: (string, Reg) SR_SR_DL) =>
+        | SR_SR_DL_Inst (i: SR_SR_DL_Inst__, r: (string, string) SR_SR_DL) =>
             let
                 val iStr = case i of
                       Beq  => "beq"
@@ -609,11 +712,13 @@ struct
                 | Nop     => "nop"
 
     (* Converts the given list of integers to comma separated list of string values *)
+    (* intListToCSVString: int list -> string *)
     fun intListToCSVString ([] : int list) : string = ""
       | intListToCSVString ([x]: int list) : string = Int.toString x
       | intListToCSVString (x :: xs) : string = (Int.toString x) ^ ", " ^ (intListToCSVString xs)
 
     (* Prints the assembler directive *)
+    (* printDir: Directive -> string *)
     fun printDir (dir : Directive) : string =
         let
             val strDir = case dir of
@@ -635,7 +740,8 @@ struct
         end
 
     (* Prints the statement *)
-    fun printStmt (stm : (string, Reg) Stmt) : string =
+    (* printStmt: (string, Reg) Stmt -> string *)
+    fun printStmt (stm : (string, string) Stmt) : string =
         case stm of
               Inst i => (printInst i)
             | Dir  d => (printDir d)
