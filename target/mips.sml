@@ -328,7 +328,7 @@ struct
 
     (*=========================================================================================*)
     (* Utility functions for mapping different types of records based on input *)
-    fun mapRecDL       (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DL)       : ('lp, 'tp) DL =
+    fun mapRecDL       (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DL)       : ('lp, 'tp) DL       =
         {dest = f (#dest r)}
 
     fun mapRecDR       (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DR)       : ('lp, 'tp) DR       =
@@ -397,7 +397,7 @@ struct
         | SR_SR_DL_Inst     (i: SR_SR_DL_Inst__, r: ('l, 't) SR_SR_DL) =>
                 SR_SR_DL_Inst (i, mapRecSR_SR_DL f g r)
 
-        | ExceptionTrapInst (i: ExceptionTrapInst__)               =>
+        | ExceptionTrapInst (i: ExceptionTrapInst__)                   =>
                 ExceptionTrapInst i
 
     (* mapStmt: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Stmt -> ('lp, 'tp) Stmt *)
@@ -746,4 +746,25 @@ struct
               Inst i => (printInst i)
             | Dir  d => (printDir d)
 
+    (* Maps and prints the instruction *)
+    (* mapPrintInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string *)
+    fun mapPrintInst (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Instruction) = printInst (mapInst f g x)
+
+    (* Maps and prints the statement *)
+    (* mapPrintStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string *)
+    fun mapPrintStmt (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Stmt) = printStmt (mapStmt f g x)
+
+    (*=========================================================================================*)
+    (* Some helper functions to create an Instruction *)
+    fun mAdd    (a: 't) (b: 't) (c: 't)  (_: 'l) : ('l, 't) Instruction = DR_SR_SR_Inst (Add, {dest = a, src1 = b, src2 = c})
+    fun mAddi   (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Instruction = DR_SR_I_Inst  (Addi, {dest = a, src1 = b, imm = c})
+
+    fun mSub    (a: 't) (b: 't) (c: 't)  (_: 'l) : ('l, 't) Instruction = DR_SR_SR_Inst (Sub, {dest = a, src1 = b, src2 = c})
+    fun mSub_I  (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Instruction = DR_SR_I_Inst  (Sub_I, {dest = a, src1 = b, imm = c})
+
+    fun mMul    (a: 't) (b: 't) (c: 't)  (_: 'l) : ('l, 't) Instruction = DR_SR_SR_Inst (Mul, {dest = a, src1 = b, src2 = c})
+    fun mMul_I  (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Instruction = DR_SR_I_Inst  (Mul_I, {dest = a, src1 = b, imm = c})
+
+    fun mDiv_Q  (a: 't) (b: 't) (c: 't)  (_: 'l) : ('l, 't) Instruction = DR_SR_SR_Inst (Div_Q, {dest = a, src1 = b, src2 = c})
+    fun mDiv_QI (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Instruction = DR_SR_I_Inst  (Div_QI, {dest = a, src1 = b, imm = c})
 end
