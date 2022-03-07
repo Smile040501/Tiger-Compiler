@@ -1,0 +1,103 @@
+(* User Declarations *)
+%%
+(* Parser/ML-Yacc Declarations *)
+
+(* The prefix to use on the name of LrValFun structure *)
+%name Tiger
+
+(* The terminals or tokens of the language *)
+%term INT of int
+    | ID  of Tiger.id
+
+    (* Symbols *)
+    | SEMICOLON
+    | PLUS
+    | MINUS
+    | MUL
+    | DIV
+    | LPAREN
+    | RPAREN
+    | ASSIGN
+
+    (* Keywords *)
+    | PRINT
+
+    (* Others *)
+    | EOF
+    | UMINUS
+
+(* The nonterminals of the language *)
+%nonterm PROG      of Tiger.Prog
+       | EXP       of Tiger.Expr
+       | EXPS      of Tiger.Expr list
+       | LVALEXP   of Tiger.Lvalue
+       | NEGEXP    of Tiger.Expr
+       | OPEXP     of Tiger.Expr
+       | ASSIGNEXP of Tiger.Expr
+       | PRINTEXP  of Tiger.Expr
+
+(* Define precedence order and associativity *)
+%nonassoc ASSIGN PRINT
+%left     PLUS MINUS
+%left     MUL DIV
+%left     LPAREN RPAREN
+%rigth    UMINUS
+
+
+(* The type that captures position in the input *)
+%pos int
+
+(* What token to use as end of parsing token *)
+%eop EOF
+
+(* Terminals that cannot be shifted *)
+%noshift EOF
+
+(* Semantic actions are free of significant side effects and always terminate *)
+%pure
+
+(* Start symbol *)
+%start PROG
+
+(* Generates a printed form of the table in tiger.grm.desc *)
+%verbose
+
+%%
+(* Grammar Rules *)
+
+(* Program *)
+PROG : EXP                       (Tiger.Expression EXP)
+
+(* Expression *)
+(* Return type: Tiger.Expr *)
+EXP : INT                        (Tiger.Int INT)
+    | ID                         (Tiger.Lval (Tiger.Var ID))
+    | NEGEXP                     (NEGEXP)
+    | OPEXP                      (OPEXP)
+    | ASSIGNEXP                  (ASSIGNEXP)
+    | PRINTEXP                   (PRINTEXP)
+    | LPAREN EXPS RPAREN         (Tiger.Exprs EXPS)
+
+(* Multiple Expressions *)
+(* Return type: Tiger.Expr list *)
+EXPS: (* empty *)                ([])
+    | EXP                        ([EXP])
+    | EXP SEMICOLON EXPS         (EXP :: EXPS)
+
+(* Variable Names *)
+LVALEXP: ID                      (Tiger.Var ID)
+
+(* The optional %prec consists of the keyword %prec followed by a terminal whose precedence should be used as the precedence of the rule. *)
+NEGEXP: MINUS EXP %prec UMINUS   (Tiger.Neg EXP)
+
+(* Operations *)
+OPEXP : EXP PLUS  EXP            (Tiger.convertPlus  EXP1 EXP2)
+      | EXP MINUS EXP            (Tiger.convertMinus EXP1 EXP2)
+      | EXP MUL   EXP            (Tiger.convertMul   EXP1 EXP2)
+      | EXP DIV   EXP            (Tiger.convertDiv   EXP1 EXP2)
+
+(* Assignment *)
+ASSIGNEXP: LVALEXP ASSIGN EXP    (Tiger.convertAssign LVALEXP EXP)
+
+(* Print statement *)
+PRINTEXP: PRINT EXP              (Tiger.Print EXP)
