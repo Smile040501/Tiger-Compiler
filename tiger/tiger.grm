@@ -41,7 +41,7 @@
 %left     PLUS MINUS
 %left     MUL DIV
 %left     LPAREN RPAREN
-%rigth    UMINUS
+%right    UMINUS
 
 
 (* The type that captures position in the input *)
