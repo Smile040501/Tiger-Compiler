@@ -1,4 +1,4 @@
-structure MIPS =
+structure Mips :> MIPS =
 struct
 
     (* The 32 registers of the MIPS machine *)
@@ -23,16 +23,6 @@ struct
     (* 16-bit integer *)
     type Imm = int
 
-    (* The instruction datatype of the MIPS machine *)
-    (*
-        'l -> any label (memory address)
-        't -> any register
-    *)
-    (*
-        - Using the record syntax here so that it is easy to find the registers by their physical meaning of their names
-        - Have documented a summary of working of instructions also in comments
-        - Since the compiler only supports Integer data types, so therefore not including Floating Point instructions
-    *)
     (* Types of instructions based on its input arguments *)
     type ('l, 't) DL       = {dest: 'l}
     type ('l, 't) DR       = {dest: 't}
@@ -46,6 +36,13 @@ struct
     type ('l, 't) SR_I_DL  = {src1: 't, imm: Imm, dest: 'l}
     type ('l, 't) SR_SR_DL = {src1: 't, src2: 't, dest: 'l}
 
+    (* The instruction datatype of the MIPS machine
+        - 'l -> any label (memory address)
+        - 't -> any register
+        - Using the record syntax here so that it is easy to find the registers by their physical meaning of their names
+        - Have documented a summary of working of instructions also in comments
+        - Since the compiler only supports Integer data types, so therefore not including Floating Point instructions
+    *)
     datatype ('l, 't) Instruction =
               DL_Inst           of DL_Inst__       * (('l, 't) DL      )
             | DR_Inst           of DR_Inst__       * (('l, 't) DR      )
@@ -362,6 +359,7 @@ struct
         {src1 = g (#src1 r), src2 = g (#src2 r), dest = f (#dest r)}
     (*=========================================================================================*)
 
+    (* Used to convert instructions from one parametric type to another *)
     (* mapInst: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Instruction -> ('lp, 'tp) Instruction *)
     fun mapInst (f: 'l -> 'lp) (g: 't -> 'tp) (inst: ('l, 't) Instruction) = case inst of
           DL_Inst         (i: DL_Inst__,         r: ('l, 't) DL)       =>
@@ -400,6 +398,7 @@ struct
         | ExceptionTrapInst (i: ExceptionTrapInst__)                   =>
                 ExceptionTrapInst i
 
+    (* Used to convert statements from one parametric type to another *)
     (* mapStmt: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Stmt -> ('lp, 'tp) Stmt *)
     fun mapStmt (f: 'l -> 'lp) (g: 't -> 'tp) (stmt: ('l, 't) Stmt) =
         case stmt of
@@ -740,7 +739,7 @@ struct
         end
 
     (* Prints the statement *)
-    (* printStmt: (string, Reg) Stmt -> string *)
+    (* printStmt: (string, string) Stmt -> string *)
     fun printStmt (stm : (string, string) Stmt) : string =
         case stm of
               Inst i => (printInst i)
