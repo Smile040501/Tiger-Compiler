@@ -25,6 +25,9 @@ struct
                 (* Print *)
                 | Print of Expr
 
+                (* Multiple expressions *)
+                | Exprs of Expr list
+
         (* Binary Operators *)
         and BinOp = Plus
                   | Minus
