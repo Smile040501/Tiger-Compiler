@@ -17,7 +17,7 @@ fun decRef   x n = (x := !x - n)
 fun resetRef x   = (x := 0)
 
 (* Called by the lexer when the end of the input stream is reached. *)
-fun eof () = ((resetRef lineNo); Tokens.EOF (!lineRef, !lineRef))
+fun eof () = ((resetRef lineNo); Tokens.EOF (!lineNo, !lineNo))
 
 (* Some helper functions during lexing *)
 
@@ -37,29 +37,23 @@ val toInt = toSigned o String.explode
 val newLineCount = List.length o List.filter (fn x => x = #"\n") o String.explode
 
 %%
-(* ML-Lex Definitions *)
 
-%header (functor TigerLexFun(structure Tokens: Tiger_TOKENS))
+%header (functor TigerLexFun(structure Tokens: Tiger_TOKENS));
 
-space    = [\ ]                   (* space       *)
-tabspace = [\t]                   (* tabspace    *)
-ws       = [\ \t];                (* whitespaces *)
-digit    = [0-9];                 (* digits      *)
-id       = [a-zA-Z][a-zA-Z0-9_]*; (* identifiers *)
-nl       = (\n|\r\n|\r|\n\r);     (* newline     *)
-alpha    = [a-zA-Z];              (* alphabets   *)
+space    = [\ ];
+tabspace = [\t];
+ws       = [\ \t];
+digit    = [0-9];
+id       = [a-zA-Z][a-zA-Z0-9_]*;
+nl       = (\n|\r\n|\r|\n\r);
+alpha    = [a-zA-Z];
 
 %%
-(* Rules *)
 
 <INITIAL> {nl}({ws}*{nl})*      => (incRef lineNo (newLineCount yytext); lex());
 <INITIAL> {ws}+                 => (lex());
 
-(* Keywords *)
-
 <INITIAL> "print"               => (Tokens.PRINT(yypos, yypos + (size yytext)));
-
-(* Symbols *)
 
 <INITIAL> ":="                  => (Tokens.ASSIGN   (yypos, yypos + (size yytext)));
 <INITIAL> ";"                   => (Tokens.SEMICOLON(yypos, yypos + (size yytext)));
@@ -72,10 +66,6 @@ alpha    = [a-zA-Z];              (* alphabets   *)
 <INITIAL> "("                   => (Tokens.LPAREN(yypos, yypos + (size yytext)));
 <INITIAL> ")"                   => (Tokens.RPAREN(yypos, yypos + (size yytext)));
 
-(* Identifiers and Values *)
 
 <INITIAL> {digit}+              => (Tokens.INT(toInt yytext, yypos, yypos + (size yytext)));
 <INITIAL> {id}                  => (Tokens.ID (yytext, yypos, yypos + (size yytext)));
-
-(* Syntax Error *)
-(* <INITIAL> .                  => (Tokens.SEMICOLON(yypos, yypos + (size yytext))); *)
