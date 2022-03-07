@@ -1,6 +1,6 @@
 (* signature for the AST of the Tiger Language *)
 
-signature Tiger =
+signature TIGER =
 sig
 
     (* The id's used for identification of variable names *)

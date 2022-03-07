@@ -1,6 +1,6 @@
 (* structure for the AST of the Tiger Language *)
 
-structure Tiger =
+structure Tiger :> TIGER =
 struct
 
     (* The id's used for identification of variable names *)
