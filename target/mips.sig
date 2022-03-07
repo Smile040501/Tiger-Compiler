@@ -1,3 +1,5 @@
+(* Signature of the MIPS assembly language *)
+
 signature MIPS =
 sig
 

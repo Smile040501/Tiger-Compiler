@@ -1,3 +1,5 @@
+(* Structure of the MIPS assembly language *)
+
 structure Mips :> MIPS =
 struct
 
