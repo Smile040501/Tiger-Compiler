@@ -329,26 +329,26 @@ sig
     (* Used to convert statements from one parametric type to another *)
     val mapStmt: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Stmt -> ('lp, 'tp) Stmt
 
-    (* Prints the register *)
-    val printReg: Reg -> string
+    (* Pretty prints the register *)
+    val prettyReg: Reg -> string
 
-    (* Prints the immediate value *)
-    val printImm: Imm -> string
+    (* Pretty prints the immediate value *)
+    val prettyImm: Imm -> string
 
-    (* Prints the instruction *)
-    val printInst: (string, string) Instruction -> string
+    (* Pretty prints the instruction *)
+    val prettyInst: (string, string) Instruction -> string
 
-    (* Prints the assembler directive *)
-    val printDir: Directive -> string
+    (* Pretty prints the assembler directive *)
+    val prettyDir: Directive -> string
 
-    (* Prints the statement *)
-    val printStmt: (string, string) Stmt -> string
+    (* Pretty prints the statement *)
+    val prettyStmt: (string, string) Stmt -> string
 
-    (* Maps and prints the instruction *)
-    val mapPrintInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string
+    (* Maps and pretty prints the instruction *)
+    val prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string
 
-    (* Maps and prints the statement *)
-    val mapPrintStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string
+    (* Maps and pretty prints the statement *)
+    val prettyMapStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string
 
     (*=========================================================================================*)
     (* Some helper functions to create an Instruction *)

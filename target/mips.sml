@@ -405,9 +405,9 @@ struct
               Inst i => Inst (mapInst f g i)
             | Dir d => Dir d
 
-    (* Prints the register *)
-    (* printReg: Reg -> string *)
-    fun printReg (reg : Reg) : string =
+    (* Pretty prints the register *)
+    (* prettyReg: Reg -> string *)
+    fun prettyReg (reg : Reg) : string =
         let
             val strReg = case reg of
                   ZERO => "zero"
@@ -446,49 +446,50 @@ struct
             "$" ^ strReg
         end
 
-    (* Prints the immediate value *)
-    (* printImm: Imm -> string *)
-    fun printImm (imm : Imm) : string = Int.toString imm
+    (* Pretty prints the immediate value *)
+    (* prettyImm: Imm -> string *)
+    fun prettyImm (imm : Imm) : string = if (imm >= 0) then (Int.toString imm)
+                                         else "-" ^ (Int.toString (~imm))
 
     (*=========================================================================================*)
-    (* Utility functions for printing different types of records based on input *)
-    fun printRecDL       (r: (string, string) DL)       =
+    (* Utility functions for pretty printing different types of records based on input *)
+    fun prettyRecDL       (r: (string, string) DL)       =
         (#dest r)
 
-    fun printRecDR       (r: (string, string) DR)       =
+    fun prettyRecDR       (r: (string, string) DR)       =
         (#dest r)
 
-    fun printRecDR_I     (r: (string, string) DR_I)     =
-        (#dest r) ^ ", " ^ (printImm (#imm r))
+    fun prettyRecDR_I     (r: (string, string) DR_I)     =
+        (#dest r) ^ ", " ^ (prettyImm (#imm r))
 
-    fun printRecDR_SL    (r: (string, string) DR_SL)    =
+    fun prettyRecDR_SL    (r: (string, string) DR_SL)    =
         (#dest r) ^ ", " ^ (#src1 r)
 
-    fun printRecDR_SR    (r: (string, string) DR_SR)    =
+    fun prettyRecDR_SR    (r: (string, string) DR_SR)    =
         (#dest r) ^ ", " ^ (#src1 r)
 
-    fun printRecDR_SR_I  (r: (string, string) DR_SR_I)  =
-        (#dest r) ^ ", " ^ (#src1 r) ^ ", " ^ (printImm (#imm r))
+    fun prettyRecDR_SR_I  (r: (string, string) DR_SR_I)  =
+        (#dest r) ^ ", " ^ (#src1 r) ^ ", " ^ (prettyImm (#imm r))
 
-    fun printRecDR_SR_SR (r: (string, string) DR_SR_SR) =
+    fun prettyRecDR_SR_SR (r: (string, string) DR_SR_SR) =
         (#dest r) ^ ", " ^ (#src1 r) ^ ", " ^ (#src2 r)
 
-    fun printRecSR_DL    (r: (string, string) SR_DL)    =
+    fun prettyRecSR_DL    (r: (string, string) SR_DL)    =
         (#src1 r) ^ ", " ^ (#dest r)
 
-    fun printRecSR_SR    (r: (string, string) SR_SR)    =
+    fun prettyRecSR_SR    (r: (string, string) SR_SR)    =
         (#src1 r) ^ ", " ^ (#src2 r)
 
-    fun printRecSR_I_DL  (r: (string, string) SR_I_DL)  =
-        (#src1 r) ^ ", " ^ (printImm (#imm r)) ^ ", " ^ (#dest r)
+    fun prettyRecSR_I_DL  (r: (string, string) SR_I_DL)  =
+        (#src1 r) ^ ", " ^ (prettyImm (#imm r)) ^ ", " ^ (#dest r)
 
-    fun printRecSR_SR_DL (r: (string, string) SR_SR_DL) =
+    fun prettyRecSR_SR_DL (r: (string, string) SR_SR_DL) =
         (#src1 r) ^ ", " ^ (#src2 r) ^ ", " ^ (#dest r)
     (*=========================================================================================*)
 
-    (* Prints the instruction *)
-    (* printInst: (string, string) Instruction -> string *)
-    fun printInst (inst : (string, string) Instruction) = case inst of
+    (* Pretty prints the instruction *)
+    (* prettyInst: (string, string) Instruction -> string *)
+    fun prettyInst (inst : (string, string) Instruction) = case inst of
         DL_Inst (i: DL_Inst__, r: (string, string) DL) =>
             let
                 val iStr = case i of
@@ -498,7 +499,7 @@ struct
                     | J    => "j"
                     | Jal  => "jal"
             in
-                iStr ^ " " ^ (printRecDL r)
+                iStr ^ " " ^ (prettyRecDL r)
             end
 
         | DR_Inst (i: DR_Inst__, r: (string, string) DR) =>
@@ -511,7 +512,7 @@ struct
                     | Mthi => "mthi"
                     | Mtlo => "mtlo"
             in
-                iStr ^ " " ^ (printRecDR r)
+                iStr ^ " " ^ (prettyRecDR r)
             end
 
         | DR_I_Inst (i: DR_I_Inst__, r: (string, string) DR_I) =>
@@ -520,7 +521,7 @@ struct
                       Li  => "li"
                     | Lui => "lui"
             in
-                iStr ^ " " ^ (printRecDR_I r)
+                iStr ^ " " ^ (prettyRecDR_I r)
             end
 
         | DR_SL_Inst (i: DR_SL_Inst__, r: (string, string) DR_SL) =>
@@ -540,7 +541,7 @@ struct
                     | Ulhu => "ulhu"
                     | Ulw  => "ulw"
             in
-                iStr ^ " " ^ (printRecDR_SL r)
+                iStr ^ " " ^ (prettyRecDR_SL r)
             end
 
         | DR_SR_Inst (i: DR_SR_Inst__, r: (string, string) DR_SR) =>
@@ -554,7 +555,7 @@ struct
                     | Mfcz => "mfcz"
                     | Mtcz => "mtcz"
             in
-                iStr ^ " " ^ (printRecDR_SR r)
+                iStr ^ " " ^ (prettyRecDR_SR r)
             end
 
         | DR_SR_I_Inst (i: DR_SR_I_Inst__, r: (string, string) DR_SR_I) =>
@@ -591,7 +592,7 @@ struct
                     | Sltiu   => "sltiu"
                     | Sne_I   => "sne"
             in
-                iStr ^ " " ^ (printRecDR_SR_I r)
+                iStr ^ " " ^ (prettyRecDR_SR_I r)
             end
 
         | DR_SR_SR_Inst (i: DR_SR_SR_Inst__, r: (string, string) DR_SR_SR) =>
@@ -631,7 +632,7 @@ struct
                     | Sltu  => "sltu"
                     | Sne   => "sne"
             in
-                iStr ^ " " ^ (printRecDR_SR_SR r)
+                iStr ^ " " ^ (prettyRecDR_SR_SR r)
             end
 
         | SR_DL_Inst (i: SR_DL_Inst__, r: (string, string) SR_DL) =>
@@ -655,7 +656,7 @@ struct
                     | Ush    => "ush"
                     | Usw    => "usw"
             in
-                iStr ^ " " ^ (printRecSR_DL r)
+                iStr ^ " " ^ (prettyRecSR_DL r)
             end
 
         | SR_SR_Inst (i: SR_SR_Inst__, r: (string, string) SR_SR) =>
@@ -666,7 +667,7 @@ struct
                     | Mult  => "mult"
                     | Multu => "multu"
             in
-                iStr ^ " " ^ (printRecSR_SR r)
+                iStr ^ " " ^ (prettyRecSR_SR r)
             end
 
         | SR_I_DL_Inst (i: SR_I_DL_Inst__, r: (string, string) SR_I_DL) =>
@@ -683,7 +684,7 @@ struct
                     | Bltu_I => "bltu"
                     | Bne_I  => "bne"
             in
-                iStr ^ " " ^ (printRecSR_I_DL r)
+                iStr ^ " " ^ (prettyRecSR_I_DL r)
             end
 
         | SR_SR_DL_Inst (i: SR_SR_DL_Inst__, r: (string, string) SR_SR_DL) =>
@@ -700,7 +701,7 @@ struct
                     | Bltu => "bltu"
                     | Bne  => "bne"
             in
-                iStr ^ " " ^ (printRecSR_SR_DL r)
+                iStr ^ " " ^ (prettyRecSR_SR_DL r)
             end
 
         | ExceptionTrapInst (i: ExceptionTrapInst__) =>
@@ -716,9 +717,9 @@ struct
       | intListToCSVString ([x]: int list) : string = Int.toString x
       | intListToCSVString (x :: xs) : string = (Int.toString x) ^ ", " ^ (intListToCSVString xs)
 
-    (* Prints the assembler directive *)
-    (* printDir: Directive -> string *)
-    fun printDir (dir : Directive) : string =
+    (* Pretty prints the assembler directive *)
+    (* prettyDir: Directive -> string *)
+    fun prettyDir (dir : Directive) : string =
         let
             val strDir = case dir of
                   Align  i => "align "  ^ (Int.toString i)
@@ -738,20 +739,20 @@ struct
             "." ^ strDir
         end
 
-    (* Prints the statement *)
-    (* printStmt: (string, string) Stmt -> string *)
-    fun printStmt (stm : (string, string) Stmt) : string =
+    (* Pretty prints the statement *)
+    (* prettyStmt: (string, string) Stmt -> string *)
+    fun prettyStmt (stm : (string, string) Stmt) : string =
         case stm of
-              Inst i => (printInst i)
-            | Dir  d => (printDir d)
+              Inst i => (prettyInst i)
+            | Dir  d => (prettyDir d)
 
-    (* Maps and prints the instruction *)
-    (* mapPrintInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string *)
-    fun mapPrintInst (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Instruction) = printInst (mapInst f g x)
+    (* Maps and pretty prints the instruction *)
+    (* prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string *)
+    fun prettyMapInst (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Instruction) = prettyInst (mapInst f g x)
 
-    (* Maps and prints the statement *)
-    (* mapPrintStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string *)
-    fun mapPrintStmt (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Stmt) = printStmt (mapStmt f g x)
+    (* Maps and pretty prints the statement *)
+    (* prettyMapStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string *)
+    fun prettyMapStmt (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Stmt) = prettyStmt (mapStmt f g x)
 
     (*=========================================================================================*)
     (* Some helper functions to create an Instruction *)
