@@ -3,17 +3,17 @@ signature CONV_TO_MIPS =
 sig
     val DUMMY_STR : string   (* A dummy label to pass as argument *)
 
-    val mAdd   : 't -> 't -> 't        -> 'l -> ('l, 't) Tiger.Instruction
-    val mAddi  : 't -> 't -> Tiger.Imm -> 'l -> ('l, 't) Tiger.Instruction
+    val mAdd   : 't -> 't -> 't       -> 'l -> ('l, 't) Mips.Instruction
+    val mAddi  : 't -> 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Instruction
 
-    val mSub   : 't -> 't -> 't        -> 'l -> ('l, 't) Tiger.Instruction
-    val mSub_I : 't -> 't -> Tiger.Imm -> 'l -> ('l, 't) Tiger.Instruction
+    val mSub   : 't -> 't -> 't       -> 'l -> ('l, 't) Mips.Instruction
+    val mSub_I : 't -> 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Instruction
 
-    val mMul   : 't -> 't -> 't        -> 'l -> ('l, 't) Tiger.Instruction
-    val mMul_I : 't -> 't -> Tiger.Imm -> 'l -> ('l, 't) Tiger.Instruction
+    val mMul   : 't -> 't -> 't       -> 'l -> ('l, 't) Mips.Instruction
+    val mMul_I : 't -> 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Instruction
 
-    val mDiv_Q : 't -> 't -> 't        -> 'l -> ('l, 't) Tiger.Instruction
-    val mDiv_QI: 't -> 't -> Tiger.Imm -> 'l -> ('l, 't) Tiger.Instruction
+    val mDiv_Q : 't -> 't -> 't       -> 'l -> ('l, 't) Mips.Instruction
+    val mDiv_QI: 't -> 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Instruction
 end
 
 structure ConvToMIPS :> CONV_TO_MIPS =
