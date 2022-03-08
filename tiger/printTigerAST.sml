@@ -47,8 +47,8 @@ struct
     (* Converts List of Expr datatype to list of strings *)
     and strExprs []      = []
       | strExprs (x::xs) = (case xs of
-                                [] => (strExpr x) @ (strExprs xs)
-                               | _ => (strExpr x) @ [", "] @ (strExprs xs)
+                                [] => ["\n    "] @ (strExpr x) @ ["\n"]
+                               | _ => ["\n    "] @ (strExpr x) @ [", "] @ (strExprs xs)
                             )
 
     (* Converts BinOp datatype to list of string *)
