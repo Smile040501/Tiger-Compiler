@@ -4,6 +4,7 @@ $(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
 
 tiger/ast.sig
 tiger/ast.sml
+tiger/printTigerAST.sml
 
 target/mips.sig
 target/mips.sml
