@@ -351,15 +351,4 @@ sig
 
     (* Maps and pretty prints the statement *)
     val prettyMapStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string
-
-    (*=========================================================================================*)
-    (* Some helper functions to create an Instruction *)
-    val mAdd   : 't -> 't -> 't  -> 'l -> ('l, 't) Instruction
-    val mAddi  : 't -> 't -> Imm -> 'l -> ('l, 't) Instruction
-    val mSub   : 't -> 't -> 't  -> 'l -> ('l, 't) Instruction
-    val mSub_I : 't -> 't -> Imm -> 'l -> ('l, 't) Instruction
-    val mMul   : 't -> 't -> 't  -> 'l -> ('l, 't) Instruction
-    val mMul_I : 't -> 't -> Imm -> 'l -> ('l, 't) Instruction
-    val mDiv_Q : 't -> 't -> 't  -> 'l -> ('l, 't) Instruction
-    val mDiv_QI: 't -> 't -> Imm -> 'l -> ('l, 't) Instruction
 end

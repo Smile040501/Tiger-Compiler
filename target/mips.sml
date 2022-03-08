@@ -755,18 +755,4 @@ struct
     (* Maps and pretty prints the statement *)
     (* prettyMapStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string *)
     fun prettyMapStmt (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Stmt) = prettyStmt (mapStmt f g x)
-
-    (*=========================================================================================*)
-    (* Some helper functions to create an Instruction *)
-    fun mAdd    (a: 't) (b: 't) (c: 't)  (_: 'l) : ('l, 't) Instruction = DR_SR_SR_Inst (Add, {dest = a, src1 = b, src2 = c})
-    fun mAddi   (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Instruction = DR_SR_I_Inst  (Addi, {dest = a, src1 = b, imm = c})
-
-    fun mSub    (a: 't) (b: 't) (c: 't)  (_: 'l) : ('l, 't) Instruction = DR_SR_SR_Inst (Sub, {dest = a, src1 = b, src2 = c})
-    fun mSub_I  (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Instruction = DR_SR_I_Inst  (Sub_I, {dest = a, src1 = b, imm = c})
-
-    fun mMul    (a: 't) (b: 't) (c: 't)  (_: 'l) : ('l, 't) Instruction = DR_SR_SR_Inst (Mul, {dest = a, src1 = b, src2 = c})
-    fun mMul_I  (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Instruction = DR_SR_I_Inst  (Mul_I, {dest = a, src1 = b, imm = c})
-
-    fun mDiv_Q  (a: 't) (b: 't) (c: 't)  (_: 'l) : ('l, 't) Instruction = DR_SR_SR_Inst (Div_Q, {dest = a, src1 = b, src2 = c})
-    fun mDiv_QI (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Instruction = DR_SR_I_Inst  (Div_QI, {dest = a, src1 = b, imm = c})
 end
