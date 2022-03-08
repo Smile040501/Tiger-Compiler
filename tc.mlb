@@ -13,4 +13,6 @@ tiger/tiger.grm.sig
 tiger/tiger.grm.sml
 tiger/tiger.lex.sml
 
+ir/temp.sml
+
 tc.sml
