@@ -91,13 +91,13 @@ LVALEXP: ID                      (Tiger.Var ID)
 NEGEXP: MINUS EXP %prec UMINUS   (Tiger.Neg EXP)
 
 (* Operations *)
-OPEXP : EXP PLUS  EXP            (Tiger.convertPlus  EXP1 EXP2)
-      | EXP MINUS EXP            (Tiger.convertMinus EXP1 EXP2)
-      | EXP MUL   EXP            (Tiger.convertMul   EXP1 EXP2)
-      | EXP DIV   EXP            (Tiger.convertDiv   EXP1 EXP2)
+OPEXP : EXP PLUS  EXP            (ConvToTiger.tPlus  EXP1 EXP2)
+      | EXP MINUS EXP            (ConvToTiger.tMinus EXP1 EXP2)
+      | EXP MUL   EXP            (ConvToTiger.tMul   EXP1 EXP2)
+      | EXP DIV   EXP            (ConvToTiger.tDiv   EXP1 EXP2)
 
 (* Assignment *)
-ASSIGNEXP: LVALEXP ASSIGN EXP    (Tiger.convertAssign LVALEXP EXP)
+ASSIGNEXP: LVALEXP ASSIGN EXP    (ConvToTiger.tAssign LVALEXP EXP)
 
 (* Print statement *)
 PRINTEXP: PRINT EXP              (Tiger.Print EXP)

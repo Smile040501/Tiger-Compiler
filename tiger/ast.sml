@@ -1,5 +1,4 @@
-(* structure for the AST of the Tiger Language *)
-
+(* Structure for the AST of the Tiger Language *)
 structure Tiger :> TIGER =
 struct
 
@@ -39,19 +38,4 @@ struct
 
     (* Program Datatype *)
     datatype Prog = Expression of Expr
-
-    (* Some utility functions *)
-    fun getOpRec left oper right = {left = left, oper = oper, right = right}
-
-    (*===========================================================================*)
-    (* Conversion functions *)
-
-    (* Convert all binary operations to Tiger AST *)
-    fun convertPlus  a b = Op (getOpRec a Plus b)
-    fun convertMinus a b = Op (getOpRec a Minus b)
-    fun convertMul   a b = Op (getOpRec a Mul b)
-    fun convertDiv   a b = Op (getOpRec a Div b)
-
-    (* Convert to Assignment Instruction *)
-    fun convertAssign l e = Assign {lvalue = l, expr = e}
 end

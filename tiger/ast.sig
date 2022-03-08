@@ -1,5 +1,4 @@
-(* signature for the AST of the Tiger Language *)
-
+(* Signature for the AST of the Tiger Language *)
 signature TIGER =
 sig
 
@@ -39,16 +38,4 @@ sig
 
     (* Program Datatype *)
     datatype Prog = Expression of Expr
-
-    (*===========================================================================*)
-    (* Conversion functions *)
-
-    (* Convert all binary operations to Tiger AST *)
-    val convertPlus : Expr -> Expr -> Expr
-    val convertMinus: Expr -> Expr -> Expr
-    val convertMul  : Expr -> Expr -> Expr
-    val convertDiv  : Expr -> Expr -> Expr
-
-    (* Convert to Assignment Instruction *)
-    val convertAssign: Lvalue -> Expr -> Expr
 end
