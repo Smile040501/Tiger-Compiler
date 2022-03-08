@@ -1,5 +1,4 @@
 (* Signature of the MIPS assembly language *)
-
 signature MIPS =
 sig
 
@@ -330,25 +329,4 @@ sig
 
     (* Used to convert statements from one parametric type to another *)
     val mapStmt: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Stmt -> ('lp, 'tp) Stmt
-
-    (* Pretty prints the register *)
-    val prettyReg: Reg -> string
-
-    (* Pretty prints the immediate value *)
-    val prettyImm: Imm -> string
-
-    (* Pretty prints the instruction *)
-    val prettyInst: (string, string) Instruction -> string
-
-    (* Pretty prints the assembler directive *)
-    val prettyDir: Directive -> string
-
-    (* Pretty prints the statement *)
-    val prettyStmt: (string, string) Stmt -> string
-
-    (* Maps and pretty prints the instruction *)
-    val prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string
-
-    (* Maps and pretty prints the statement *)
-    val prettyMapStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string
 end
