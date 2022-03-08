@@ -61,5 +61,5 @@ val TextIO.openAppend : string -> TextIO.outstream  (* Opens the file in append 
 val TextIO.openString : string -> TextIO.instream
 
 (* Prints the string `s` to stdout and flushes the stream *)
-(* Equivalent to: `(TextIO.output (TextIO.stdout, s); TextIO.flushOut TextIO.stdout)` *)
+(* Equivalent to: `(TextIO.output (TextIO.stdOut, s); TextIO.flushOut TextIO.stdOut)` *)
 val TextIO.print : string -> unit
