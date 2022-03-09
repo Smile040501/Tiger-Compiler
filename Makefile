@@ -14,6 +14,7 @@ TIG_PARSE := $(addprefix $(TIG_DIR)/, *.grm.sml *.lex.sml)
 SRC := $(wildcard $(TIG_DIR)/*.sig) $(wildcard $(TIG_DIR)/*.sml) \
 			$(addprefix $(TIG_DIR)/, tiger.grm tiger.lex) \
 			$(wildcard $(TARGET_DIR)/*.sig) $(wildcard $(TARGET_DIR)/*.sml) \
+			$(wildcard $(IR_DIR)/*.sig) $(wildcard $(IR_DIR)/*.sml) \
 			tc.sml
 
 # Files to be cleaned
@@ -35,7 +36,7 @@ log:
 	@echo "\nClean Files:"
 	@echo $(CLEANFILES)
 
-$(TIG_BIN): $(SRC) $(TIG_PARSE)
+$(TIG_BIN): $(SRC) $(TIG_PARSE) $(TIG_MLTON)
 	mlton -output $@ $(TIG_MLTON)
 
 %.lex.sml: %.lex
