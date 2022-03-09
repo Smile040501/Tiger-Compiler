@@ -17,5 +17,6 @@ tiger/tiger.grm.sml
 tiger/tiger.lex.sml
 
 ir/temp.sml
+ir/env.sml
 
 tc.sml
