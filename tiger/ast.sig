@@ -39,4 +39,7 @@ sig
 
     (* Program Datatype *)
     datatype Prog = Expression of Expr
+
+    (* Utility Functions *)
+    val getOpRec : Expr -> BinOp -> Expr -> {left: Expr, oper: BinOp, right: Expr}
 end

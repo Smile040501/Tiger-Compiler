@@ -39,4 +39,7 @@ struct
 
     (* Program Datatype *)
     datatype Prog = Expression of Expr
+
+    (* Utility functions *)
+    fun getOpRec left oper right = {left = left, oper = oper, right = right}
 end

@@ -13,9 +13,6 @@ structure ConvToTiger :> CONV_TO_TIGER =
 struct
     open Tiger;
 
-    (* Utility functions *)
-    fun getOpRec left oper right = {left = left, oper = oper, right = right}
-
     (* Conversion functions *)
 
     (* Convert all binary operations to Tiger AST *)
