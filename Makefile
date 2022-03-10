@@ -6,6 +6,7 @@ TIG_IMAGE :=
 TIG_DIR := tiger
 TARGET_DIR := target
 IR_DIR := ir
+UTILS_DIR := util
 
 # Parse Files
 TIG_PARSE := $(addprefix $(TIG_DIR)/, *.grm.sml *.lex.sml)
@@ -15,6 +16,7 @@ SRC := $(wildcard $(TIG_DIR)/*.sig) $(wildcard $(TIG_DIR)/*.sml) \
 			$(addprefix $(TIG_DIR)/, tiger.grm tiger.lex) \
 			$(wildcard $(TARGET_DIR)/*.sig) $(wildcard $(TARGET_DIR)/*.sml) \
 			$(wildcard $(IR_DIR)/*.sig) $(wildcard $(IR_DIR)/*.sml) \
+			$(wildcard $(UTILS_DIR)/*.sig) $(wildcard $(UTILS_DIR)/*.sml) \
 			tc.sml
 
 # Files to be cleaned
