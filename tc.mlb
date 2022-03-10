@@ -20,6 +20,7 @@ tiger/tiger.grm.sml
 tiger/tiger.lex.sml
 
 ir/ir.sml
+ir/regAlloc.sml
 ir/translate.sml
 
 tc.sml
