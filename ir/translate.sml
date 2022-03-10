@@ -1,6 +1,7 @@
 signature TRANSLATE =
 sig
-    val compileToIR : Env.mp -> Tiger.Prog -> Ir.Prog * Env.mp
+    val compileToIR   : Env.mp -> Tiger.Prog -> Ir.Prog * Env.mp
+    val compileToMips : Ir.Prog -> (string, Mips.Reg) Mips.Prog
 end
 
 structure Translate :> TRANSLATE =
@@ -223,8 +224,8 @@ struct
                     | TIG.Op r   =>
                         let
                             val {left, oper, right}    = r
-                            val (lRes, newEnv1, lProg) = evalExpr newEnv left
-                            val (rRes, newEnv2, rProg) = evalExpr newEnv right
+                            val (lRes, newEnv1, lProg) = evalExpr env left
+                            val (rRes, newEnv2, rProg) = evalExpr env right
                             val newEnv3                = Env.union newEnv1 newEnv2
                             val prog                   = evalReducedOpExpr a0 lRes oper rRes
                             val resEnv                 = Env.union newEnv3 newEnv
@@ -262,4 +263,7 @@ struct
             in
                 (headerStmts @ [Mips.Label "main"] @ stmtList, env)
             end
+
+    (* Compiles Ir program to MIPS *)
+    and compileToMips prog = Mips.mapProg (fn x => x) (RegAlloc.getReg) prog
 end
