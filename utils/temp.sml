@@ -9,7 +9,8 @@ sig
     val newValue    : unit  -> value
     val newLabel    : unit  -> label
 
-    val compare     : value -> value -> bool
+    val areEq       : value * value -> bool
+    val compare     : value * value -> order
 
     val prettyValue : value -> string
     val prettyLabel : label -> string
@@ -41,8 +42,11 @@ structure Temp :> TEMP = struct
                         (curLabel := oldLabel + 1); "TL" ^ (Int.toString oldLabel)
                       end
 
+    (* Check if two values are equal *)
+    fun areEq (v1, v2) = (v1 = v2)
+
     (* Compare two values *)
-    fun compare v1 v2 = (v1 = v2)
+    fun compare (v1, v2) = Int.compare (v1, v2)
 
     (* Pretty prints `Temp.value` *)
     fun prettyValue (t: value) = Int.toString t
