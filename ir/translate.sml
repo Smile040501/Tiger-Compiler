@@ -182,6 +182,6 @@ struct
                 val headerDirs = [Mips.Data, Mips.Text, Mips.Globl "main"] (* Todo add main label *)
                 val headerStmts = map (CTM.mapDirToStmt CTM.DUMMY_STR Temp.DUMMY_VALUE) headerDirs
             in
-                (headerStmts @ stmtList, env)
+                (headerStmts @ [Mips.Label "main"] @ stmtList, env)
             end
 end
