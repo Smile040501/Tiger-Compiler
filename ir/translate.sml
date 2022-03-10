@@ -269,12 +269,16 @@ struct
     (* compileToIR : Env.mp -> Tiger.Prog -> Ir.Prog * Env.mp *)
     and compileToIR env (TIG.Expression e) =
             let
-                val (instList, env) = translateExpr env e
+                val (instList, newEnv) = translateExpr env e
                 val stmtList        = map (CTM.mapInstToStmt) instList
-                val headerDirs      = [Mips.Data, Mips.Text, Mips.Globl "main"]
-                val headerStmts     = map (CTM.mapDirToStmt CTM.DUMMY_STR Temp.DUMMY_VALUE) headerDirs
+
+                val headerDirs  = [Mips.Data, Mips.Text, Mips.Globl "main"]
+                val headerStmts = map (CTM.mapDirToStmt CTM.DUMMY_STR Temp.DUMMY_VALUE) headerDirs
+
+                val exitInsts = CTM.mSyscall (getTemp newEnv Utils.V0_REG) Utils.EXIT_SYSCALL CTM.DUMMY_STR
+                val exitStmt = map (CTM.mapInstToStmt) exitInsts
             in
-                (headerStmts @ [Mips.Label "main"] @ stmtList, env)
+                (headerStmts @ [Mips.Label "main"] @ stmtList @ exitStmt, newEnv)
             end
 
     (* Compiles Ir program to MIPS *)
