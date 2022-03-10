@@ -4,12 +4,14 @@ sig
     type value
     type label = string
 
-    val newtemp     : unit  -> value
+    val DUMMY_VALUE : value
+
+    val newValue    : unit  -> value
     val newLabel    : unit  -> label
 
     val compare     : value -> value -> bool
 
-    val prettyTemp  : value -> string
+    val prettyValue : value -> string
     val prettyLabel : label -> string
 end
 
@@ -20,14 +22,16 @@ structure Temp :> TEMP = struct
 
     type label  = string
 
-    val curTmp   : value ref = ref 0 (* Keeps track of how many temps have been allocated *)
+    val DUMMY_VALUE = ~1
+
+    val curValue : value ref = ref 0 (* Keeps track of how many temps have been allocated *)
     val curLabel : int ref   = ref 0 (* Keeps track of how many strings have been allocated *)
 
     (* Allocates a new `Temp.value` *)
-    fun newtemp () = let
-                        val oldTmp = !curTmp
+    fun newValue () = let
+                        val oldValue = !curValue
                      in
-                        (curTmp := oldTmp + 1); oldTmp
+                        (curValue := oldValue + 1); oldValue
                      end
 
     (* Allocates a new `Temp.label` *)
@@ -41,7 +45,7 @@ structure Temp :> TEMP = struct
     fun compare v1 v2 = (v1 = v2)
 
     (* Pretty prints `Temp.value` *)
-    fun prettyTemp (t: value) = Int.toString t
+    fun prettyValue (t: value) = Int.toString t
 
     (* Pretty prints `Temp.label` *)
     fun prettyLabel (t: label) = t
