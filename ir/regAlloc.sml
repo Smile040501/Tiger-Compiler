@@ -3,8 +3,9 @@ sig
     type key   = Temp.value
     type value = Mips.Reg
 
-    val allocRegs: key list -> unit
-    val allocSpecialReg: key -> value -> unit
+    val allocRegs       : key list -> unit
+    val allocSpecialReg : key -> value -> unit
+    val getReg          : key -> value
 end
 
 structure RegAlloc :> REG_ALLOC =
@@ -51,9 +52,9 @@ struct
 
     fun allocSpecialReg (k : key) (r : value) : unit = allocReg k r MP_Special
 
-    fun getReg (k: key) : value = case (TempValMap.find (!MP, k)) of
-                  SOME r => r
-                | NONE   => (case (TempValMap.find (!MP_Special, k)) of
+    fun getReg (k: key) : value = case (TempValMap.find (!MP_Special, k)) of
+                  SOME r =>  r
+                | NONE   => (case (TempValMap.find (!MP, k)) of
                           SOME r => r
                         | NONE   => raise NoRegisterForTemp ("No register for temp " ^ Temp.prettyValue k)
                 )
