@@ -26,6 +26,11 @@ struct
         raise NotDefined "Undefined variable"
     )
 
+    val PRINT_INT_SYSCALL: int = 1
+    val PRINT_STRING_SYSCALL: int = 4
+    val EXIT_SYSCALL: int = 10
+    val ARG0_REG: string = "$a0"
+
     (* assignTemp : Env.mp -> string -> Env.mp * Temp.value *)
     fun assignTemp (env : Env.mp) (id: string) =
             (case Env.find env id of
@@ -171,7 +176,45 @@ struct
 
     (* printExprHelper : Env.mp -> Tiger.Expr
                                         -> Ir.Inst list * Env.mp *)
-    and printExprHelper env expr = ([], env)
+    and printExprHelper env expr =
+            let
+                val tempLabel   = Temp.newLabel ()
+                val (tEnv, t) = assignTemp env tempLabel  (* For register v0 *)
+                val _ = RegAlloc.allocSpecialReg t Mips.V0
+
+                val (newEnv, a0) = assignTemp tEnv ARG0_REG  (* For register a0 *)
+                val _ = RegAlloc.allocSpecialReg a0 Mips.A0
+
+                val printInst = CTM.mSyscall t PRINT_INT_SYSCALL CTM.DUMMY_STR
+            in
+                (case expr of
+                      TIG.Int i  => ([CTM.mLi a0 i CTM.DUMMY_STR] @ printInst, newEnv)
+                    | TIG.Lval l => (case l of
+                            TIG.Var id =>
+                                ([CTM.mMove a0 (getTemp env l) CTM.DUMMY_STR] @ printInst, newEnv)
+                        )
+                    | TIG.Op r   =>
+                        let
+                            val {left, oper, right}    = r
+                            val (lRes, newEnv1, lProg) = evalExpr newEnv left
+                            val (rRes, newEnv2, rProg) = evalExpr newEnv right
+                            val newEnv3                = Env.union newEnv1 newEnv2
+                            val prog                   = evalReducedOpExpr a0 lRes oper rRes
+                            val resEnv                 = Env.union newEnv3 newEnv
+                        in
+                            (lProg @ rProg @ prog @ printInst, resEnv)
+                        end
+                    | TIG.Neg e  =>
+                        let
+                            val (res, newEnv1, irProg) = evalExpr env e
+                            val addProg                = evalReducedNegExpr a0 res
+                            val resEnv                 = Env.union newEnv1 newEnv
+                        in
+                            (irProg @ addProg @ printInst, resEnv)
+                        end
+                    | _                   => raiseUnsupportedOperationException "translate.sml:printExprHelper"
+                )
+            end
 
     (* Compiles Tiger program to Ir *)
     (* compileToIR : Env.mp -> Tiger.Prog -> Ir.Prog * Env.mp *)
