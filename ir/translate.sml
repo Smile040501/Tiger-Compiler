@@ -43,8 +43,8 @@ struct
             )
 
     (* Get the temporary value allocated to the Tiger.Lvalue *)
-    (* getTemp : Env.mp -> Tiger.Lvalue -> Temp.value *)
-    fun getTemp (env : Env.mp) (TIG.Var id) =
+    (* getTemp : Env.mp -> string -> Temp.value *)
+    fun getTemp (env : Env.mp) (id: string) =
             (case Env.find env id of
                   SOME (x: Temp.value)  => x
                 | NONE    => raiseNotDefinedException ("traslate.sml:getTemp Undefined variable " ^ id ^ "\n")
@@ -54,11 +54,16 @@ struct
     (* evalExpr : Env.mp -> Tiger.Expr
                                 -> Result * Env.mp * Ir.Inst list *)
     fun evalExpr env (TIG.Int i)   = (IntRes i, env, [])
-      | evalExpr env (TIG.Lval l)  = (TempRes (getTemp env l), env, [])
+      | evalExpr env (TIG.Lval l)  = evalLvalueExpr env l
       | evalExpr env (TIG.Op r)    = evalOpExpr env (#left r) (#oper r) (#right r)
       | evalExpr env (TIG.Neg e)   = evalNegExpr env e
       | evalExpr env (TIG.Exprs e) = evalExprs env e
       | evalExpr env  e            = raiseUnsupportedOperationException ("translate.sml:evalExpr Operation not supported:\n" ^ (PTA.getStr (TIG.Expression e)) ^ "\n")
+
+    (* Simplifies the nested lvalue expression into resultant expression *)
+    (* evalLvalueExpr : Env.mp -> Tiger.Lvalue
+                                        -> Result * Env.mp * Ir.Inst list *)
+    and evalLvalueExpr env (TIG.Var id) = (TempRes (getTemp env id), env, [])
 
     (* Simplifies nested binary operator expression *)
     (* evalOpExpr : Env.mp -> Tiger.Expr -> Tiger.BinOp -> Tiger.Expr
@@ -169,7 +174,7 @@ struct
                 (case expr of
                       TIG.Int i  => ([CTM.mLi t i CTM.DUMMY_STR], newEnv)
                     | TIG.Lval l => (case l of
-                            TIG.Var id => ([CTM.mMove t (getTemp env l) CTM.DUMMY_STR], newEnv)
+                            TIG.Var id => ([CTM.mMove t (getTemp env id) CTM.DUMMY_STR], newEnv)
                         )
                     | TIG.Op r   =>
                         let
@@ -226,7 +231,7 @@ struct
                       TIG.Int i  => ([CTM.mLi a0 i CTM.DUMMY_STR] @ printInst, newEnv)
                     | TIG.Lval l => (case l of
                             TIG.Var id =>
-                                ([CTM.mMove a0 (getTemp env l) CTM.DUMMY_STR] @ printInst, newEnv)
+                                ([CTM.mMove a0 (getTemp env id) CTM.DUMMY_STR] @ printInst, newEnv)
                         )
                     | TIG.Op r   =>
                         let
