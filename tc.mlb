@@ -19,4 +19,7 @@ tiger/tiger.grm.sig
 tiger/tiger.grm.sml
 tiger/tiger.lex.sml
 
+ir/ir.sml
+ir/translate.sml
+
 tc.sml
