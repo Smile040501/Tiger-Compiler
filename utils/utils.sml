@@ -16,6 +16,6 @@ struct
 
     (* Concatenates list of strings *)
     (* concatStrs : string list -> string *)
-    fun concatStrs []        = ""
-      | concatStrs (x :: xs) = x ^ (concatStrings xs)
+    fun concatStrings []        = ""
+      | concatStrings (x :: xs) = x ^ (concatStrings xs)
 end
