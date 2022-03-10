@@ -40,7 +40,7 @@ struct
     val curIdx : int ref = ref 0  (* Current index of the list *)
 
     (* Map for Temp.values and some special registers (like A0 and V0) *)
-    val MP : mp ref = ref TempValMap.empty
+    val MP         : mp ref = ref TempValMap.empty
     val MP_Special : mp ref = ref TempValMap.empty
 
     (* Insert the key-value pair in the iput map *)
