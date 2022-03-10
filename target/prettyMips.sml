@@ -37,11 +37,6 @@ struct
     fun addNewline          str = str ^ "\n"
     fun indentAndAddNewline str = (indent o addNewline) str
 
-    (* Concatenates list of strings *)
-    (* concatStrings : string list -> string *)
-    and concatStrings []      = ""
-      | concatStrings (x::xs) = x ^ (concatStrings xs)
-
     (* Pretty prints the register *)
     (* prettyReg: Reg -> string *)
     fun prettyReg (reg : Reg) : string =
@@ -390,7 +385,7 @@ struct
 
     (* Pretty prints the program *)
     (* prettyProg: (string, string) Prog -> string *)
-    fun prettyProg (prog: (string, string) Mips.Prog) : string = concatStrings (map prettyStmt prog)
+    fun prettyProg (prog: (string, string) Mips.Prog) : string = Utils.concatStrings (map prettyStmt prog)
 
     (* Maps and pretty prints the instruction *)
     (* prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string *)

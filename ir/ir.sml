@@ -16,12 +16,10 @@ struct
     type Stmt = (string, Temp.value) Mips.Stmt
     type Prog = Stmt list
 
-    fun identity x = x  (* Identity function *)
-
     (* Functions to pretty print IR *)
-    fun prettyInst i = PrettyMips.prettyMapInst identity Temp.prettyValue i
+    fun prettyInst i = PrettyMips.prettyMapInst Utils.identity Temp.prettyValue i
 
-    fun prettyStmt s = PrettyMips.prettyMapStmt identity Temp.prettyValue s
+    fun prettyStmt s = PrettyMips.prettyMapStmt Utils.identity Temp.prettyValue s
 
-    fun prettyProg p = PrettyMips.prettyMapProg identity Temp.prettyValue p
+    fun prettyProg p = PrettyMips.prettyMapProg Utils.identity Temp.prettyValue p
 end

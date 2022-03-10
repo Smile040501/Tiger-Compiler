@@ -13,11 +13,6 @@ struct
     (* Prints a string to stdout *)
     fun printString s = TextIO.output (TextIO.stdOut, s)
 
-    (* Concatenates list of strings *)
-    (* concatStrings : string list -> string *)
-    and concatStrings []      = ""
-      | concatStrings (x::xs) = x ^ (concatStrings xs)
-
     (* Convert identifier to string *)
     and strId (identifier: id) = identifier
 
@@ -67,8 +62,8 @@ struct
     and strLvalue (Var x) = ["Var(", strId x, ")"]
 
     (* Prints the Tiger program *)
-    and print (Expression e) = printString (concatStrings (strExpr e))
+    and print (Expression e) = printString (Utils.concatStrings (strExpr e))
 
     (* Returns the string representation of the Tiger AST *)
-    and getStr (Expression e) = concatStrings (strExpr e)
+    and getStr (Expression e) = Utils.concatStrings (strExpr e)
 end

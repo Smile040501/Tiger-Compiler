@@ -29,13 +29,6 @@ struct
         raise NotDefined "Undefined variable"
     )
 
-    (* Constants *)
-    val PRINT_INT_SYSCALL: int = 1
-    val PRINT_STRING_SYSCALL: int = 4
-    val EXIT_SYSCALL: int = 10
-    val A0_REG: string = "$a0"
-    val V0_REG: string = "$v0"
-
     (* Assign a temporary value to the string if not already there *)
     (* assignTemp : Env.mp -> string -> Env.mp * Temp.value *)
     fun assignTemp (env : Env.mp) (id: string) =
@@ -221,13 +214,13 @@ struct
                                         -> Ir.Inst list * Env.mp *)
     and printExprHelper env expr =
             let
-                val (aEnv, a0) = assignTemp env A0_REG  (* For register a0 *)
+                val (aEnv, a0) = assignTemp env Utils.A0_REG  (* For register a0 *)
                 val _ = RegAlloc.allocSpecialReg a0 Mips.A0
 
-                val (newEnv, t) = assignTemp aEnv V0_REG  (* For register v0 *)
+                val (newEnv, t) = assignTemp aEnv Utils.V0_REG  (* For register v0 *)
                 val _ = RegAlloc.allocSpecialReg t Mips.V0
 
-                val printInst = CTM.mSyscall t PRINT_INT_SYSCALL CTM.DUMMY_STR
+                val printInst = CTM.mSyscall t Utils.PRINT_INT_SYSCALL CTM.DUMMY_STR
             in
                 (case expr of
                       TIG.Int i  => ([CTM.mLi a0 i CTM.DUMMY_STR] @ printInst, newEnv)
@@ -280,5 +273,5 @@ struct
 
     (* Compiles Ir program to MIPS *)
     (* compileToMips : Ir.Prog -> (string, Mips.Reg) Mips.Prog *)
-    and compileToMips prog = Mips.mapProg (fn x => x) (RegAlloc.getReg) prog
+    and compileToMips prog = Mips.mapProg Utils.identity RegAlloc.getReg prog
 end
