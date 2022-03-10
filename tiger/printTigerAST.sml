@@ -1,8 +1,8 @@
 (* Pretty Prints the AST of the Tiger Language *)
 signature PRINT_TIGER_AST =
 sig
-    val print     : Tiger.Prog -> unit
-    val getString : Tiger.Prog -> string
+    val print  : Tiger.Prog -> unit
+    val getStr : Tiger.Prog -> string
 end
 
 (* Structure to print the AST generated for the Tiger Language *)
@@ -70,5 +70,5 @@ struct
     and print (Expression e) = printString (concatStrings (strExpr e))
 
     (* Returns the string representation of the Tiger AST *)
-    and getString (Expression e) = concatStrings (strExpr e)
+    and getStr (Expression e) = concatStrings (strExpr e)
 end
