@@ -4,12 +4,13 @@ sig
     type key   = string
     type value = Temp.value
     type mp
-    val empty    : unit -> mp
-    val find     : mp -> key -> value option
-    val lookup   : mp -> key -> value
-    val insert   : mp -> key -> value -> mp
-    val inDomain : mp -> key -> bool
-    val union    : mp -> mp  -> mp
+    val empty     : unit -> mp
+    val find      : mp -> key -> value option
+    val lookup    : mp -> key -> value
+    val insert    : mp -> key -> value -> mp
+    val inDomain  : mp -> key -> bool
+    val union     : mp -> mp  -> mp
+    val listItems : mp -> (key * value) list
 end
 
 structure Env :> ENV =
@@ -35,4 +36,6 @@ struct
                                 | false => (raise MergingEnvironmentConflict "Environment key values are not equal"))
 
     fun union    m1 m2    = AtomMap.unionWith unionFun (m1, m2)
+
+    fun listItems m       = map (fn (k, v) => (Atom.toString k, v)) (AtomMap.listItemsi m)
 end
