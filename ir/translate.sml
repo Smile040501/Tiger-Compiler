@@ -168,7 +168,7 @@ struct
                                                          -> Ir.Inst list * Env.mp *)
     and assignExprHelper env lval expr =
             let
-                val (newEnv, t) = (case lval of
+                val (newEnv, t) = (case lval of (* Assigning temporary value for lval *)
                                     TIG.Var v => assignTemp env v)
             in
                 (case expr of
@@ -220,11 +220,12 @@ struct
     and printExprHelper env expr =
             let
                 val (aEnv, a0) = assignTemp env Utils.A0_REG  (* For register a0 *)
-                val _ = RegAlloc.allocSpecialReg a0 Mips.A0
+                val _          = RegAlloc.allocSpecialReg a0 Mips.A0
 
                 val (newEnv, t) = assignTemp aEnv Utils.V0_REG  (* For register v0 *)
-                val _ = RegAlloc.allocSpecialReg t Mips.V0
+                val _           = RegAlloc.allocSpecialReg t Mips.V0
 
+                (* Instruction set for printing *)
                 val printInst = CTM.mSyscall t Utils.PRINT_INT_SYSCALL CTM.DUMMY_STR
             in
                 (case expr of
@@ -269,9 +270,9 @@ struct
     and compileToIR env (TIG.Expression e) =
             let
                 val (instList, env) = translateExpr env e
-                val stmtList = map (CTM.mapInstToStmt) instList
-                val headerDirs = [Mips.Data, Mips.Text, Mips.Globl "main"] (* Todo add main label *)
-                val headerStmts = map (CTM.mapDirToStmt CTM.DUMMY_STR Temp.DUMMY_VALUE) headerDirs
+                val stmtList        = map (CTM.mapInstToStmt) instList
+                val headerDirs      = [Mips.Data, Mips.Text, Mips.Globl "main"]
+                val headerStmts     = map (CTM.mapDirToStmt CTM.DUMMY_STR Temp.DUMMY_VALUE) headerDirs
             in
                 (headerStmts @ [Mips.Label "main"] @ stmtList, env)
             end
