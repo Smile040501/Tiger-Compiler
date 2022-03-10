@@ -7,7 +7,7 @@ sig
     val allocSpecialReg: key -> value -> unit
 end
 
-structure Reg_Alloc :> REG_ALLOC =
+structure RegAlloc :> REG_ALLOC =
 struct
     type key   = Temp.value
     type value = Mips.Reg
