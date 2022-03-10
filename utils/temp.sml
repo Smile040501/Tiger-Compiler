@@ -39,7 +39,7 @@ structure Temp :> TEMP = struct
     fun newLabel () = let
                         val oldLabel = !curLabel
                       in
-                        (curLabel := oldLabel + 1); "TL" ^ (Int.toString oldLabel)
+                        (curLabel := oldLabel + 1); "_TL" ^ (Int.toString oldLabel)
                       end
 
     (* Check if two values are equal *)
