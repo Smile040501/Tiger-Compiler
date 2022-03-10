@@ -321,8 +321,9 @@ struct
             | Word   of int list
 
     (* Statements of the MIPS machine: the instructions and the assembler directives *)
-    datatype ('l, 't) Stmt =  Inst of ('l, 't) Instruction
-                            | Dir of Directive
+    datatype ('l, 't) Stmt =  Inst  of ('l, 't) Instruction
+                            | Dir   of Directive
+                            | Label of string
 
     (*=========================================================================================*)
     (* Utility functions for mapping different types of records based on input *)
@@ -403,6 +404,7 @@ struct
     (* mapStmt: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Stmt -> ('lp, 'tp) Stmt *)
     fun mapStmt (f: 'l -> 'lp) (g: 't -> 'tp) (stmt: ('l, 't) Stmt) =
         case stmt of
-              Inst i => Inst (mapInst f g i)
-            | Dir d => Dir d
+              Inst  i => Inst (mapInst f g i)
+            | Dir   d => Dir d
+            | Label l => Label l
 end

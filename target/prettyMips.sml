@@ -364,8 +364,9 @@ struct
     (* prettyStmt: (string, string) Stmt -> string *)
     fun prettyStmt (stm : (string, string) Stmt) : string =
         case stm of
-              Inst i => (prettyInst i)
-            | Dir  d => (prettyDir d)
+              Inst  i => (prettyInst i)
+            | Dir   d => (prettyDir d)
+            | Label l => l
 
     (* Maps and pretty prints the instruction *)
     (* prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string *)

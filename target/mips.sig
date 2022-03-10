@@ -321,8 +321,9 @@ sig
             | Word   of int list
 
     (* Statements of the MIPS machine: the instructions and the assembler directives *)
-    datatype ('l, 't) Stmt =  Inst of ('l, 't) Instruction
-                            | Dir of Directive
+    datatype ('l, 't) Stmt =  Inst  of ('l, 't) Instruction
+                            | Dir   of Directive
+                            | Label of string
 
     (* Used to convert instructions from one parametric type to another *)
     val mapInst: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Instruction -> ('lp, 'tp) Instruction
