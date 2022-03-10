@@ -1,7 +1,8 @@
 (* Pretty Prints the AST of the Tiger Language *)
 signature PRINT_TIGER_AST =
 sig
-    val print : Tiger.Prog -> unit
+    val print     : Tiger.Prog -> unit
+    val getString : Tiger.Prog -> string
 end
 
 (* Structure to print the AST generated for the Tiger Language *)
@@ -13,6 +14,7 @@ struct
     fun printString s = TextIO.output (TextIO.stdOut, s)
 
     (* Concatenates list of strings *)
+    (* concatStrings : string list -> string *)
     and concatStrings []      = ""
       | concatStrings (x::xs) = x ^ (concatStrings xs)
 
@@ -23,6 +25,7 @@ struct
     and strInt n = Int.toString n
 
     (* Convert Expr datatype to list of strings *)
+    (* strExpr : Tiger.Expr -> string list *)
     and strExpr Nil            = ["Nil"]
       | strExpr (Int n)        = ["Int(", strInt n, ")"]
       | strExpr (Lval l)       = ["Lval("] @ (strLvalue l) @ [")"]
@@ -46,6 +49,7 @@ struct
       | strExpr (Exprs es)     = ["Exprs(["] @ (strExprs es) @ ["])"]
 
     (* Converts List of Expr datatype to list of strings *)
+    (* strExprs : Tiger.Expr list -> string list *)
     and strExprs []      = []
       | strExprs (x::xs) = (case xs of
                                 [] => ["\n    "] @ (strExpr x) @ ["\n"]
@@ -53,6 +57,7 @@ struct
                             )
 
     (* Converts BinOp datatype to list of string *)
+    (* strExpr : Tiger.BinOp -> string list *)
     and strBinOp Plus  = ["Plus"]
       | strBinOp Minus = ["Minus"]
       | strBinOp Mul   = ["Mul"]
@@ -63,4 +68,7 @@ struct
 
     (* Prints the Tiger program *)
     and print (Expression e) = printString (concatStrings (strExpr e))
+
+    (* Returns the string representation of the Tiger AST *)
+    and getString (Expression e) = concatStrings (strExpr e)
 end
