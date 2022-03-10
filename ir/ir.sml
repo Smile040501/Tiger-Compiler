@@ -7,7 +7,7 @@ sig
 
     val prettyInst : Inst -> string
     val prettyStmt : Stmt -> string
-    (* val prettyProg : Prog -> string *)
+    val prettyProg : Prog -> string
 end
 
 structure Ir :> IR =
@@ -22,4 +22,6 @@ struct
     fun prettyInst i = PrettyMips.prettyMapInst identity Temp.prettyValue i
 
     fun prettyStmt s = PrettyMips.prettyMapStmt identity Temp.prettyValue s
+
+    fun prettyProg p = PrettyMips.prettyMapProg identity Temp.prettyValue p
 end
