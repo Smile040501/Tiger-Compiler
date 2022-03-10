@@ -178,12 +178,12 @@ struct
                                         -> Ir.Inst list * Env.mp *)
     and printExprHelper env expr =
             let
-                val tempLabel   = Temp.newLabel ()
-                val (tEnv, t) = assignTemp env tempLabel  (* For register v0 *)
-                val _ = RegAlloc.allocSpecialReg t Mips.V0
-
-                val (newEnv, a0) = assignTemp tEnv ARG0_REG  (* For register a0 *)
+                val (aEnv, a0) = assignTemp env ARG0_REG  (* For register a0 *)
                 val _ = RegAlloc.allocSpecialReg a0 Mips.A0
+
+                val tempLabel   = Temp.newLabel ()
+                val (newEnv, t) = assignTemp aEnv tempLabel  (* For register v0 *)
+                val _ = RegAlloc.allocSpecialReg t Mips.V0
 
                 val printInst = CTM.mSyscall t PRINT_INT_SYSCALL CTM.DUMMY_STR
             in
