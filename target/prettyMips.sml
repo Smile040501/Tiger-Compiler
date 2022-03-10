@@ -26,6 +26,12 @@ structure PrettyMips :> PRETTY_MIPS =
 struct
     open Mips;
 
+    (* Some utility functions *)
+    fun indent     str = "    " ^ str
+    fun addNewline str = str ^ "\n"
+
+    val indentAndAddNewline = indent o addNewline
+
     (* Pretty prints the register *)
     (* prettyReg: Reg -> string *)
     fun prettyReg (reg : Reg) : string =
@@ -120,7 +126,7 @@ struct
                     | J    => "j"
                     | Jal  => "jal"
             in
-                iStr ^ " " ^ (prettyRecDL r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecDL r))
             end
 
         | DR_Inst (i: DR_Inst__, r: (string, string) DR) =>
@@ -133,7 +139,7 @@ struct
                     | Mthi => "mthi"
                     | Mtlo => "mtlo"
             in
-                iStr ^ " " ^ (prettyRecDR r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecDR r))
             end
 
         | DR_I_Inst (i: DR_I_Inst__, r: (string, string) DR_I) =>
@@ -142,7 +148,7 @@ struct
                       Li  => "li"
                     | Lui => "lui"
             in
-                iStr ^ " " ^ (prettyRecDR_I r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecDR_I r))
             end
 
         | DR_SL_Inst (i: DR_SL_Inst__, r: (string, string) DR_SL) =>
@@ -162,7 +168,7 @@ struct
                     | Ulhu => "ulhu"
                     | Ulw  => "ulw"
             in
-                iStr ^ " " ^ (prettyRecDR_SL r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecDR_SL r))
             end
 
         | DR_SR_Inst (i: DR_SR_Inst__, r: (string, string) DR_SR) =>
@@ -176,7 +182,7 @@ struct
                     | Mfcz => "mfcz"
                     | Mtcz => "mtcz"
             in
-                iStr ^ " " ^ (prettyRecDR_SR r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecDR_SR r))
             end
 
         | DR_SR_I_Inst (i: DR_SR_I_Inst__, r: (string, string) DR_SR_I) =>
@@ -213,7 +219,7 @@ struct
                     | Sltiu   => "sltiu"
                     | Sne_I   => "sne"
             in
-                iStr ^ " " ^ (prettyRecDR_SR_I r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecDR_SR_I r))
             end
 
         | DR_SR_SR_Inst (i: DR_SR_SR_Inst__, r: (string, string) DR_SR_SR) =>
@@ -253,7 +259,7 @@ struct
                     | Sltu  => "sltu"
                     | Sne   => "sne"
             in
-                iStr ^ " " ^ (prettyRecDR_SR_SR r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecDR_SR_SR r))
             end
 
         | SR_DL_Inst (i: SR_DL_Inst__, r: (string, string) SR_DL) =>
@@ -277,7 +283,7 @@ struct
                     | Ush    => "ush"
                     | Usw    => "usw"
             in
-                iStr ^ " " ^ (prettyRecSR_DL r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecSR_DL r))
             end
 
         | SR_SR_Inst (i: SR_SR_Inst__, r: (string, string) SR_SR) =>
@@ -288,7 +294,7 @@ struct
                     | Mult  => "mult"
                     | Multu => "multu"
             in
-                iStr ^ " " ^ (prettyRecSR_SR r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecSR_SR r))
             end
 
         | SR_I_DL_Inst (i: SR_I_DL_Inst__, r: (string, string) SR_I_DL) =>
@@ -305,7 +311,7 @@ struct
                     | Bltu_I => "bltu"
                     | Bne_I  => "bne"
             in
-                iStr ^ " " ^ (prettyRecSR_I_DL r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecSR_I_DL r))
             end
 
         | SR_SR_DL_Inst (i: SR_SR_DL_Inst__, r: (string, string) SR_SR_DL) =>
@@ -322,15 +328,19 @@ struct
                     | Bltu => "bltu"
                     | Bne  => "bne"
             in
-                iStr ^ " " ^ (prettyRecSR_SR_DL r)
+                indentAndAddNewline (iStr ^ " " ^ (prettyRecSR_SR_DL r))
             end
 
         | ExceptionTrapInst (i: ExceptionTrapInst__) =>
-            case i of
-                  Rfe     => "rfe"
-                | Syscall => "syscall"
-                | Break n => "break " ^ (Int.toString n)
-                | Nop     => "nop"
+            let
+                val iStr = case i of
+                      Rfe     => "rfe"
+                    | Syscall => "syscall"
+                    | Break n => "break " ^ (Int.toString n)
+                    | Nop     => "nop"
+            in
+                indentAndAddNewline iStr
+            end
 
     (* Converts the given list of integers to comma separated list of string values *)
     (* intListToCSVString: int list -> string *)
@@ -357,7 +367,7 @@ struct
                 | Text     => "text"
                 | Word   l => "word "   ^ (intListToCSVString l)
         in
-            "." ^ strDir
+            indentAndAddNewline ("." ^ strDir)
         end
 
     (* Pretty prints the statement *)
@@ -366,7 +376,7 @@ struct
         case stm of
               Inst  i => (prettyInst i)
             | Dir   d => (prettyDir d)
-            | Label l => l
+            | Label l => addNewline (l ^ ":")
 
     (* Maps and pretty prints the instruction *)
     (* prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string *)
