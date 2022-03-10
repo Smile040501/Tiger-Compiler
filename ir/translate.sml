@@ -1,3 +1,4 @@
+(* Structure to translate Tiger.Prog to Ir.Prog and then to Mips.Prog *)
 signature TRANSLATE =
 sig
     val compileToIR   : Env.mp -> Tiger.Prog -> Ir.Prog * Env.mp
@@ -17,6 +18,7 @@ struct
     datatype Result = IntRes  of int
                     | TempRes of Temp.value
 
+    (* Raising exception and printing the error message *)
     fun raiseUnsupportedOperationException str = (
         TextIO.output(TextIO.stdErr, str);
         raise UnsupportedOperation "Operation not supported"
@@ -27,12 +29,14 @@ struct
         raise NotDefined "Undefined variable"
     )
 
+    (* Constants *)
     val PRINT_INT_SYSCALL: int = 1
     val PRINT_STRING_SYSCALL: int = 4
     val EXIT_SYSCALL: int = 10
     val A0_REG: string = "$a0"
     val V0_REG: string = "$v0"
 
+    (* Assign a temporary value to the string if not already there *)
     (* assignTemp : Env.mp -> string -> Env.mp * Temp.value *)
     fun assignTemp (env : Env.mp) (id: string) =
             (case Env.find env id of
@@ -45,6 +49,7 @@ struct
                             end
             )
 
+    (* Get the temporary value allocated to the Tiger.Lvalue *)
     (* getTemp : Env.mp -> Tiger.Lvalue -> Temp.value *)
     fun getTemp (env : Env.mp) (TIG.Var id) =
             (case Env.find env id of
@@ -62,6 +67,7 @@ struct
       | evalExpr env (TIG.Exprs e) = evalExprs env e
       | evalExpr env  e            = raiseUnsupportedOperationException ("translate.sml:evalExpr Operation not supported:\n" ^ (PTA.getStr (TIG.Expression e)) ^ "\n")
 
+    (* Simplifies nested binary operator expression *)
     (* evalOpExpr : Env.mp -> Tiger.Expr -> Tiger.BinOp -> Tiger.Expr
                                                                 -> Result * Env.mp * Ir.Inst list *)
     and evalOpExpr env left oper right =
@@ -76,6 +82,7 @@ struct
                 (TempRes t, newEnv4, lProg @ rProg @ addProg)
             end
 
+    (* Simplifies nested binary operator expression of the type (x := a + b) *)
     (* evalReducedOpExpr : Temp.value -> Result -> Tiger.BinOp -> Result
                                                                     -> Ir.Inst list *)
     and evalReducedOpExpr (t: Temp.value) lRes TIG.Plus rRes =
@@ -107,6 +114,7 @@ struct
                 | (TempRes i, TempRes j) => [CTM.mDiv_Q  t i j CTM.DUMMY_STR]
             )
 
+    (* Simplifies the nested negation expression *)
     (* evalNegExpr : Env.mp -> Tiger.Expr
                                     -> Result * Env.mp * Ir.Inst list *)
     and evalNegExpr env e =
@@ -119,12 +127,14 @@ struct
                 (TempRes t, newEnv2, irProg @ addProg)
             end
 
+    (* Simplifies the nested negation expression of the type (x := ~y) *)
     (* evalReducedNegExpr : Temp.value -> Result
                                             -> Ir.Inst list *)
     and evalReducedNegExpr (t: Temp.value) res = case res of
                                   IntRes i  => [CTM.mLi  t (~i) CTM.DUMMY_STR]
                                 | TempRes v => [CTM.mNeg t v    CTM.DUMMY_STR]
 
+   (* Simplifies the list of nested negation expressions *)
     (* evalExprs : Env.mp -> Tiger.Expr list
                                 -> Result * Env.mp * Ir.Inst list *)
     and evalExprs env []  = raiseUnsupportedOperationException "translate.sml:evalExprs"
@@ -136,6 +146,7 @@ struct
                                       (res2, newEnv2, irProg @ irProg2)
                                   end
 
+    (* Translates the Tiger.Expr to Ir.Inst list *)
     (* translateExpr : Env.mp -> Tiger.Expr
                                     -> Ir.Inst list * Env.mp *)
     and translateExpr env (TIG.Assign e) = assignExprHelper env (#lvalue e) (#expr e)
@@ -143,6 +154,7 @@ struct
       | translateExpr env (TIG.Exprs e)  = translateExprs env e
       | translateExpr env _              = ([], env)
 
+    (* Translates the Tiger.Expr list to Ir.Inst list *)
     (* tranlateExprs : Env.mp -> Tiger.Expr list
                                         -> Ir.Inst list * Env.mp *)
     and translateExprs env []        = ([], env)
@@ -153,6 +165,7 @@ struct
                                             (prog1 @ prog2, env2)
                                        end
 
+    (* Utility function manager for translating Tiger.Assign expressions *)
     (* assignExprHelper : Env.mp -> Tiger.Lvalue -> Tiger.Expr
                                                          -> Ir.Inst list * Env.mp *)
     and assignExprHelper env lval expr =
@@ -196,13 +209,14 @@ struct
                 )
             end
 
+    (* For simplified Tiger.Assign expression of the form lvalue := result *)
     (* assignExprSimplified : Temp.value -> Result
                                                 -> Ir.Inst list *)
     and assignExprSimplified (t: Temp.value) (res: Result) = case res of
                           IntRes i  => [CTM.mLi   t i CTM.DUMMY_STR]
                         | TempRes v => [CTM.mMove t v CTM.DUMMY_STR]
 
-
+    (* Utility function manager for translating Tiger.Print expressions *)
     (* printExprHelper : Env.mp -> Tiger.Expr
                                         -> Ir.Inst list * Env.mp *)
     and printExprHelper env expr =
@@ -265,5 +279,6 @@ struct
             end
 
     (* Compiles Ir program to MIPS *)
+    (* compileToMips : Ir.Prog -> (string, Mips.Reg) Mips.Prog *)
     and compileToMips prog = Mips.mapProg (fn x => x) (RegAlloc.getReg) prog
 end
