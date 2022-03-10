@@ -6,6 +6,7 @@ sig
     type mp
     val empty    : unit -> mp
     val find     : mp -> key -> value option
+    val lookup   : mp -> key -> value
     val insert   : mp -> key -> value -> mp
     val inDomain : mp -> key -> bool
 end
@@ -19,6 +20,8 @@ struct
     fun empty    ()    = AtomMap.empty
 
     and find     m k   = AtomMap.find (m, Atom.atom k)
+
+    and lookup   m k   = AtomMap.lookup (m, Atom.atom k)
 
     and insert   m k v = AtomMap.insert (m, Atom.atom k, v)
 
