@@ -22,6 +22,8 @@ sig
     val mDiv_QI: 't -> 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Instruction
 
     val mNeg   : 't -> 't -> 'l -> ('l, 't) Mips.Instruction
+
+    val mSyscall : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Instruction list
 end
 
 structure ConvToMIPS :> CONV_TO_MIPS =
@@ -65,4 +67,7 @@ struct
 
     fun mNeg (a: 't) (b: 't) (_: 'l) : ('l, 't) Instruction =
             DR_SR_Inst(Neg, {dest = a, src1 = b})
+
+    fun mSyscall (a: 't) (b: Imm) (c:'l) : ('l, 't) Instruction list =
+            [mLi a b c, ExceptionTrapInst Syscall]
 end
