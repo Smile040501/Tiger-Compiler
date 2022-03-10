@@ -7,6 +7,8 @@ sig
     val newtemp     : unit  -> value
     val newLabel    : unit  -> label
 
+    val compare     : value -> value -> bool
+
     val prettyTemp  : value -> string
     val prettyLabel : label -> string
 end
@@ -34,6 +36,9 @@ structure Temp :> TEMP = struct
                       in
                         (curLabel := oldLabel + 1); "TL" ^ (Int.toString oldLabel)
                       end
+
+    (* Compare two values *)
+    fun compare v1 v2 = (v1 = v2)
 
     (* Pretty prints `Temp.value` *)
     fun prettyTemp (t: value) = Int.toString t

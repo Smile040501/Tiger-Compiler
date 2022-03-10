@@ -9,6 +9,7 @@ sig
     val lookup   : mp -> key -> value
     val insert   : mp -> key -> value -> mp
     val inDomain : mp -> key -> bool
+    val union    : mp -> mp  -> mp
 end
 
 structure Env :> ENV =
@@ -17,13 +18,21 @@ struct
     type value = Temp.value
     type mp    = value AtomMap.map
 
-    fun empty    ()    = AtomMap.empty
+    exception MergingEnvironmentConflict of string
 
-    and find     m k   = AtomMap.find (m, Atom.atom k)
+    fun empty    ()       = AtomMap.empty
 
-    and lookup   m k   = AtomMap.lookup (m, Atom.atom k)
+    fun find     m k      = AtomMap.find (m, Atom.atom k)
 
-    and insert   m k v = AtomMap.insert (m, Atom.atom k, v)
+    fun lookup   m k      = AtomMap.lookup (m, Atom.atom k)
 
-    and inDomain m k   = AtomMap.inDomain (m, Atom.atom k)
+    fun insert   m k v    = AtomMap.insert (m, Atom.atom k, v)
+
+    fun inDomain m k      = AtomMap.inDomain (m, Atom.atom k)
+
+    fun unionFun (v1, v2) = (case Temp.compare v1 v2 of
+                                  true  => v1
+                                | false => (raise MergingEnvironmentConflict "Environment key values are not equal"))
+
+    fun union    m1 m2    = AtomMap.unionWith unionFun (m1, m2)
 end
