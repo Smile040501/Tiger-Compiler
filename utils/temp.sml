@@ -49,7 +49,7 @@ structure Temp :> TEMP = struct
     fun compare (v1, v2) = Int.compare (v1, v2)
 
     (* Pretty prints `Temp.value` *)
-    fun prettyValue (t: value) = Int.toString t
+    fun prettyValue (t: value) = "_TV" ^ (Int.toString t)
 
     (* Pretty prints `Temp.label` *)
     fun prettyLabel (t: label) = t
