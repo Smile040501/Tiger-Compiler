@@ -10,7 +10,7 @@ end
 
 structure Env :> ENV =
 struct
-    type value = Temp.temp
+    type value = Temp.value
     type mp    = value AtomMap.map
 
     fun empty  ()      = AtomMap.empty
