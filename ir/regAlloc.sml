@@ -3,8 +3,8 @@ sig
     type key   = Temp.value
     type value = Mips.Reg
 
-    val allocReg: key -> value -> unit
     val allocRegs: key list -> unit
+    val allocSpecialReg: key -> value -> unit
 end
 
 structure Reg_Alloc :> REG_ALLOC =
@@ -29,12 +29,13 @@ struct
     val curIdx : int ref = ref 0  (* Current index of the list *)
 
     val MP : mp ref = ref TempValMap.empty
+    val MP_Special : mp ref = ref TempValMap.empty
 
-    fun allocReg (k: key) (r: value) : unit =
+    fun allocReg (k: key) (r: value) (m: mp ref) : unit =
             let
-                val newMP = TempValMap.insert (!MP, k, r)
+                val newM = TempValMap.insert (!m, k, r)
             in
-                MP := newMP
+                m := newM
             end
 
     fun allocRegs ([] : key list) : unit = ()
@@ -45,10 +46,15 @@ struct
                 let
                     val r = List.nth (regList, !curIdx)
                 in
-                    (curIdx := !curIdx + 1); (allocReg k r); allocRegs ks
+                    (curIdx := !curIdx + 1); (allocReg k r MP); allocRegs ks
                 end
+
+    fun allocSpecialReg (k : key) (r : value) : unit = allocReg k r MP_Special
 
     fun getReg (k: key) : value = case (TempValMap.find (!MP, k)) of
                   SOME r => r
-                | NONE   => raise NoRegisterForTemp ("No register for temp " ^ Temp.prettyValue k)
+                | NONE   => (case (TempValMap.find (!MP_Special, k)) of
+                          SOME r => r
+                        | NONE   => raise NoRegisterForTemp ("No register for temp " ^ Temp.prettyValue k)
+                )
 end
