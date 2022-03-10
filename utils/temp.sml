@@ -2,7 +2,7 @@
 signature TEMP =
 sig
     type value
-    type label
+    type label = string
 
     val newtemp     : unit  -> value
     val newLabel    : unit  -> label
