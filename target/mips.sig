@@ -325,9 +325,15 @@ sig
                             | Dir   of Directive
                             | Label of string
 
+    (* MIPS program *)
+    type ('l, 't) Prog = ('l, 't) Stmt list
+
     (* Used to convert instructions from one parametric type to another *)
     val mapInst: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Instruction -> ('lp, 'tp) Instruction
 
     (* Used to convert statements from one parametric type to another *)
     val mapStmt: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Stmt -> ('lp, 'tp) Stmt
+
+    (* Used to convert program from one parametric type to another *)
+    val mapProg: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Prog -> ('lp, 'tp) Prog
 end

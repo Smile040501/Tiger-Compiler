@@ -15,11 +15,17 @@ sig
     (* Pretty prints the statement *)
     val prettyStmt: (string, string) Mips.Stmt -> string
 
+    (* Pretty prints the program *)
+    val prettyProg: (string, string) Mips.Prog -> string
+
     (* Maps and pretty prints the instruction *)
     val prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Mips.Instruction -> string
 
     (* Maps and pretty prints the statement *)
     val prettyMapStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Mips.Stmt -> string
+
+    (* Maps and pretty prints the program *)
+    val prettyMapProg: ('l -> string) -> ('t -> string) -> ('l, 't) Mips.Prog -> string
 end
 
 structure PrettyMips :> PRETTY_MIPS =
@@ -27,10 +33,14 @@ struct
     open Mips;
 
     (* Some utility functions *)
-    fun indent     str = "    " ^ str
-    fun addNewline str = str ^ "\n"
+    fun indent              str = "    " ^ str
+    fun addNewline          str = str ^ "\n"
+    fun indentAndAddNewline str = (indent o addNewline) str
 
-    val indentAndAddNewline = indent o addNewline
+    (* Concatenates list of strings *)
+    (* concatStrings : string list -> string *)
+    and concatStrings []      = ""
+      | concatStrings (x::xs) = x ^ (concatStrings xs)
 
     (* Pretty prints the register *)
     (* prettyReg: Reg -> string *)
@@ -378,6 +388,10 @@ struct
             | Dir   d => (prettyDir d)
             | Label l => addNewline (l ^ ":")
 
+    (* Pretty prints the program *)
+    (* prettyProg: (string, string) Prog -> string *)
+    fun prettyProg (prog: (string, string) Mips.Prog) : string = concatStrings (map prettyStmt prog)
+
     (* Maps and pretty prints the instruction *)
     (* prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string *)
     fun prettyMapInst (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Instruction) = prettyInst (mapInst f g x)
@@ -385,4 +399,8 @@ struct
     (* Maps and pretty prints the statement *)
     (* prettyMapStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string *)
     fun prettyMapStmt (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Stmt) = prettyStmt (mapStmt f g x)
+
+    (* Maps and pretty prints the program *)
+    (* prettyMapProg: ('l -> string) -> ('t -> string) -> ('l, 't) Prog -> string *)
+    fun prettyMapProg (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Prog) = prettyProg (mapProg f g x)
 end

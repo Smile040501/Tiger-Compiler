@@ -325,6 +325,9 @@ struct
                             | Dir   of Directive
                             | Label of string
 
+    (* MIPS program *)
+    type ('l, 't) Prog = ('l, 't) Stmt list
+
     (*=========================================================================================*)
     (* Utility functions for mapping different types of records based on input *)
     fun mapRecDL       (f: 'l -> 'lp) (g: 't -> 'tp) (r: ('l, 't) DL)       : ('lp, 'tp) DL       =
@@ -407,4 +410,8 @@ struct
               Inst  i => Inst (mapInst f g i)
             | Dir   d => Dir d
             | Label l => Label l
+
+    (* Used to convert program from one parametric type to another *)
+    (* mapProg: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Prog -> ('lp, 'tp) Prog *)
+    fun mapProg (f: 'l -> 'lp) (g: 't -> 'tp) (prog: ('l, 't) Prog) = map (mapStmt f g) prog
 end
