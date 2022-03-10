@@ -1,8 +1,8 @@
 (* Structure to create an Environment *)
 signature ENV =
 sig
-    type key = string
-    type value
+    type key   = string
+    type value = Temp.value
     type mp
     val empty    : unit -> mp
     val find     : mp -> key -> value option
@@ -30,7 +30,7 @@ struct
 
     fun inDomain m k      = AtomMap.inDomain (m, Atom.atom k)
 
-    fun unionFun (v1, v2) = (case Temp.compare v1 v2 of
+    fun unionFun (v1, v2) = (case Temp.areEq (v1, v2) of
                                   true  => v1
                                 | false => (raise MergingEnvironmentConflict "Environment key values are not equal"))
 
