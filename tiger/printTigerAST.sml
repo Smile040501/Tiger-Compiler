@@ -23,7 +23,8 @@ struct
     and strInt n = Int.toString n
 
     (* Convert Expr datatype to list of strings *)
-    and strExpr (Int n)        = ["Int(", strInt n, ")"]
+    and strExpr Nil            = ["Nil"]
+      | strExpr (Int n)        = ["Int(", strInt n, ")"]
       | strExpr (Lval l)       = ["Lval("] @ (strLvalue l) @ [")"]
       | strExpr (Op operation) = let
                                     val {left, oper, right} = operation

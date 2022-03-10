@@ -8,7 +8,8 @@ sig
     (* Expressions datatype *)
     datatype Expr =
                 (* Literals *)
-                  Int of int
+                  Nil
+                | Int of int
 
                 (* Variables *)
                 | Lval of Lvalue
