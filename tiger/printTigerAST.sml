@@ -1,8 +1,8 @@
 (* Pretty Prints the AST of the Tiger Language *)
 signature PRINT_TIGER_AST =
 sig
-    val print  : Tiger.Prog -> unit
-    val getStr : Tiger.Prog -> string
+    val prettyTig : Tiger.Prog -> string
+    val print     : Tiger.Prog -> unit
 end
 
 (* Structure to print the AST generated for the Tiger Language *)
@@ -10,14 +10,9 @@ structure PrintTigerAST :> PRINT_TIGER_AST =
 struct
     open Tiger;
 
-    (* Prints a string to stdout *)
-    fun printString s = TextIO.output (TextIO.stdOut, s)
-
-    (* Convert identifier to string *)
-    and strId (identifier: id) = identifier
-
     (* Convert Integer to string *)
-    and strInt n = Int.toString n
+    (* val strInt : int -> string *)
+    fun strInt n = Int.toString n
 
     (* Convert Expr datatype to list of strings *)
     (* strExpr : Tiger.Expr -> string list *)
@@ -59,11 +54,14 @@ struct
       | strBinOp Div   = ["Div"]
 
     (* Converts Lvalue datatype to list of strings *)
-    and strLvalue (Var x) = ["Var(", strId x, ")"]
-
-    (* Prints the Tiger program *)
-    and print (Expression e) = printString (Utils.concatStrings (strExpr e))
+    (* strLvalue : Tiger.Lvalue -> string list *)
+    and strLvalue (Var x) = ["Var(", x, ")"]
 
     (* Returns the string representation of the Tiger AST *)
-    and getStr (Expression e) = Utils.concatStrings (strExpr e)
+    (* prettyTig : Tiger.Prog -> string *)
+    and prettyTig (Expression e) = Utils.concatStrings (strExpr e)
+
+    (* Prints the Tiger program *)
+    (* print : Tiger.Prog -> unit *)
+    and print p = Utils.printOut (prettyTig p)
 end

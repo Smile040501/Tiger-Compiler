@@ -7,8 +7,6 @@ end
 
 structure Translate :> TRANSLATE =
 struct
-    exception UnsupportedOperation of string
-    exception NotDefined of string
 
     structure TIG = Tiger
     structure PTA = PrintTigerAST
@@ -19,15 +17,15 @@ struct
                     | TempRes of Temp.value
 
     (* Raising exception and printing the error message *)
-    fun raiseUnsupportedOperationException str = (
-        TextIO.output(TextIO.stdErr, str);
-        raise UnsupportedOperation "Operation not supported"
-    )
+    exception UnsupportedOperation of string
+    exception NotDefined of string
 
-    fun raiseNotDefinedException str = (
-        TextIO.output(TextIO.stdErr, str);
-        raise NotDefined "Undefined variable"
-    )
+    (* raiseUnsupportedOperationException : string -> Tiger.Expr *)
+    fun raiseUnsupportedOperationException msg =
+                    Utils.throwErr UnsupportedOperation ("[translate.sml]:" ^ msg)
+
+    fun raiseNotDefinedException msg =
+                    Utils.throwErr NotDefined ("[translate.sml]:" ^ msg)
 
     (* Assign a temporary value to the string if not already there *)
     (* assignTemp : Env.mp -> string -> Env.mp * Temp.value *)
@@ -46,8 +44,8 @@ struct
     (* getTemp : Env.mp -> string -> Temp.value *)
     fun getTemp (env : Env.mp) (id: string) =
             (case Env.find env id of
-                  SOME (x: Temp.value)  => x
-                | NONE    => raiseNotDefinedException ("traslate.sml:getTemp Undefined variable " ^ id ^ "\n")
+                  SOME x  => x
+                | NONE    => raiseNotDefinedException ("[getTemp]: Undefined variable " ^ id)
             )
 
     (* Simplifies the nested expression into resultant expression *)
@@ -58,7 +56,7 @@ struct
       | evalExpr env (TIG.Op r)    = evalOpExpr env (#left r) (#oper r) (#right r)
       | evalExpr env (TIG.Neg e)   = evalNegExpr env e
       | evalExpr env (TIG.Exprs e) = evalExprs env e
-      | evalExpr env  e            = raiseUnsupportedOperationException ("translate.sml:evalExpr Operation not supported:\n" ^ (PTA.getStr (TIG.Expression e)) ^ "\n")
+      | evalExpr env  e            = raiseUnsupportedOperationException ("[evalExpr]: Operation not supported:\n" ^ (PTA.prettyTig (TIG.Expression e)))
 
     (* Simplifies the nested lvalue expression into resultant expression *)
     (* evalLvalueExpr : Env.mp -> Tiger.Lvalue
@@ -135,7 +133,7 @@ struct
    (* Simplifies the list of nested negation expressions *)
     (* evalExprs : Env.mp -> Tiger.Expr list
                                 -> Result * Env.mp * Ir.Inst list *)
-    and evalExprs env []  = raiseUnsupportedOperationException "translate.sml:evalExprs"
+    and evalExprs env []  = raiseUnsupportedOperationException ("[evalExprs]: Operation not supported:\n" ^ (PTA.prettyTig (TIG.Expression (TIG.Exprs []))))
       | evalExprs env [e] = evalExpr env e
       | evalExprs env (e :: es) = let
                                       val (res, newEnv1, irProg) = evalExpr env e
@@ -203,7 +201,7 @@ struct
                         in
                             (prog @ addProg, resEnv)
                         end
-                    | _                   => raiseUnsupportedOperationException "translate.sml:assignExprHelper"
+                    | e           => raiseUnsupportedOperationException ("[assignExprHelper]: Operation not supported:\n" ^ (PTA.prettyTig (TIG.Expression e)))
                 )
             end
 
@@ -261,7 +259,7 @@ struct
                         in
                             (prog @ addProg @ printInst, resEnv)
                         end
-                    | _                   => raiseUnsupportedOperationException "translate.sml:printExprHelper"
+                    | e                   => raiseUnsupportedOperationException ("[printExprHelper]: Operation not supported:\n" ^ (PTA.prettyTig (TIG.Expression e)))
                 )
             end
 

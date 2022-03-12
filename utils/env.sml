@@ -47,7 +47,7 @@ struct
     (* unionFun : (value * value) -> value *)
     fun unionFun (v1, v2) = (case Temp.areEq (v1, v2) of
                                   true  => v1
-                                | false => (raise MergingEnvironmentConflict "Environment key values are not equal"))
+                                | false => (Utils.throwErr MergingEnvironmentConflict "[env.sml]:[unionFun]: Environments' key values are not equal of all the same keys"))
 
     (* Takes union of two environments *)
     (* union : mp -> mp  -> mp *)

@@ -18,4 +18,13 @@ struct
     (* concatStrs : string list -> string *)
     fun concatStrings []        = ""
       | concatStrings (x :: xs) = x ^ (concatStrings xs)
+
+    (* Prints the input string to the outstream *)
+    (* val TextIO.output  : TextIO.outstream * string -> unit *)
+    fun printOut str = TextIO.output(TextIO.stdOut, str)
+    fun printErr str = TextIO.output(TextIO.stdErr, str)
+
+    (* Raises an Exception *)
+    fun throwErr (ex : string -> exn) (msg : string) =
+                (printErr msg; raise ex ("\nERROR: " ^ msg ^ "\n"))
 end

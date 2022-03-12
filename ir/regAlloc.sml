@@ -57,7 +57,8 @@ struct
     fun allocRegs ([] : key list) : unit = ()
       | allocRegs (k :: ks) =
             if !curIdx >= (List.length regList) then
-                raise NoRegistersAvailable "No more registers available"
+                (Utils.throwErr NoRegistersAvailable
+                        "[regAlloc.sml]:[allocRegs]: No more registers available")
             else
                 let
                     val r = List.nth (regList, !curIdx)
@@ -75,6 +76,6 @@ struct
                   SOME r =>  r
                 | NONE   => (case (TempValMap.find (!MP, k)) of
                           SOME r => r
-                        | NONE   => raise NoRegisterForTemp ("No register for temp " ^ Temp.prettyValue k)
+                        | NONE   => (Utils.throwErr NoRegisterForTemp ("[regAlloc.sml]:[getReg]: No register is allocated for temp " ^ Temp.prettyValue k))
                 )
 end
