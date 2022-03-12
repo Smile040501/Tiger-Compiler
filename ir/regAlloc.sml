@@ -13,6 +13,9 @@ sig
 
     (* Returns the MIPS register allocated to the temporary register *)
     val getReg          : key -> value
+
+    (* Returns the register allocation performed by the compiler *)
+    val listItems: unit -> (string * string) list
 end
 
 structure RegAlloc :> REG_ALLOC =
@@ -78,4 +81,12 @@ struct
                           SOME r => r
                         | NONE   => (Utils.throwErr NoRegisterForTemp ("[regAlloc.sml]:[getReg]: No register is allocated for temp " ^ Temp.prettyValue k))
                 )
+
+    (* Returns the list of key-value pairs converted to string from the Map *)
+    (* getItems : mp ref -> (string * string) list *)
+    fun getItems (m: mp ref) = map (fn (k, v) => (Temp.prettyValue k, PrettyMips.prettyReg v)) (TempValMap.listItemsi (!m))
+
+    (* Returns the register allocation performed by the compiler *)
+    (* listItems: unit -> (string * string) list *)
+    fun listItems () = (getItems MP) @ (getItems MP_Special)
 end
