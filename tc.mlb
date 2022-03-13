@@ -9,7 +9,7 @@ utils/env.sml
 tiger/ast.sig
 tiger/ast.sml
 tiger/convToTiger.sml
-tiger/printTigerAST.sml
+tiger/prettyTigerAST.sml
 
 target/mips.sig
 target/mips.sml

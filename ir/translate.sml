@@ -9,7 +9,7 @@ structure Translate :> TRANSLATE =
 struct
 
     structure TIG = Tiger
-    structure PTA = PrintTigerAST
+    structure PTA = PrettyTigerAST
     structure CTM = ConvToMIPS
 
     (* The result type of intermediate expressions *)

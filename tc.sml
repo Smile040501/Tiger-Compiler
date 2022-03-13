@@ -109,7 +109,7 @@ struct
 
 
 	(* Displays the Tiger AST generated from the source file *)
-	fun displayTigerAST () = PrintTigerAST.print tigerProgram
+	fun displayTigerAST () = Utils.printOut (PrettyTigerAST.prettyTig tigerProgram)
 
 	val _ = if (!flagRef = "-A" orelse !flagRef = "--ast") then
 				(displayTigerAST(); successExit(); ())

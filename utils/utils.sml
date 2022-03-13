@@ -41,6 +41,10 @@ struct
                                         else filterValues f xs l2
                                       )
 
+    (* Indents the input string by the given amount of spaces *)
+    fun indent str 0 = str
+      | indent str n = " " ^ (indent str (n-1))
+
     (* Pads the input string with the input character string upto length n on left *)
     (* val padLeft : int -> string -> string -> string *)
     fun padLeft n str c = case ((size str) >= n) of
