@@ -30,7 +30,7 @@ end
 
 structure PrettyMips :> PRETTY_MIPS =
 struct
-    open Mips;
+    open Mips
 
     (* Some utility functions *)
     fun indent              str = "    " ^ str

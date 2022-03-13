@@ -28,7 +28,7 @@ end
 
 structure ConvToMIPS :> CONV_TO_MIPS =
 struct
-    open Mips;
+    open Mips
 
     val DUMMY_STR : string = "__DUMMY_LABEL__"
 

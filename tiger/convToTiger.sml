@@ -11,7 +11,7 @@ end
 
 structure ConvToTiger :> CONV_TO_TIGER =
 struct
-    open Tiger;
+    open Tiger
 
     (* Conversion functions *)
 
