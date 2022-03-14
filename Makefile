@@ -47,8 +47,5 @@ $(TIG_BIN): $(SRC) $(TIG_PARSE) $(TIG_MLTON)
 %.grm.sml: %.grm
 	mlyacc $<
 
-run: $(TIG_BIN)
-	$(TIG_BIN)
-
 clean:
 	rm -rf $(CLEANFILES)
