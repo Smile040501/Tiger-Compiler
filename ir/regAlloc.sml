@@ -5,17 +5,20 @@ sig
     type key   = Temp.value     (* Type of temporary registers *)
     type value = Mips.Reg       (* Type of MIPS registers *)
 
-    (* Allocate registers to list of temporary registers *)
-    val allocRegs       : key list -> unit
+    (* Allocates the input register to a temporary register *)
+    val allocRegWith  : key -> value -> unit
 
-    (* Allocate some special registers directly *)
-    val allocSpecialReg : key -> value -> unit
+    (* Allocates a new register to a temporary register *)
+    val allocReg  : key -> unit
+
+    (* Allocates registers to list of temporary registers *)
+    val allocRegs : key list -> unit
 
     (* Returns the MIPS register allocated to the temporary register *)
-    val getReg          : key -> value
+    val getReg    : key -> value
 
     (* Returns the register allocation performed by the compiler *)
-    val listItems: unit -> (string * string) list
+    val listItems : unit -> (string * string) list
 end
 
 structure RegAlloc :> REG_ALLOC =
@@ -42,51 +45,44 @@ struct
 
     val curIdx : int ref = ref 0  (* Current index of the list *)
 
-    (* Map for Temp.values and some special registers (like A0 and V0) *)
-    val MP         : mp ref = ref TempValMap.empty
-    val MP_Special : mp ref = ref TempValMap.empty
+    (* Map from Temp.value to Mips.Reg *)
+    val MP : mp ref = ref TempValMap.empty
 
-    (* Insert the key-value pair in the iput map *)
-    (* allocReg : key -> value -> mp ref -> unit *)
-    fun allocReg (k: key) (r: value) (m: mp ref) : unit =
-            let
-                val newM = TempValMap.insert (!m, k, r)
-            in
-                m := newM
-            end
+    (* Allocates the input register to a temporary register *)
+    (* allocRegWith : key -> value -> unit *)
+    fun allocRegWith (k: key) (r: value) : unit =
+                let
+                    val newM = TempValMap.insert (!MP, k, r)
+                in
+                    MP := newM
+                end
+
+    (* Allocates a new register to a temporary register *)
+    (* allocReg  : key -> unit *)
+    fun allocReg (k: key) : unit =
+                if !curIdx >= (List.length regList) then
+                    (Utils.throwErr NoRegistersAvailable
+                        "[regAlloc.sml]:[allocRegs]: No more registers available")
+                else
+                    let
+                        val r = List.nth (regList, !curIdx)
+                        val _ = curIdx := !curIdx + 1
+                    in
+                        allocRegWith k r
+                    end
 
     (* Allocate registers to list of temporary registers *)
     (* allocRegs : key list -> unit *)
     fun allocRegs ([] : key list) : unit = ()
-      | allocRegs (k :: ks) =
-            if !curIdx >= (List.length regList) then
-                (Utils.throwErr NoRegistersAvailable
-                        "[regAlloc.sml]:[allocRegs]: No more registers available")
-            else
-                let
-                    val r = List.nth (regList, !curIdx)
-                in
-                    (curIdx := !curIdx + 1); (allocReg k r MP); allocRegs ks
-                end
-
-    (* Allocate some special registers directly *)
-    (* allocSpecialReg : key -> value -> unit *)
-    fun allocSpecialReg (k : key) (r : value) : unit = allocReg k r MP_Special
+      | allocRegs (k :: ks)              = ((allocReg k); allocRegs ks)
 
     (* Returns the MIPS register allocated to the temporary register *)
     (* getReg : key -> value *)
-    fun getReg (k: key) : value = case (TempValMap.find (!MP_Special, k)) of
-                  SOME r =>  r
-                | NONE   => (case (TempValMap.find (!MP, k)) of
-                          SOME r => r
-                        | NONE   => (Utils.throwErr NoRegisterForTemp ("[regAlloc.sml]:[getReg]: No register is allocated for temp " ^ Temp.prettyValue k))
-                )
-
-    (* Returns the list of key-value pairs converted to string from the Map *)
-    (* getItems : mp ref -> (string * string) list *)
-    fun getItems (m: mp ref) = map (fn (k, v) => (Temp.prettyValue k, PrettyMips.prettyReg v)) (TempValMap.listItemsi (!m))
+    fun getReg (k: key) : value = case (TempValMap.find (!MP, k)) of
+                      SOME r => r
+                    | NONE   => (Utils.throwErr NoRegisterForTemp ("[regAlloc.sml]:[getReg]: No register is allocated for temp " ^ Temp.prettyValue k))
 
     (* Returns the register allocation performed by the compiler *)
     (* listItems: unit -> (string * string) list *)
-    fun listItems () = (getItems MP) @ (getItems MP_Special)
+    fun listItems () = map (fn (k, v) => (Temp.prettyValue k, PrettyMips.prettyReg v)) (TempValMap.listItemsi (!MP))
 end

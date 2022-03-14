@@ -126,35 +126,29 @@ struct
 				(displayIR(); successExit(); ())
 			else ()
 
-
-	(* The temporaries allocation performed by the compiler *)
-	(* val temps : (string * Temp.value) list *)
-	val temps = Env.listItems env
-
 	(* Display the temporaries allocation performed by the compiler *)
-	fun displayTempAlloc () = Utils.printPairList Utils.identity Temp.prettyValue temps
+	fun displayTempAlloc () =
+				let
+					val temps = Env.listItems env
+					(* The temporaries allocation performed by the compiler *)
+					(* val temps : (string * Temp.value) list *)
+				in
+					Utils.printPairList Utils.identity Temp.prettyValue temps
+				end
 
 	val _ = if (!flagRef = "-T" orelse !flagRef = "--temp-alloc") then
 				(displayTempAlloc(); successExit(); ())
 			else ()
 
-
-	(* These are the special registers that were already allocated their registers before and should not take part in register allocation now *)
-	val specialRegs = [Utils.A0_REG, Utils.V0_REG]
-
-	(* Filtering the temporaries so as not to allocate the special registers again *)
-	val filteredTemps = Utils.filterValues (fn ((k, _), r) => k <> r) temps specialRegs
-
-	(* Allocating the actual MIPS registers to the temporaries *)
-	(* TODO: filter temporaries withou special registers only *)
-	val _ = RegAlloc.allocRegs (map (fn (k, v) => v) filteredTemps)
-
-	(* The register allocation performed by the compiler *)
-	(* val regs : (string * string) list *)
-	val regs = RegAlloc.listItems ()
-
 	(* Displays the register allocation performed by the compiler *)
-	fun displayRegAlloc () = Utils.printPairList Utils.identity Utils.identity regs
+	fun displayRegAlloc () =
+					let
+						val regs = RegAlloc.listItems ()
+						(* The register allocation performed by the compiler *)
+						(* val regs : (string * string) list *)
+					in
+						Utils.printPairList Utils.identity Utils.identity regs
+					end
 
 	val _ = if (!flagRef = "-R" orelse !flagRef = "--reg-alloc") then
 				(displayRegAlloc(); successExit(); ())

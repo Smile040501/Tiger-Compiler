@@ -11,6 +11,7 @@ struct
     structure TIG = Tiger
     structure PTA = PrettyTigerAST
     structure CTM = ConvToMIPS
+    structure RA  = RegAlloc
 
     (* The result type of intermediate expressions *)
     datatype Result = IntRes  of int
@@ -28,13 +29,15 @@ struct
                     Utils.throwErr NotDefined ("[translate.sml]:" ^ msg)
 
     (* Assign a temporary value to the string if not already there *)
-    (* assignTemp : Env.mp -> string -> Env.mp * Temp.value *)
-    fun assignTemp (env : Env.mp) (id: string) =
+    (* assignTemp : Env.mp -> string -> bool -> Env.mp * Temp.value *)
+    fun assignTemp (env : Env.mp) (id: string) (allocateReg: bool) =
             (case Env.find env id of
                   SOME t => (env, t)
                 | NONE   => let
                                 val t      = Temp.newValue ()
                                 val newEnv = Env.insert env id t
+                                val _      = if allocateReg then (RA.allocReg t)
+                                             else ()
                             in
                                 (newEnv, t)
                             end
@@ -72,7 +75,7 @@ struct
                 val (rRes, newEnv2, rProg) = evalExpr env right
                 val newEnv3                = Env.union newEnv1 newEnv2
                 val tempLabel              = Temp.newLabel ()
-                val (newEnv4, t)           = assignTemp newEnv3 tempLabel
+                val (newEnv4, t)           = assignTemp newEnv3 tempLabel true
                 val addProg                = evalReducedOpExpr t lRes oper rRes
             in
                 (TempRes t, newEnv4, lProg @ rProg @ addProg)
@@ -117,7 +120,7 @@ struct
             let
                 val (res, newEnv1, irProg) = evalExpr env e
                 val tempLabel              = Temp.newLabel ()
-                val (newEnv2, t)           = assignTemp newEnv1 tempLabel
+                val (newEnv2, t)           = assignTemp newEnv1 tempLabel true
                 val addProg                = evalReducedNegExpr t res
             in
                 (TempRes t, newEnv2, irProg @ addProg)
@@ -167,7 +170,7 @@ struct
     and assignExprHelper env lval expr =
             let
                 val (newEnv, t) = (case lval of (* Assigning temporary value for lval *)
-                                    TIG.Var v => assignTemp env v)
+                                    TIG.Var v => assignTemp env v true)
             in
                 (case expr of
                       TIG.Int i  => ([CTM.mLi t i CTM.DUMMY_STR], newEnv)
@@ -217,11 +220,11 @@ struct
                                         -> Ir.Inst list * Env.mp *)
     and printExprHelper env expr =
             let
-                val (aEnv, a0) = assignTemp env Utils.A0_REG  (* For register a0 *)
-                val _          = RegAlloc.allocSpecialReg a0 Mips.A0
+                val (aEnv, a0) = assignTemp env Utils.A0_REG false  (* For register a0 *)
+                val _          = RA.allocRegWith a0 Mips.A0
 
-                val (newEnv, t) = assignTemp aEnv Utils.V0_REG  (* For register v0 *)
-                val _           = RegAlloc.allocSpecialReg t Mips.V0
+                val (newEnv, t) = assignTemp aEnv Utils.V0_REG false  (* For register v0 *)
+                val _           = RA.allocRegWith t Mips.V0
 
                 (* Instruction set for printing *)
                 val printInst = CTM.mSyscall t Utils.PRINT_INT_SYSCALL CTM.DUMMY_STR
@@ -281,5 +284,5 @@ struct
 
     (* Compiles Ir program to MIPS *)
     (* compileToMips : Ir.Prog -> (string, Mips.Reg) Mips.Prog *)
-    and compileToMips prog = Mips.mapProg Utils.identity RegAlloc.getReg prog
+    and compileToMips prog = Mips.mapProg Utils.identity RA.getReg prog
 end
