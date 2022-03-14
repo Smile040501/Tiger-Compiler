@@ -27,7 +27,7 @@ struct
                 in
                     (indent "Op({\n" is) ^ (indent ("left  = " ^ strLeft ^ ",\n") (il + 4)) ^
                     (indent ("oper  = " ^ strOper ^ ",\n") (il + 4)) ^
-                    (indent ("right = " ^ strRight ^ ",\n") (il + 4)) ^
+                    (indent ("right = " ^ strRight ^ "\n") (il + 4)) ^
                     (indent "})" il)
                 end
       | strExpr (Neg e)        is il  = indent ("Neg(" ^ (strExpr e 0 (il + 5)) ^ ")") is
@@ -39,7 +39,7 @@ struct
                 in
                     (indent "Assign({\n" is) ^
                     (indent ("lvalue = " ^ strLval ^ ",\n") (il + 4)) ^
-                    (indent ("expr   = " ^ strE ^ ",\n") (il + 4)) ^
+                    (indent ("expr   = " ^ strE ^ "\n") (il + 4)) ^
                     (indent "})" il)
                 end
       | strExpr (Print e)      is il  = indent ("Print(" ^ (strExpr e 0 (il + 7)) ^ ")") is
