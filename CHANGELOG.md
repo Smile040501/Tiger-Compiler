@@ -25,6 +25,7 @@ All the weekly changes made in the project as a summary.
 
 -   `README.md` to now contain better information of the repository.
 -   `tc.sml`: Removed dummy basic code and now contains the code for the **Tiger Driver** for building the tiger compiler.
+-   `Makefile`: Now contains the full workflow for building the project.
 -   Structure `MIPS` as follows:
     -   Changed casing of the register names
     -   Refactored the code for the AST by creating different types for records and splitting the types of instructions based on the type of records
