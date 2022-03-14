@@ -23,8 +23,9 @@ struct
                 | Assign of {lvalue: Lvalue, expr: Expr}
 
                 (* For Loops *)
-                (* 'for' id ':=' exp 'to' exp 'do' exp *)
-                | For of {loopVar: id, startPos: Expr, endPos: Expr, body: Expr}
+                (* 'for' id ':=' exp 'to' exp 'do' exp 'done' *)  (* Default step size will be 1 *)
+                (* 'for' id ':=' exp 'to' exp 'by' exp 'do' exp 'done' *)
+                | For of {loopVar: id, startPos: Expr, endPos: Expr, step: Expr, body: Expr}
 
                 (* Print *)
                 | Print of Expr
@@ -49,6 +50,6 @@ struct
 
     fun getAsignRec lvalue expr = {lvalue = lvalue, expr = expr}
 
-    fun getForRec loopVar startPos endPos body =
-                          {loopVar = loopVar, startPos = startPos, endPos = endPos, body = body}
+    fun getForRec loopVar startPos endPos step body =
+                {loopVar = loopVar, startPos = startPos, endPos = endPos, step = step, body = body}
 end

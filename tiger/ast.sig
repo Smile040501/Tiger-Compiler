@@ -23,8 +23,9 @@ sig
                 | Assign of {lvalue: Lvalue, expr: Expr}
 
                 (* For Loops *)
-                (* 'for' id ':=' exp 'to' exp 'do' exp *)
-                | For of {loopVar: id, startPos: Expr, endPos: Expr, body: Expr}
+                (* 'for' id ':=' exp 'to' exp 'do' exp 'done' *)
+                (* 'for' id ':=' exp 'to' exp 'by' exp 'do' exp 'done' *)
+                | For of {loopVar: id, startPos: Expr, endPos: Expr, step: Expr, body: Expr}
 
                 (* Print *)
                 | Print of Expr
@@ -49,6 +50,6 @@ sig
 
     val getAsignRec : Lvalue -> Expr -> {lvalue : Lvalue, expr : Expr}
 
-    val getForRec : id -> Expr -> Expr -> Expr ->
-                                          {loopVar : id, startPos : Expr, endPos : Expr, body : Expr}
+    val getForRec : id -> Expr -> Expr -> Expr -> Expr ->
+                            {loopVar : id, startPos : Expr, endPos : Expr, step : Expr, body : Expr}
 end

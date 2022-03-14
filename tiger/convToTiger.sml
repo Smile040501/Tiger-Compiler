@@ -8,7 +8,7 @@ sig
 
     val tAssign: Tiger.Lvalue -> Tiger.Expr -> Tiger.Expr
 
-    val tFor: Tiger.id -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr
+    val tFor: Tiger.id -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr
 end
 
 structure ConvToTiger :> CONV_TO_TIGER =
@@ -26,6 +26,6 @@ struct
     (* Convert to Assignment Instruction *)
     fun tAssign l e = Assign (getAsignRec l e)
 
-    (* Convert to For Instruction *)
-    fun tFor l es ee eb = For (getForRec l es ee eb)
+    (* Convert to For-loop Instruction *)
+    fun tFor l es ee step body = For (getForRec l es ee step body)
 end

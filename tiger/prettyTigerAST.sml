@@ -45,15 +45,17 @@ struct
                 end
       | strExpr (For r)        is il  =
                 let
-                    val {loopVar, startPos, endPos, body} = r
+                    val {loopVar, startPos, endPos, step, body} = r
                     val strStart = strExpr startPos 0 (il + 15) (* il + 4 + cnt('startPos = ') *)
                     val strEnd   = strExpr endPos   0 (il + 15) (* il + 4 + cnt('endPos   = ') *)
+                    val strStep  = strExpr step     0 (il + 15) (* il + 4 + cnt('step     = ') *)
                     val strBody  = strExpr body     0 (il + 15) (* il + 4 + cnt('body     = ') *)
                 in
                     (indent "For({\n" is) ^
                     (indent ("loopVar  = " ^ loopVar  ^ ",\n") (il + 4)) ^
                     (indent ("startPos = " ^ strStart ^ ",\n") (il + 4)) ^
                     (indent ("endPos   = " ^ strEnd   ^ ",\n") (il + 4)) ^
+                    (indent ("step     = " ^ strStep  ^ ",\n") (il + 4)) ^
                     (indent ("body     = " ^ strBody  ^ "\n")  (il + 4)) ^
                     (indent "})" il)
                 end
