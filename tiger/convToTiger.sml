@@ -7,6 +7,8 @@ sig
     val tDiv  : Tiger.Expr -> Tiger.Expr -> Tiger.Expr
 
     val tAssign: Tiger.Lvalue -> Tiger.Expr -> Tiger.Expr
+
+    val tFor: Tiger.id -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr
 end
 
 structure ConvToTiger :> CONV_TO_TIGER =
@@ -22,5 +24,8 @@ struct
     fun tDiv   a b = Op (getOpRec a Div b)
 
     (* Convert to Assignment Instruction *)
-    fun tAssign l e = Assign {lvalue = l, expr = e}
+    fun tAssign l e = Assign (getAsignRec l e)
+
+    (* Convert to For Instruction *)
+    fun tFor l es ee eb = For (getForRec l es ee eb)
 end

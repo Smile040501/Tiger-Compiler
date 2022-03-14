@@ -22,6 +22,10 @@ struct
                 (* lvalue := exp *)
                 | Assign of {lvalue: Lvalue, expr: Expr}
 
+                (* For Loops *)
+                (* 'for' id ':=' exp 'to' exp 'do' exp *)
+                | For of {loopVar: id, startPos: Expr, endPos: Expr, body: Expr}
+
                 (* Print *)
                 | Print of Expr
 
@@ -42,4 +46,9 @@ struct
 
     (* Utility functions *)
     fun getOpRec left oper right = {left = left, oper = oper, right = right}
+
+    fun getAsignRec lvalue expr = {lvalue = lvalue, expr = expr}
+
+    fun getForRec loopVar startPos endPos body =
+                          {loopVar = loopVar, startPos = startPos, endPos = endPos, body = body}
 end

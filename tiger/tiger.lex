@@ -55,6 +55,10 @@ alpha    = [a-zA-Z];
 
 <INITIAL> "print"               => (Tokens.PRINT(yypos, yypos + (size yytext)));
 
+<INITIAL> "for"                 => (Tokens.FOR(yypos, yypos + (size yytext)));
+<INITIAL> "to"                  => (Tokens.TO (yypos, yypos + (size yytext)));
+<INITIAL> "do"                  => (Tokens.DO (yypos, yypos + (size yytext)));
+
 <INITIAL> ":="                  => (Tokens.ASSIGN   (yypos, yypos + (size yytext)));
 <INITIAL> ";"                   => (Tokens.SEMICOLON(yypos, yypos + (size yytext)));
 

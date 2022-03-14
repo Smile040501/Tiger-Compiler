@@ -16,8 +16,8 @@ struct
     (* is : indentation that has to be applied on the first line string of the stringified form *)
     (* il : indentation that should be actually be applied on the first line string ideally *)
     fun strExpr Nil            is _   = indent "Nil" is
-      | strExpr (Int n)        is _   = indent ("Int(" ^ (Int.toString n) ^ ")") is
-      | strExpr (Lval l)       is _   = indent ("Lval(" ^ (strLvalue l) ^ ")") is
+      | strExpr (Int n)        is _   = indent ("Int("  ^ (Int.toString n) ^ ")") is
+      | strExpr (Lval l)       is _   = indent ("Lval(" ^ (strLvalue l)    ^ ")") is
       | strExpr (Op operation) is il  =
                 let
                     val {left, oper, right} = operation
@@ -25,9 +25,10 @@ struct
                     val strOper  = strBinOp oper
                     val strRight = strExpr  right 0 (il + 12) (* il + 4 + cnt('right = ') *)
                 in
-                    (indent "Op({\n" is) ^ (indent ("left  = " ^ strLeft ^ ",\n") (il + 4)) ^
-                    (indent ("oper  = " ^ strOper ^ ",\n") (il + 4)) ^
-                    (indent ("right = " ^ strRight ^ "\n") (il + 4)) ^
+                    (indent "Op({\n" is) ^
+                    (indent ("left  = "  ^ strLeft  ^ ",\n") (il + 4)) ^
+                    (indent ("oper  = "  ^ strOper  ^ ",\n") (il + 4)) ^
+                    (indent ("right = "  ^ strRight ^ "\n")  (il + 4)) ^
                     (indent "})" il)
                 end
       | strExpr (Neg e)        is il  = indent ("Neg(" ^ (strExpr e 0 (il + 5)) ^ ")") is
@@ -39,7 +40,21 @@ struct
                 in
                     (indent "Assign({\n" is) ^
                     (indent ("lvalue = " ^ strLval ^ ",\n") (il + 4)) ^
-                    (indent ("expr   = " ^ strE ^ "\n") (il + 4)) ^
+                    (indent ("expr   = " ^ strE    ^ "\n")  (il + 4)) ^
+                    (indent "})" il)
+                end
+      | strExpr (For r)        is il  =
+                let
+                    val {loopVar, startPos, endPos, body} = r
+                    val strStart = strExpr startPos 0 (il + 15) (* il + 4 + cnt('startPos = ') *)
+                    val strEnd   = strExpr endPos   0 (il + 15) (* il + 4 + cnt('endPos   = ') *)
+                    val strBody  = strExpr body     0 (il + 15) (* il + 4 + cnt('body     = ') *)
+                in
+                    (indent "For({\n" is) ^
+                    (indent ("loopVar  = " ^ loopVar  ^ ",\n") (il + 4)) ^
+                    (indent ("startPos = " ^ strStart ^ ",\n") (il + 4)) ^
+                    (indent ("endPos   = " ^ strEnd   ^ ",\n") (il + 4)) ^
+                    (indent ("body     = " ^ strBody  ^ "\n")  (il + 4)) ^
                     (indent "})" il)
                 end
       | strExpr (Print e)      is il  = indent ("Print(" ^ (strExpr e 0 (il + 7)) ^ ")") is
@@ -52,7 +67,7 @@ struct
     and strExprs []        _  _  = ""
       | strExprs (x :: xs) is il =
                 (case xs of
-                    [] => (strExpr x is il) ^ "\n"
+                     [] => (strExpr x is il) ^ "\n"
                     | _ => (strExpr x is il) ^ ",\n" ^ (strExprs xs is il)
                 )
 

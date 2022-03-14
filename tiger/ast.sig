@@ -22,6 +22,10 @@ sig
                 (* lvalue := exp *)
                 | Assign of {lvalue: Lvalue, expr: Expr}
 
+                (* For Loops *)
+                (* 'for' id ':=' exp 'to' exp 'do' exp *)
+                | For of {loopVar: id, startPos: Expr, endPos: Expr, body: Expr}
+
                 (* Print *)
                 | Print of Expr
 
@@ -42,4 +46,9 @@ sig
 
     (* Utility Functions *)
     val getOpRec : Expr -> BinOp -> Expr -> {left: Expr, oper: BinOp, right: Expr}
+
+    val getAsignRec : Lvalue -> Expr -> {lvalue : Lvalue, expr : Expr}
+
+    val getForRec : id -> Expr -> Expr -> Expr ->
+                                          {loopVar : id, startPos : Expr, endPos : Expr, body : Expr}
 end
