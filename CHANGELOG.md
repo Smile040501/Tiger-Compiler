@@ -4,6 +4,31 @@ All the weekly changes made in the project as a summary.
 
 ## [Unreleased]
 
+## [2022-02-17] - 2022-03-14
+
+### Added
+
+-   Fully functional compiler code for the SubTiger Language. The compiler only supports integers and variables as of now and only the assignment and print statements.
+-   **Directories**:
+    -   `tiger`: Contains the code for capturing the AST of the Tiger Language, the parser and lexer for the Tiger Language, and some other utility structures for pretty printing Tiger AST and conversion to the Tiger AST.
+    -   `ir`: Contains the code for translating the source of Tiger AST to the Intermediate Representation and the code for greedy register allocation.
+    -   `utils`: Contains the code for some helper utility structures.
+    -   `notes`: Contains notes for referencing some SML built-in structures.
+-   **Other files**:
+    -   `target/prettyMips.sml`: The code for pretty printing of the MIPS AST has been moved to its separate file in a separate SML structure.
+    -   `target/convToMIPS.sml`: Contains code for easy conversion of the input values to the MIPS AST.
+    -   `tc.mlb`: ML-Basis file for building the project using **MLton**
+    -   `INSTALL.md`: Contains the installation instructions for the compiler.
+    -   `INSTRUCTIONS.md`: Contains the instructions for using the compiler and the Makefile.
+
+### Updated
+
+-   `README.md` to now contain better information of the repository.
+-   `tc.sml`: Removed dummy basic code and now contains the code for the **Tiger Driver** for building the tiger compiler.
+-   Structure `MIPS` as follows:
+    -   Changed casing of the register names
+    -   Refactored the code for the AST by creating different types for records and splitting the types of instructions based on the type of records
+
 ## [2022-02-10] - 2022-02-17
 
 ### Added
@@ -36,7 +61,8 @@ All the weekly changes made in the project as a summary.
     -   `make clean`: remove all generated/intermediate files from the repository (in this case only the executable file `tc`)
 -   `.gitignore`: Global gitignore file.
 
-[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-10...master
+[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-17...master
+[2022-02-17]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-01-10...2022-02-17
 [2022-02-10]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-01-27...2022-02-10
 [2022-01-27]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/v0.0.1...2022-01-27
 [0.0.1]: https://gitlab.com/singlamayank001/111901030-compilers/-/releases#v0.0.1
