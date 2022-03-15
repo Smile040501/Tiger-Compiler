@@ -359,8 +359,8 @@ struct
         let
             val strDir = case dir of
                   Align  i => "align "  ^ (Int.toString i)
-                | Ascii  s => "ascii " ^ s
-                | Asciiz s => "asciiz " ^ s
+                | Ascii  s => "ascii "  ^ "\"" ^ s ^ "\""
+                | Asciiz s => "asciiz " ^ "\"" ^ s ^ "\""
                 | Byte   l => "byte "   ^ (intListToCSVString l)
                 | Data     => "data"
                 | Extern r => "extern " ^ (#sym r) ^ " " ^ (Int.toString (#size r))
