@@ -117,7 +117,7 @@ struct
 
 
 	(* Generating the intermediate representation of the Tiger AST *)
-	val (irProgram: Ir.Prog, env: Env.mp)  = Translate.compileToIR (Env.empty ()) tigerProgram
+	val (_: Env.mp list, irProgram: Ir.Prog)  = Translate.compileToIR tigerProgram
 
 	(* Displays the intermediate representation of the Tiger AST *)
 	fun displayIR () = Utils.printOut (Ir.prettyProg irProgram)
@@ -129,7 +129,7 @@ struct
 	(* Display the temporaries allocation performed by the compiler *)
 	fun displayTempAlloc () =
 				let
-					val temps = Env.listItems env
+					val temps = !Translate.temps
 					(* The temporaries allocation performed by the compiler *)
 					(* val temps : (string * Temp.value) list *)
 				in
