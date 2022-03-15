@@ -3,9 +3,10 @@ signature CONV_TO_MIPS =
 sig
     val DUMMY_STR : string   (* A dummy label to pass as argument *)
 
-    val mapInstToStmt  : ('l, 't) Mips.Instruction -> ('l, 't) Mips.Stmt
-    val mapDirToStmt   : Mips.Directive -> 'l -> 't -> ('l, 't) Mips.Stmt
+    val mInst  : ('l, 't) Mips.Instruction -> ('l, 't) Mips.Stmt
+    val mDir   : Mips.Directive -> 'l -> 't -> ('l, 't) Mips.Stmt
 
+    val mLa    : 't -> 'l -> ('l, 't) Mips.Stmt
     val mLi    : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
     val mMove  : 't -> 't -> 'l -> ('l, 't) Mips.Stmt
 
@@ -55,9 +56,10 @@ struct
 
     val DUMMY_STR : string = "__DUMMY_LABEL__"
 
-    fun mapInstToStmt i      = Inst i
-    fun mapDirToStmt  d _ _  = Dir d
+    fun mInst i      = Inst i
+    fun mDir  d _ _  = Dir d
 
+    fun mLa      t  l       = Inst (DR_SL_Inst (La,   get_DR_SL_rec t  l   ))
     fun mLi      t  i  l    = Inst (DR_I_Inst  (Li,   get_DR_I_rec  t  i  l))
     fun mMove    t1 t2 l    = Inst (DR_SR_Inst (Move, get_DR_SR_rec t1 t2 l))
 
