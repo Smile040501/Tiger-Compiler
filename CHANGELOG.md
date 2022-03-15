@@ -4,6 +4,20 @@ All the weekly changes made in the project as a summary.
 
 ## [Unreleased]
 
+## [2022-02-24] - 2022-03-15
+
+### Added
+
+-   Support for parsing the **For-loops** in the Tiger language.
+-   Some more utility functions in the **Utils** structure and the **ConvToMips** structure
+
+### Modified
+
+-   Moved register allocation phase at the time of new temporary assignment
+-   Changed single environment to list of environments while translating input Tiger program for supporting nested sub-blocks (in **Translate** structure)
+-   Changed the return type of functions to now return two list of statements, one for the statements in the `main` body of MIPS and one for the statements in the `data` section of the MIPS
+-   Fixed `label` type for the **MIPS** statement
+
 ## [2022-02-17] - 2022-03-14
 
 ### Added
@@ -62,7 +76,8 @@ All the weekly changes made in the project as a summary.
     -   `make clean`: remove all generated/intermediate files from the repository (in this case only the executable file `tc`)
 -   `.gitignore`: Global gitignore file.
 
-[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-17...master
+[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-24...master
+[2022-02-24]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-17...2022-02-24
 [2022-02-17]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-01-10...2022-02-17
 [2022-02-10]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-01-27...2022-02-10
 [2022-01-27]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/v0.0.1...2022-01-27
