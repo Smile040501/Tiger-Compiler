@@ -24,6 +24,14 @@ sig
     val mNeg   : 't -> 't -> 'l -> ('l, 't) Mips.Stmt
 
     val mSyscall : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt list
+
+    val mBgt   : 't -> 't       -> 'l -> ('l, 't) Mips.Stmt
+    val mBgt_I : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
+
+    val mJ  : 'l -> 't -> ('l, 't) Mips.Stmt
+    val mJr : 't -> 'l -> ('l, 't) Mips.Stmt
+
+    val mLabel : 'l -> 't -> ('l, 't) Mips.Stmt
 end
 
 structure ConvToMIPS :> CONV_TO_MIPS =
@@ -70,4 +78,18 @@ struct
 
     fun mSyscall (a: 't) (b: Imm) (c:'l) : ('l, 't) Stmt list =
             [mLi a b c, Inst (ExceptionTrapInst Syscall)]
+
+    fun mBgt (a: 't) (b: 't) (c: 'l) : ('l, 't) Stmt =
+            Inst (SR_SR_DL_Inst (Bgt, {src1 = a, src2 = b, dest = c}))
+
+    fun mBgt_I (a: 't) (b: Imm) (c: 'l) : ('l, 't) Stmt =
+            Inst (SR_I_DL_Inst (Bgt_I, {src1 = a, imm = b, dest = c}))
+
+    fun mJ (a : 'l) (_ : 't) : ('l, 't) Stmt =
+            Inst (DL_Inst (J, {dest = a}))
+
+    fun mJr (a : 't) (_ : 'l) : ('l, 't) Stmt =
+            Inst (DR_Inst (Jr, {dest = a}))
+
+    fun mLabel (a : 'l) (_ : 't) : ('l, 't) Stmt = Mips.Label a
 end

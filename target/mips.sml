@@ -323,7 +323,7 @@ struct
     (* Statements of the MIPS machine: the instructions and the assembler directives *)
     datatype ('l, 't) Stmt =  Inst  of ('l, 't) Instruction
                             | Dir   of Directive
-                            | Label of string
+                            | Label of 'l
 
     (* MIPS program *)
     type ('l, 't) Prog = ('l, 't) Stmt list
@@ -409,7 +409,7 @@ struct
         case stmt of
               Inst  i => Inst (mapInst f g i)
             | Dir   d => Dir d
-            | Label l => Label l
+            | Label l => Label (f l)
 
     (* Used to convert program from one parametric type to another *)
     (* mapProg: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Prog -> ('lp, 'tp) Prog *)

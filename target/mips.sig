@@ -323,7 +323,7 @@ sig
     (* Statements of the MIPS machine: the instructions and the assembler directives *)
     datatype ('l, 't) Stmt =  Inst  of ('l, 't) Instruction
                             | Dir   of Directive
-                            | Label of string
+                            | Label of 'l
 
     (* MIPS program *)
     type ('l, 't) Prog = ('l, 't) Stmt list
