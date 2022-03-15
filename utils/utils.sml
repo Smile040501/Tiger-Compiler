@@ -9,6 +9,8 @@ struct
     val A0_REG : string = "$a0"
     val V0_REG : string = "$v0"
 
+    val NL_Label : string = "nl"
+
     (* Exceptions *)
     exception EmptyList of string
 
