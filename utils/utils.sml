@@ -9,6 +9,9 @@ struct
     val A0_REG : string = "$a0"
     val V0_REG : string = "$v0"
 
+    (* Exceptions *)
+    exception EmptyList of string
+
     (* Identity Functions *)
     fun identity     x           = x
     fun identityInt (x : int)    = x
@@ -68,4 +71,18 @@ struct
               in
                   (printOut (lhs ^ ": " ^ rhs ^ "\n")); (printPairList f g xs)
               end
+
+    (* Updates the first value of the list *)
+    fun updateFirstVal []        _ = []
+      | updateFirstVal (x :: xs) y = (y :: xs)
+
+    (* Updates the last value of the list *)
+    fun updateLastVal []        _ = []
+      | updateLastVal [x]       y = [y]
+      | updateLastVal (x :: xs) y = (x :: (updateLastVal xs y))
+
+    (* Returns the last value of the list *)
+    fun getLastVal []        = raise EmptyList "[utils.sml]:[getLastVal]: List is Empty"
+      | getLastVal [x]       = x
+      | getLastVal (x :: xs) = getLastVal xs
 end
