@@ -266,6 +266,15 @@ struct
                                             -> Env.mp list * Ir.Stmt list * Ir.Stmt list *)
     and forExprHelper envs loopVar startPos endPos step body =
             let
+                val forLoop       = Temp.newLabel ()        (* Unique label for the loop  *)
+                val loopStart     = "forStart" ^ forLoop    (* Start of the loop          *)
+                val loopCondition = "forCond"  ^ forLoop    (* Condition for the loop     *)
+                val gtCondition   = "forGT"    ^ forLoop    (* To be used if start <= end *)
+                val ltCondition   = "forLT"    ^ forLoop    (* To be used if start > end  *)
+                val loopBody      = "forBody"  ^ forLoop    (* Body of the loop           *)
+                val loopStep      = "forStep"  ^ forLoop    (* Step of the loop           *)
+                val loopEnd       = "forEnd"   ^ forLoop    (* End of the loop            *)
+
                 val (newEnv, t) = assignTemp (Env.empty ()) loopVar true
                 val (startRes, startEnvs, startInsts, startData) = evalExpr envs startPos
                 val (endRes,   endEnvs,   endInsts,   endData  ) = evalExpr envs endPos
@@ -275,26 +284,61 @@ struct
                 val newEnv2 = Env.union (List.hd startEnvs) (List.hd endEnvs)
                 val newEnv3 = Env.union newEnv2 (List.hd stepEnvs)
                 val newEnvs4 = updateFirstVal envs newEnv3
-                val resEnvs = updateLastVal newEnvs4 (getLastVal bodyEnvs)
+                val newEnvs5 = updateLastVal newEnvs4 (getLastVal bodyEnvs)
 
-                val loopStart = Temp.newLabel ()
-                val loopEnd   = Temp.newLabel ()
+                val (resEnvs, nt) = case (startRes, endRes) of
+                      (IntRes _, IntRes _) =>
+                                    let
+                                        val iLabel = Temp.newLabel ()
+                                        val (iEnv, it) = assignTemp (List.hd newEnvs5) iLabel true
+                                    in
+                                        (updateFirstVal newEnvs5 iEnv, it)
+                                    end
+                    | _                    => (newEnvs5, Temp.DUMMY_VALUE)
 
                 val initInst = case startRes of
                                       IntRes  i => [CTM.mLi t i CTM.DUMMY_STR]
                                     | TempRes v => [CTM.mMove t v CTM.DUMMY_STR]
 
-                val condInst = case endRes of
-                                      IntRes  i => [CTM.mBgt_I t i loopEnd]
-                                    | TempRes v => [CTM.mBgt   t v loopEnd]
+                val condInst =
+                        let
+                            val (gtc, ltc) = case endRes of
+                                  IntRes  i => ([CTM.mBgt_I t i loopEnd], [CTM.mBle_I t i loopEnd])
+                                | TempRes v => ([CTM.mBgt   t v loopEnd], [CTM.mBle   t v loopEnd])
+
+                            val terminatingInsts = [CTM.mLabel gtCondition Temp.DUMMY_VALUE] @ gtc @
+                                                    [CTM.mJ loopBody Temp.DUMMY_VALUE] @
+                                                    [CTM.mLabel ltCondition Temp.DUMMY_VALUE] @ ltc
+
+                            val jInsts = case (startRes, endRes) of
+                                  (IntRes  i, IntRes  j) => [CTM.mLi nt i CTM.DUMMY_STR,
+                                                            CTM.mBle_I  nt j gtCondition,
+                                                            CTM.mBgt_I  nt j ltCondition]
+                                | (TempRes i, IntRes  j) => [CTM.mBle_I i  j gtCondition,
+                                                            CTM.mBgt_I  i  j ltCondition]
+                                | (IntRes  i, TempRes j) => [CTM.mBge_I j  i gtCondition,
+                                                            CTM.mBlt_I  j  i ltCondition]
+                                | (TempRes i, TempRes j) => [CTM.mBle   i  j gtCondition,
+                                                            CTM.mBgt    i  j ltCondition]
+                        in
+                            jInsts @ terminatingInsts
+                        end
 
                 val stepInst = case stepRes of
                                       IntRes  i => [CTM.mAddi t t i CTM.DUMMY_STR]
                                     | TempRes v => [CTM.mAdd  t t v CTM.DUMMY_STR]
 
-                val jumpInst = [CTM.mJ loopStart Temp.DUMMY_VALUE]
+                val jumpInst = [CTM.mJ loopCondition Temp.DUMMY_VALUE]
 
-                val loopInsts = initInst @ [CTM.mLabel loopStart Temp.DUMMY_VALUE] @ condInst @ bodyInsts @ stepInst @ jumpInst @ [CTM.mLabel loopEnd Temp.DUMMY_VALUE]
+                val loopInsts = [CTM.mLabel loopStart Temp.DUMMY_VALUE] @
+                                initInst @
+                                [CTM.mLabel loopCondition Temp.DUMMY_VALUE] @
+                                condInst @
+                                [CTM.mLabel loopBody Temp.DUMMY_VALUE] @
+                                bodyInsts @
+                                [CTM.mLabel loopStep Temp.DUMMY_VALUE] @
+                                stepInst @ jumpInst @
+                                [CTM.mLabel loopEnd Temp.DUMMY_VALUE]
             in
                 (resEnvs, startInsts @ endInsts @ stepInsts @ loopInsts,
                                         startData @ endData @ stepData @ bodyData)
@@ -363,7 +407,9 @@ struct
                 val (newEnvs1, insts, data) = translateExpr [Env.empty()] e
 
                 val headerDirs  = [Mips.Data] @ data @ [Mips.Text, Mips.Globl "main"]
-                val headerStmts = map (CTM.mapDirToStmt CTM.DUMMY_STR Temp.DUMMY_VALUE) headerDirs
+                val headerStmts = (map (fn d => CTM.mapDirToStmt d CTM.DUMMY_STR Temp.DUMMY_VALUE)
+                                            headerDirs
+                                    )
 
                 (* For register v0 *)
                 val (newEnv, t) = assignTemp (getLastVal newEnvs1) Utils.V0_REG false
