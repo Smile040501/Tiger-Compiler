@@ -4,7 +4,7 @@ sig
     val DUMMY_STR : string   (* A dummy label to pass as argument *)
 
     val mapInstToStmt  : ('l, 't) Mips.Instruction -> ('l, 't) Mips.Stmt
-    val mapDirToStmt   : 'l -> 't -> Mips.Directive -> ('l, 't) Mips.Stmt
+    val mapDirToStmt   : Mips.Directive -> 'l -> 't -> ('l, 't) Mips.Stmt
 
     val mLi    : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
     val mMove  : 't -> 't -> 'l -> ('l, 't) Mips.Stmt
@@ -23,13 +23,28 @@ sig
 
     val mNeg   : 't -> 't -> 'l -> ('l, 't) Mips.Stmt
 
-    val mSyscall : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt list
+    val mBeq   : 't -> 't       -> 'l -> ('l, 't) Mips.Stmt
+    val mBeq_I : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
+
+    val mBge   : 't -> 't       -> 'l -> ('l, 't) Mips.Stmt
+    val mBge_I : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
 
     val mBgt   : 't -> 't       -> 'l -> ('l, 't) Mips.Stmt
     val mBgt_I : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
 
+    val mBle   : 't -> 't       -> 'l -> ('l, 't) Mips.Stmt
+    val mBle_I : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
+
+    val mBlt   : 't -> 't       -> 'l -> ('l, 't) Mips.Stmt
+    val mBlt_I : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
+
+    val mBne   : 't -> 't       -> 'l -> ('l, 't) Mips.Stmt
+    val mBne_I : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt
+
     val mJ  : 'l -> 't -> ('l, 't) Mips.Stmt
     val mJr : 't -> 'l -> ('l, 't) Mips.Stmt
+
+    val mSyscall : 't -> Mips.Imm -> 'l -> ('l, 't) Mips.Stmt list
 
     val mLabel : 'l -> 't -> ('l, 't) Mips.Stmt
 end
@@ -40,56 +55,48 @@ struct
 
     val DUMMY_STR : string = "__DUMMY_LABEL__"
 
-    fun mapInstToStmt i = Inst i
-    fun mapDirToStmt   (_: 'l) (_: 't) (d: Directive) : ('l, 't) Stmt = Dir d
+    fun mapInstToStmt i      = Inst i
+    fun mapDirToStmt  d _ _  = Dir d
 
-    fun mLi (a: 't) (b: Imm) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_I_Inst (Li, {dest = a, imm = b}))
+    fun mLi      t  i  l    = Inst (DR_I_Inst  (Li,   get_DR_I_rec  t  i  l))
+    fun mMove    t1 t2 l    = Inst (DR_SR_Inst (Move, get_DR_SR_rec t1 t2 l))
 
-    fun mMove (a : 't) (b : 't) (_ : 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_Inst (Move, {dest = a, src1 = b}))
+    fun mAdd     t1 t2 t3 l = Inst (DR_SR_SR_Inst (Add,  get_DR_SR_SR_rec t1 t2 t3 l))
+    fun mAddi    t1 t2 i  l = Inst (DR_SR_I_Inst  (Addi, get_DR_SR_I_rec  t1 t2 i  l))
 
-    fun mAdd (a: 't) (b: 't) (c: 't) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_SR_Inst (Add, {dest = a, src1 = b, src2 = c}))
+    fun mSub     t1 t2 t3 l = Inst (DR_SR_SR_Inst (Sub,   get_DR_SR_SR_rec t1 t2 t3 l))
+    fun mSub_I   t1 t2 i  l = Inst (DR_SR_I_Inst  (Sub_I, get_DR_SR_I_rec  t1 t2 i  l))
 
-    fun mAddi (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_I_Inst (Addi, {dest = a, src1 = b, imm = c}))
+    fun mMul     t1 t2 t3 l = Inst (DR_SR_SR_Inst (Mul,   get_DR_SR_SR_rec t1 t2 t3 l))
+    fun mMul_I   t1 t2 i  l = Inst (DR_SR_I_Inst  (Mul_I, get_DR_SR_I_rec  t1 t2 i  l))
 
-    fun mSub (a: 't) (b: 't) (c: 't) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_SR_Inst (Sub, {dest = a, src1 = b, src2 = c}))
+    fun mDiv_Q   t1 t2 t3 l = Inst (DR_SR_SR_Inst (Div_Q,  get_DR_SR_SR_rec t1 t2 t3 l))
+    fun mDiv_QI  t1 t2 i  l = Inst (DR_SR_I_Inst  (Div_QI, get_DR_SR_I_rec  t1 t2 i  l))
 
-    fun mSub_I (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_I_Inst (Sub_I, {dest = a, src1 = b, imm = c}))
+    fun mNeg     t1 t2 l    = Inst (DR_SR_Inst    (Neg, get_DR_SR_rec t1 t2 l))
 
-    fun mMul (a: 't) (b: 't) (c: 't) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_SR_Inst (Mul, {dest = a, src1 = b, src2 = c}))
+    fun mBeq     t1 t2 l    = Inst (SR_SR_DL_Inst (Beq,   get_SR_SR_DL_rec t1 t2 l))
+    fun mBeq_I   t  i  l    = Inst (SR_I_DL_Inst  (Beq_I, get_SR_I_DL_rec  t  i  l))
 
-    fun mMul_I (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_I_Inst (Mul_I, {dest = a, src1 = b, imm = c}))
+    fun mBge     t1 t2 l    = Inst (SR_SR_DL_Inst (Bge,   get_SR_SR_DL_rec t1 t2 l))
+    fun mBge_I   t  i  l    = Inst (SR_I_DL_Inst  (Bge_I, get_SR_I_DL_rec  t  i  l))
 
-    fun mDiv_Q (a: 't) (b: 't) (c: 't) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_SR_Inst (Div_Q, {dest = a, src1 = b, src2 = c}))
+    fun mBgt     t1 t2 l    = Inst (SR_SR_DL_Inst (Bgt,   get_SR_SR_DL_rec t1 t2 l))
+    fun mBgt_I   t  i  l    = Inst (SR_I_DL_Inst  (Bgt_I, get_SR_I_DL_rec  t  i  l))
 
-    fun mDiv_QI (a: 't) (b: 't) (c: Imm) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_I_Inst (Div_QI, {dest = a, src1 = b, imm = c}))
+    fun mBle     t1 t2 l    = Inst (SR_SR_DL_Inst (Ble,   get_SR_SR_DL_rec t1 t2 l))
+    fun mBle_I   t  i  l    = Inst (SR_I_DL_Inst  (Ble_I, get_SR_I_DL_rec  t  i  l))
 
-    fun mNeg (a: 't) (b: 't) (_: 'l) : ('l, 't) Stmt =
-            Inst (DR_SR_Inst (Neg, {dest = a, src1 = b}))
+    fun mBlt     t1 t2 l    = Inst (SR_SR_DL_Inst (Blt,   get_SR_SR_DL_rec t1 t2 l))
+    fun mBlt_I   t  i  l    = Inst (SR_I_DL_Inst  (Blt_I, get_SR_I_DL_rec  t  i  l))
 
-    fun mSyscall (a: 't) (b: Imm) (c:'l) : ('l, 't) Stmt list =
-            [mLi a b c, Inst (ExceptionTrapInst Syscall)]
+    fun mBne     t1 t2 l    = Inst (SR_SR_DL_Inst (Bne,   get_SR_SR_DL_rec t1 t2 l))
+    fun mBne_I   t  i  l    = Inst (SR_I_DL_Inst  (Bne_I, get_SR_I_DL_rec  t  i  l))
 
-    fun mBgt (a: 't) (b: 't) (c: 'l) : ('l, 't) Stmt =
-            Inst (SR_SR_DL_Inst (Bgt, {src1 = a, src2 = b, dest = c}))
+    fun mJ       l  t       = Inst (DL_Inst (J,  get_DL_rec l t))
+    fun mJr      t  l       = Inst (DR_Inst (Jr, get_DR_rec t l))
 
-    fun mBgt_I (a: 't) (b: Imm) (c: 'l) : ('l, 't) Stmt =
-            Inst (SR_I_DL_Inst (Bgt_I, {src1 = a, imm = b, dest = c}))
+    fun mSyscall t  i  l    = [mLi t i l, Inst (ExceptionTrapInst Syscall)]
 
-    fun mJ (a : 'l) (_ : 't) : ('l, 't) Stmt =
-            Inst (DL_Inst (J, {dest = a}))
-
-    fun mJr (a : 't) (_ : 'l) : ('l, 't) Stmt =
-            Inst (DR_Inst (Jr, {dest = a}))
-
-    fun mLabel (a : 'l) (_ : 't) : ('l, 't) Stmt = Mips.Label a
+    fun mLabel   l  _       = Mips.Label l
 end
