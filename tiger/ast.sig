@@ -27,8 +27,9 @@ sig
                 (* 'for' id ':=' exp 'to' exp 'by' exp 'do' exp 'done' *)
                 | For of {loopVar: id, startPos: Expr, endPos: Expr, step: Expr, body: Expr}
 
-                (* Print *)
-                | Print of Expr
+                (* Print and print with newline *)
+                | Print   of Expr
+                | Println of Expr
 
                 (* Multiple expressions *)
                 | Exprs of Expr list

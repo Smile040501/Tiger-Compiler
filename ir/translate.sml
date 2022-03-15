@@ -179,13 +179,14 @@ struct
                                     -> Env.mp list * Ir.Stmt list * Ir.Stmt list *)
     and translateExpr (envs: Env.mp list) (exp: TIG.Expr) =
             (case exp of
-                  (TIG.Assign e) => assignExprHelper envs (#lvalue e) (#expr e)
-                | (TIG.For    e) => (forExprHelper envs
+                  (TIG.Assign  e) => assignExprHelper envs (#lvalue e) (#expr e)
+                | (TIG.For     e) => (forExprHelper envs
                                         (#loopVar e) (#startPos e) (#endPos e) (#step e) (#body e)
                                     )
-                | (TIG.Print  e) => printExprHelper envs e
-                | (TIG.Exprs  e) => translateExprs envs e
-                | _              => (envs, [], [])
+                | (TIG.Print   e) => printExprHelper envs e
+                | (TIG.Println e) => printlnExprHelper envs e
+                | (TIG.Exprs   e) => translateExprs envs e
+                | _               => (envs, [], [])
             )
 
     (* Translates the Tiger.Expr list to Ir.Stmt list *)
@@ -400,16 +401,33 @@ struct
                 )
             end
 
+    (* Utility function manager for translating Tiger.Println expressions *)
+    (* printlnExprHelper : Env.mp list -> Tiger.Expr
+                                            -> Env.mp list * Ir.Stmt list * Ir.Stmt list *)
+    and printlnExprHelper envs expr =
+            let
+                val (newEnvs, insts, data) = printExprHelper envs expr
+
+                (* Instruction set for printing *)
+                val printInsts = CTM.mSyscall (getTemp newEnvs Utils.V0_REG)
+                                            Utils.PRINT_STRING_SYSCALL CTM.DUMMY_STR
+            in
+                (newEnvs,
+                    insts @ [CTM.mLa (getTemp newEnvs Utils.A0_REG) Utils.NL_Label] @ printInsts,
+                data)
+            end
+
     (* Compiles Tiger program to Ir program *)
     (* compileToIR : Tiger.Prog -> Env.mp list * Ir.Prog *)
     and compileToIR (TIG.Expression e) =
             let
                 val (newEnvs1, insts, data) = translateExpr [Env.empty()] e
 
-                val headerDirs  = [Mips.Data] @ data @ [Mips.Text, Mips.Globl "main"]
-                val headerStmts = (map (fn d => CTM.mapDirToStmt d CTM.DUMMY_STR Temp.DUMMY_VALUE)
-                                            headerDirs
-                                    )
+                val headerStmts  = [CTM.mDir Mips.Data CTM.DUMMY_STR Temp.DUMMY_VALUE] @ data @
+                            [CTM.mLabel Utils.NL_Label Temp.DUMMY_VALUE] @
+                            [CTM.mDir (Mips.Ascii "\\n") CTM.DUMMY_STR Temp.DUMMY_VALUE] @
+                            [CTM.mDir Mips.Text CTM.DUMMY_STR Temp.DUMMY_VALUE] @
+                            [CTM.mDir (Mips.Globl "main") CTM.DUMMY_STR Temp.DUMMY_VALUE]
 
                 (* For register v0 *)
                 val (newEnv, t) = assignTemp (getLastVal newEnvs1) Utils.V0_REG false

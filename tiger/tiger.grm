@@ -27,25 +27,27 @@
     | DONE
 
     | PRINT
+    | PRINTLN
 
     (* Others *)
     | EOF
     | UMINUS
 
 (* The nonterminals of the language *)
-%nonterm PROG      of Tiger.Prog
-       | EXP       of Tiger.Expr
-       | EXPS      of Tiger.Expr list
-       | LVALEXP   of Tiger.Lvalue
-       | NEGEXP    of Tiger.Expr
-       | OPEXP     of Tiger.Expr
-       | ASSIGNEXP of Tiger.Expr
-       | FOREXP    of Tiger.Expr
-       | PRINTEXP  of Tiger.Expr
+%nonterm PROG       of Tiger.Prog
+       | EXP        of Tiger.Expr
+       | EXPS       of Tiger.Expr list
+       | LVALEXP    of Tiger.Lvalue
+       | NEGEXP     of Tiger.Expr
+       | OPEXP      of Tiger.Expr
+       | ASSIGNEXP  of Tiger.Expr
+       | FOREXP     of Tiger.Expr
+       | PRINTEXP   of Tiger.Expr
+       | PRINTLNEXP of Tiger.Expr
 
 (* Define precedence order and associativity *)
 %nonassoc FOR TO BY DO DONE
-%nonassoc ASSIGN PRINT
+%nonassoc ASSIGN PRINT PRINTLN
 %left     PLUS MINUS
 %left     MUL DIV
 %left     LPAREN RPAREN
@@ -85,19 +87,20 @@ EXP : INT                                                (Tiger.Int INT)
     | ASSIGNEXP                                          (ASSIGNEXP)
     | FOREXP                                             (FOREXP)
     | PRINTEXP                                           (PRINTEXP)
+    | PRINTLNEXP                                         (PRINTLNEXP)
     | LPAREN EXPS RPAREN                                 (Tiger.Exprs EXPS)
 
 (* Multiple Expressions *)
 (* Return type: Tiger.Expr list *)
-EXPS: EXP SEMICOLON EXPS                                 (EXP :: EXPS)
-    | EXP                                                ([EXP])
-    | (* empty *)                                        ([])
+EXPS : EXP SEMICOLON EXPS                                (EXP :: EXPS)
+     | EXP                                               ([EXP])
+     | (* empty *)                                       ([])
 
 (* Variable Names *)
-LVALEXP: ID                                              (Tiger.Var ID)
+LVALEXP : ID                                             (Tiger.Var ID)
 
 (* The optional %prec consists of the keyword %prec followed by a terminal whose precedence should be used as the precedence of the rule. *)
-NEGEXP: MINUS EXP %prec UMINUS                           (Tiger.Neg EXP)
+NEGEXP : MINUS EXP %prec UMINUS                          (Tiger.Neg EXP)
 
 (* Operations *)
 OPEXP : EXP PLUS  EXP                                    (ConvToTiger.tPlus  EXP1 EXP2)
@@ -106,11 +109,14 @@ OPEXP : EXP PLUS  EXP                                    (ConvToTiger.tPlus  EXP
       | EXP DIV   EXP                                    (ConvToTiger.tDiv   EXP1 EXP2)
 
 (* Assignment *)
-ASSIGNEXP: LVALEXP ASSIGN EXP                            (ConvToTiger.tAssign LVALEXP EXP)
+ASSIGNEXP : LVALEXP ASSIGN EXP                           (ConvToTiger.tAssign LVALEXP EXP)
 
 (* For Loops *)
 FOREXP : FOR ID ASSIGN EXP TO EXP BY EXP DO EXPS DONE    (ConvToTiger.tFor ID EXP1 EXP2 EXP3 (Tiger.Exprs EXPS))
        | FOR ID ASSIGN EXP TO EXP DO EXPS DONE           (ConvToTiger.tFor ID EXP1 EXP2 (Tiger.Int 1) (Tiger.Exprs EXPS))
 
 (* Print statement *)
-PRINTEXP: PRINT EXP                                      (Tiger.Print EXP)
+PRINTEXP : PRINT EXP                                     (Tiger.Print EXP)
+
+(* Println statement *)
+PRINTLNEXP : PRINTLN EXP                                 (Tiger.Println EXP)

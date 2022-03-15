@@ -53,7 +53,8 @@ alpha    = [a-zA-Z];
 <INITIAL> {nl}({ws}*{nl})*      => (incRef lineNo (newLineCount yytext); lex());
 <INITIAL> {ws}+                 => (lex());
 
-<INITIAL> "print"               => (Tokens.PRINT(yypos, yypos + (size yytext)));
+<INITIAL> "print"               => (Tokens.PRINT  (yypos, yypos + (size yytext)));
+<INITIAL> "println"             => (Tokens.PRINTLN(yypos, yypos + (size yytext)));
 
 <INITIAL> "for"                 => (Tokens.FOR (yypos, yypos + (size yytext)));
 <INITIAL> "to"                  => (Tokens.TO  (yypos, yypos + (size yytext)));

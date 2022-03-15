@@ -59,8 +59,9 @@ struct
                     (indent ("body     = " ^ strBody  ^ "\n")  (il + 4)) ^
                     (indent "})" il)
                 end
-      | strExpr (Print e)      is il  = indent ("Print(" ^ (strExpr e 0 (il + 7)) ^ ")") is
-      | strExpr (Exprs es)     is il  = ((indent "Exprs([\n" is) ^
+      | strExpr (Print   e)    is il  = indent ("Print("   ^ (strExpr e 0 (il + 7)) ^ ")") is
+      | strExpr (Println e)    is il  = indent ("Println(" ^ (strExpr e 0 (il + 9)) ^ ")") is
+      | strExpr (Exprs  es)    is il  = ((indent "Exprs([\n" is) ^
                                         (strExprs es (il + 4) (il + 4)) ^
                                         (indent "])" il))
 
@@ -86,5 +87,5 @@ struct
 
     (* Returns the string representation of the Tiger AST *)
     (* prettyTig : Tiger.Prog -> string *)
-    and prettyTig (Expression e) = strExpr e 0 0
+    and prettyTig (Expression e) = (strExpr e 0 0) ^ "\n"
 end
