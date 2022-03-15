@@ -119,14 +119,14 @@ struct
                 | (TempRes i, IntRes  j) => ([CTM.mSub_I t i j CTM.DUMMY_STR], [])
                 | (TempRes i, TempRes j) => ([CTM.mSub   t i j CTM.DUMMY_STR], [])
             )
-    | evalReducedOpExpr (t: Temp.value) lRes TIG.Mul rRes =
+      | evalReducedOpExpr (t: Temp.value) lRes TIG.Mul rRes =
             (case (lRes, rRes) of
                   (IntRes  i, IntRes  j) => ([CTM.mLi t i CTM.DUMMY_STR, CTM.mMul_I t t j CTM.DUMMY_STR], [])
                 | (IntRes  i, TempRes j) => ([CTM.mMul_I t j i CTM.DUMMY_STR], [])
                 | (TempRes i, IntRes  j) => ([CTM.mMul_I t i j CTM.DUMMY_STR], [])
                 | (TempRes i, TempRes j) => ([CTM.mMul   t i j CTM.DUMMY_STR], [])
             )
-    | evalReducedOpExpr (t: Temp.value) lRes TIG.Div rRes =
+      | evalReducedOpExpr (t: Temp.value) lRes TIG.Div rRes =
             (case (lRes, rRes) of
                   (IntRes  i, IntRes  j) => ([CTM.mLi t i CTM.DUMMY_STR, CTM.mDiv_QI t t j CTM.DUMMY_STR], [])
                 | (IntRes  i, TempRes j) => ([CTM.mDiv_QI t j i CTM.DUMMY_STR], [])
@@ -180,6 +180,9 @@ struct
     and translateExpr (envs: Env.mp list) (exp: TIG.Expr) =
             (case exp of
                   (TIG.Assign e) => assignExprHelper envs (#lvalue e) (#expr e)
+                | (TIG.For    e) => (forExprHelper envs
+                                        (#loopVar e) (#startPos e) (#endPos e) (#step e) (#body e)
+                                    )
                 | (TIG.Print  e) => printExprHelper envs e
                 | (TIG.Exprs  e) => translateExprs envs e
                 | _              => (envs, [], [])
@@ -254,10 +257,48 @@ struct
     (* assignExprSimplified : Temp.value -> Result
                                         -> Ir.Stmt list * Ir.Stmt list *)
     and assignExprSimplified (t: Temp.value) (res: Result) =
-                (case res of
-                      IntRes  i => ([CTM.mLi   t i CTM.DUMMY_STR], [])
-                    | TempRes v => ([CTM.mMove t v CTM.DUMMY_STR], [])
-                )
+            (case res of
+                  IntRes  i => ([CTM.mLi   t i CTM.DUMMY_STR], [])
+                | TempRes v => ([CTM.mMove t v CTM.DUMMY_STR], [])
+            )
+
+    (* forExprHelper : Env.mp list -> Tiger.id -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr -> Tiger.Expr
+                                            -> Env.mp list * Ir.Stmt list * Ir.Stmt list *)
+    and forExprHelper envs loopVar startPos endPos step body =
+            let
+                val (newEnv, t) = assignTemp (Env.empty ()) loopVar true
+                val (startRes, startEnvs, startInsts, startData) = evalExpr envs startPos
+                val (endRes,   endEnvs,   endInsts,   endData  ) = evalExpr envs endPos
+                val (stepRes,  stepEnvs,  stepInsts,  stepData ) = evalExpr envs step
+                val (bodyEnvs, bodyInsts, bodyData) = translateExpr (newEnv :: envs) body
+
+                val newEnv2 = Env.union (List.hd startEnvs) (List.hd endEnvs)
+                val newEnv3 = Env.union newEnv2 (List.hd stepEnvs)
+                val newEnvs4 = updateFirstVal envs newEnv3
+                val resEnvs = updateLastVal newEnvs4 (getLastVal bodyEnvs)
+
+                val loopStart = Temp.newLabel ()
+                val loopEnd   = Temp.newLabel ()
+
+                val initInst = case startRes of
+                                      IntRes  i => [CTM.mLi t i CTM.DUMMY_STR]
+                                    | TempRes v => [CTM.mMove t v CTM.DUMMY_STR]
+
+                val condInst = case endRes of
+                                      IntRes  i => [CTM.mBgt_I t i loopEnd]
+                                    | TempRes v => [CTM.mBgt   t v loopEnd]
+
+                val stepInst = case stepRes of
+                                      IntRes  i => [CTM.mAddi t t i CTM.DUMMY_STR]
+                                    | TempRes v => [CTM.mAdd  t t v CTM.DUMMY_STR]
+
+                val jumpInst = [CTM.mJ loopStart Temp.DUMMY_VALUE]
+
+                val loopInsts = initInst @ [CTM.mLabel loopStart Temp.DUMMY_VALUE] @ condInst @ bodyInsts @ stepInst @ jumpInst @ [CTM.mLabel loopEnd Temp.DUMMY_VALUE]
+            in
+                (resEnvs, startInsts @ endInsts @ stepInsts @ loopInsts,
+                                        startData @ endData @ stepData @ bodyData)
+            end
 
     (* Utility function manager for translating Tiger.Print expressions *)
     (* printExprHelper : Env.mp list -> Tiger.Expr
@@ -332,7 +373,7 @@ struct
 
                 val exitInsts = CTM.mSyscall (getTemp newEnvs2 Utils.V0_REG) Utils.EXIT_SYSCALL CTM.DUMMY_STR
             in
-                (newEnvs2, headerStmts @ [Mips.Label "main"] @ insts @ exitInsts)
+                (newEnvs2, headerStmts @ [CTM.mLabel "main" Temp.DUMMY_VALUE] @ insts @ exitInsts)
             end
 
     (* Compiles Ir program to MIPS *)
