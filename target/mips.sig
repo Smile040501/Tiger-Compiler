@@ -336,4 +336,17 @@ sig
 
     (* Used to convert program from one parametric type to another *)
     val mapProg: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Prog -> ('lp, 'tp) Prog
+
+    (* Utility Functions *)
+    val get_DL_rec       : 'l -> 't -> ('l, 't) DL
+    val get_DR_rec       : 't -> 'l -> ('l, 't) DR
+    val get_DR_I_rec     : 't -> Imm -> 'l -> ('l, 't) DR_I
+    val get_DR_SL_rec    : 't -> 'l -> ('l, 't) DR_SL
+    val get_DR_SR_rec    : 't -> 't -> 'l -> ('l, 't) DR_SR
+    val get_DR_SR_I_rec  : 't -> 't -> Imm -> 'l -> ('l, 't) DR_SR_I
+    val get_DR_SR_SR_rec : 't -> 't -> 't -> 'l -> ('l, 't) DR_SR_SR
+    val get_SR_DL_rec    : 't -> 'l -> ('l, 't) SR_DL
+    val get_SR_SR_rec    : 't -> 't -> 'l -> ('l, 't) SR_SR
+    val get_SR_I_DL_rec  : 't -> Imm -> 'l -> ('l, 't) SR_I_DL
+    val get_SR_SR_DL_rec : 't -> 't -> 'l -> ('l, 't) SR_SR_DL
 end

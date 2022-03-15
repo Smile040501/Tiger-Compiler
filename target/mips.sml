@@ -414,4 +414,17 @@ struct
     (* Used to convert program from one parametric type to another *)
     (* mapProg: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Prog -> ('lp, 'tp) Prog *)
     fun mapProg (f: 'l -> 'lp) (g: 't -> 'tp) (prog: ('l, 't) Prog) = map (mapStmt f g) prog
+
+    (* Utility Functions *)
+    fun get_DL_rec       l  _       = {dest = l}
+    fun get_DR_rec       t  _       = {dest = t}
+    fun get_DR_I_rec     t  i  _    = {dest = t, imm = i}
+    fun get_DR_SL_rec    t  l       = {dest = t, src1 = l}
+    fun get_DR_SR_rec    t1 t2 _    = {dest = t1, src1 = t2}
+    fun get_DR_SR_I_rec  t1 t2 i  _ = {dest = t1, src1 = t2, imm = i}
+    fun get_DR_SR_SR_rec t1 t2 t3 _ = {dest = t1, src1 = t2, src2 = t3}
+    fun get_SR_DL_rec    t  l       = {src1 = t, dest = l}
+    fun get_SR_SR_rec    t1 t2  _   = {src1 = t1, src2 = t2}
+    fun get_SR_I_DL_rec  t  i   l   = {src1 = t, imm = i, dest = l}
+    fun get_SR_SR_DL_rec t1 t2  l   = {src1 = t1, src2 = t2, dest = l}
 end
