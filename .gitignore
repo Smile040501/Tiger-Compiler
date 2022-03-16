@@ -4,4 +4,7 @@
 *.grm.sml
 *.lex.sml
 *.x86-linux
+*.s
+*.o
+*.so
 tc

@@ -1,0 +1,15 @@
+x := 5;
+
+for i := 1 to 3 do
+    for j := 1 to 3 do
+        println x * i * j;
+    done;
+done;
+
+for i := 1 to 3 do
+    for j := 3 to 1 by -1 do
+        println x * i * j;
+    done;
+done;
+
+print x;
