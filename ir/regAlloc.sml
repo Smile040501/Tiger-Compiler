@@ -80,9 +80,14 @@ struct
     (* getReg : key -> value *)
     fun getReg (k: key) : value = case (TempValMap.find (!MP, k)) of
                       SOME r => r
-                    | NONE   => (Utils.throwErr NoRegisterForTemp ("[regAlloc.sml]:[getReg]: No register is allocated for temp " ^ Temp.prettyValue k))
+                    | NONE   => (Utils.throwErr NoRegisterForTemp
+                                    ("[regAlloc.sml]:[getReg]: No register is allocated for temp " ^
+                                        Temp.prettyValue k)
+                                )
 
     (* Returns the register allocation performed by the compiler *)
     (* listItems: unit -> (string * string) list *)
-    fun listItems () = map (fn (k, v) => (Temp.prettyValue k, PrettyMips.prettyReg v)) (TempValMap.listItemsi (!MP))
+    fun listItems () = (map (fn (k, v) => (Temp.prettyValue k, PrettyMips.prettyReg v))
+                                                                (TempValMap.listItemsi (!MP))
+                        )
 end

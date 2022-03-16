@@ -306,18 +306,53 @@ struct
 
     (* Assembler Directives of the MIPS machine*)
     datatype Directive =
+            (* Align the next datum on a 2ⁿ byte boundary. For example, .align 2 aligns the next value
+                on a word boundary. .align 0 turns off automatic alignment of .half, .word, .float,
+                and .double directives until the next .data or .kdata directive. *)
               Align  of int
+
+            (* Store the string in memory, but do not null-terminate it *)
             | Ascii  of string
+
+            (* Store the string in memory and null-terminate it *)
             | Asciiz of string
+
+            (* Store the n values in successive bytes of memory *)
             | Byte   of int list
+
+            (* The following data items should be stored in the data segment. If the optional
+            argument <addr> is present, the items are stored beginning at address addr . *)
             | Data
+
+            (* Declare that the datum stored at sym is size bytes large and is a global symbol.
+            This directive enables the assembler to store the datum in a portion of the data segment that is efficiently accessed via register $gp *)
             | Extern of {sym: string, size: int}
+
+            (* Declare that symbol sym is global and can be referenced from other files *)
             | Globl  of string
+
+            (* Store the n 16-bit quantities in successive memory halfwords *)
             | Half   of int list
+
+            (* The following data items should be stored in the kernel data segment. If the optional
+                argument <addr> is present, the items are stored beginning at address addr *)
             | Kdata
+
+            (* The next items are put in the kernel text segment. In SPIM, these items may only be
+                instructions or words. If the optional argument <addr> is present, the items are
+                stored beginning at address addr  *)
             | Ktext
+
+            (* Allocate nbytes of space in the current segment
+                (which must be the data segment in SPIM) *)
             | Space  of int
+
+            (* The next items are put in the user text segment. In SPIM, these items may only be
+                instructions or words. If the optional argument <addr> is present, the items are
+                stored beginning at address addr  *)
             | Text
+
+            (* Store the n 32-bit quantities in successive memory words. *)
             | Word   of int list
 
     (* Statements of the MIPS machine: the instructions and the assembler directives *)
@@ -406,10 +441,10 @@ struct
     (* Used to convert statements from one parametric type to another *)
     (* mapStmt: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Stmt -> ('lp, 'tp) Stmt *)
     fun mapStmt (f: 'l -> 'lp) (g: 't -> 'tp) (stmt: ('l, 't) Stmt) =
-        case stmt of
-              Inst  i => Inst (mapInst f g i)
-            | Dir   d => Dir d
-            | Label l => Label (f l)
+            case stmt of
+                  Inst  i => Inst (mapInst f g i)
+                | Dir   d => Dir d
+                | Label l => Label (f l)
 
     (* Used to convert program from one parametric type to another *)
     (* mapProg: ('l -> 'lp) -> ('t -> 'tp) -> ('l, 't) Prog -> ('lp, 'tp) Prog *)

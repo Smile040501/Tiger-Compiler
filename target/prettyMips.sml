@@ -378,24 +378,28 @@ struct
     (* Pretty prints the statement *)
     (* prettyStmt: (string, string) Stmt -> string *)
     fun prettyStmt (stm : (string, string) Stmt) : string =
-        case stm of
-              Inst  i => (prettyInst i)
-            | Dir   d => (prettyDir d)
-            | Label l => addNewline (l ^ ":")
+            case stm of
+                  Inst  i => (prettyInst i)
+                | Dir   d => (prettyDir d)
+                | Label l => addNewline (l ^ ":")
 
     (* Pretty prints the program *)
     (* prettyProg: (string, string) Prog -> string *)
-    fun prettyProg (prog: (string, string) Mips.Prog) : string = Utils.concatStrings (map prettyStmt prog)
+    fun prettyProg (prog: (string, string) Mips.Prog) : string =
+                                                Utils.concatStrings (map prettyStmt prog)
 
     (* Maps and pretty prints the instruction *)
     (* prettyMapInst: ('l -> string) -> ('t -> string) -> ('l, 't) Instruction -> string *)
-    fun prettyMapInst (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Instruction) = prettyInst (mapInst f g x)
+    fun prettyMapInst (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Instruction) =
+                                                prettyInst (mapInst f g x)
 
     (* Maps and pretty prints the statement *)
     (* prettyMapStmt: ('l -> string) -> ('t -> string) -> ('l, 't) Stmt -> string *)
-    fun prettyMapStmt (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Stmt) = prettyStmt (mapStmt f g x)
+    fun prettyMapStmt (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Stmt) =
+                                                prettyStmt (mapStmt f g x)
 
     (* Maps and pretty prints the program *)
     (* prettyMapProg: ('l -> string) -> ('t -> string) -> ('l, 't) Prog -> string *)
-    fun prettyMapProg (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Prog) = prettyProg (mapProg f g x)
+    fun prettyMapProg (f: 'l -> string) (g: 't -> string) (x: ('l, 't) Prog) =
+                                                prettyProg (mapProg f g x)
 end

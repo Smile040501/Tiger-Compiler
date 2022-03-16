@@ -30,10 +30,10 @@ struct
 					\    Display the AST generated from the source file.\n\n\
 					\-D\n\
 					\--debug\n\
-					\   Display all the required information for debugging.\
+					\   Display all the required information for debugging.\n\n\
 					\-F\n\
 					\--file\n\
-					\    Execute the source tiger file. This is the \027[31mdefault\027[0m.\
+					\    Execute the source tiger file. This is the \027[31mdefault\027[0m.\n\n\
 					\-I\n\
 					\--ir\n\
 					\    Display the IR generated from the source file.\n\n\
@@ -52,7 +52,7 @@ struct
 	(* val OS.Process.exit : OS.Process.status -> 'a *)
 	fun failExit () = (Utils.printErr manString; OS.Process.exit OS.Process.failure)
 
-	(* Successfully exit the program *)
+	(* Successfully exit from the program *)
 	fun successExit () = OS.Process.exit OS.Process.success
 
 	(* Returns the flag and the filename from the input *)
