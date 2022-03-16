@@ -377,8 +377,8 @@ struct
                 val condInst =
                         let
                             val (gtc, ltc) = case endRes of (* For `GTC` and `LTC` *)
-                                  IntRes  i => ([CTM.mBgt_I t i loopEnd], [CTM.mBle_I t i loopEnd])
-                                | TempRes v => ([CTM.mBgt   t v loopEnd], [CTM.mBle   t v loopEnd])
+                                  IntRes  i => ([CTM.mBgt_I t i loopEnd], [CTM.mBlt_I t i loopEnd])
+                                | TempRes v => ([CTM.mBgt   t v loopEnd], [CTM.mBlt   t v loopEnd])
 
                             (* Overall instructions with labels for `GTC` and `LTC` *)
                             val terminatingInsts = [CTM.mLabel gtCondition Temp.DUMMY_VALUE] @ gtc @
