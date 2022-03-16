@@ -1,5 +1,8 @@
 (*===========================================================================*)
-(* Input and Output *)
+
+(* Provides input/output of characters and strings *)
+(* https://smlfamily.github.io/Basis/text-io.html *)
+structure TextIO :> TEXT_IO
 
 (*
 These are the abstract types of stream elements and vectors of elements.
@@ -14,7 +17,7 @@ type TextIO.instream
 type TextIO.outstream
 
 (* Correspond to standard input, output and error streams *)
-val TextIO.stdIn  : TextIo.instream
+val TextIO.stdIn  : TextIO.instream
 val TextIO.stdOut : TextIO.outstream
 val TextIO.stdErr : TextIO.outstream
 
