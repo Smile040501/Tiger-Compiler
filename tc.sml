@@ -71,7 +71,28 @@ struct
 			)
 		end
 
-	val flagRef : string ref = ref ""	(* Remembers the flag being passed as input *)
+	val flagRef  : string ref = ref ""	(* Remembers the flag being passed as input *)
+	val fileName : string ref = ref ""  (* Remembers the file name being passed as input *)
+
+	(* Terminates the process due to wrong input file extension *)
+	fun wrongFileExtension () = (Utils.printErr "The file extension must be \027[31m.tig\027[0m.\n\n";
+										failExit())
+
+	(* Returns the file name and the flag from the input *)
+	(* val getFlagAndFile : stirng -> string -> string * string *)
+
+	(* Validates the file extension of the input file and stores the file name if correct *)
+	fun checkFileExtension file =   let
+										val base = OS.Path.base file
+										val ext  = OS.Path.ext  file
+										val _ = case ext of
+											  SOME e => (if e = "tig" then fileName := base
+											  			 else wrongFileExtension()
+											  			)
+											| NONE   => wrongFileExtension()
+									in
+										()
+									end
 
 	(* Parse command line and set a suitable lexer *)
 	(* val CommandLine.arguments : unit -> string list *)
@@ -80,12 +101,13 @@ struct
 			| [x]    =>
 				(if x = "-?" orelse x = "--help" then
 					(flagRef := x; makeTigerLexer (TextIO.openString ""))
-				 else makeFileLexer x
+				 else (checkFileExtension x; makeFileLexer x)
 				)
 			| [x, y] =>
 				let
 					val (flag, file) = getFlagAndFile x y
 					val  _           = flagRef := flag
+					val  _           = checkFileExtension file
 				in
 					makeFileLexer file
 				end
@@ -154,21 +176,29 @@ struct
 				(displayRegAlloc(); successExit(); ())
 			else ()
 
+	(* Generating the final MIPS program *)
+	val mipsProgram = Translate.compileToMips irProgram
+
+	(* The stringified representation of the MIPS program that SPIM will understand *)
+	val assemblerCode = PrettyMips.prettyMapProg Utils.identity PrettyMips.prettyReg mipsProgram
+
+	(* Displays the assembler code *)
+	fun displayAssembler () = Utils.printOut assemblerCode
+
+	val _ = if (!flagRef = "-S" orelse !flagRef = "--asm") then
+				(displayAssembler(); successExit(); ())
+			else ()
+
+	(* Debugging mode *)
 	val _ = if (!flagRef = "-D" orelse !flagRef = "--debug") then
 				(Utils.printOut "---------------TIGER AST---------------\n"; displayTigerAST();
 				Utils.printOut "---------------IR---------------\n"; displayIR();
 				Utils.printOut "---------------TEMP ALLOC---------------\n"; displayTempAlloc();
 				Utils.printOut "---------------REG ALLOC---------------\n"; displayRegAlloc();
-				Utils.printOut "---------------OUTPUT---------------\n";
+				Utils.printOut "---------------ASSEMBLER CODE---------------\n"; displayAssembler();
 				())
 			else ()
 
-	(* Generating the final MIPS program *)
-	val mipsProgram = Translate.compileToMips irProgram
-
-	(* The stringified representation of the MIPS program that SPIM will understand *)
-	val output = PrettyMips.prettyMapProg Utils.identity PrettyMips.prettyReg mipsProgram
-
-	(* Displays the final output *)
-	val _ = Utils.printOut output
+	(* Write the assembly code to `fileName.s` *)
+	val _ = TextIO.output(TextIO.openOut ((!fileName) ^ ".s"), assemblerCode)
 end
