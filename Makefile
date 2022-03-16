@@ -62,11 +62,8 @@ run: $(TIG_BIN) $(TF)
 	@echo "--------------------------------------------------------------"
 	@spim -file $(TFF).s
 
-tc%: tests/test%.tig tests/test%.out
+tc%: tests/test%.tig tests/test%.out | $(TIG_BIN)
 	@bash $(TEST_SCRIPT) $<
-
-test: $(TIG_BIN) $(TF)
-	@./tc -D $(TF)
 
 tests: $(TIG_BIN) $(TESTS_FILES)
 	@bash $(TEST_SCRIPT)
