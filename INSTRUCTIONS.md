@@ -7,6 +7,8 @@ You may run the compiler on an input tiger source file as follows to get the MIP
 ./tc [OPTIONS] program.tig
 ```
 
+The compiler will by default generate and store the MIPS assembly code in the file `program.s`, which can then be executed using [**SPIM**](http://spimsimulator.sourceforge.net/).
+
 ## Available Options
 
 ```
