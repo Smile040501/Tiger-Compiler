@@ -13,9 +13,17 @@ The SubTiger language is the subset of the [Tiger language][tiger-resource]. Cur
 
 See [`INSTALL.md`](INSTALL.md)
 
+## Syntax for the Language
+
+See [`SYNTAX.md`](SYNTAX.md)
+
 ## Using the Compiler
 
 See [`INSTRUCTIONS.md`](INSTRUCTIONS.md)
+
+## Design of the Compiler
+
+See [`DESIGN.md`](DESIGN.md)
 
 ## License
 
