@@ -62,7 +62,7 @@ struct
     fun allocReg (k: key) : unit =
                 if !curIdx >= (List.length regList) then
                     (Utils.throwErr NoRegistersAvailable
-                        "[regAlloc.sml]:[allocRegs]: No more registers available")
+                        "[regAlloc.sml]:[allocRegs]: No more registers available\n")
                 else
                     let
                         val r = List.nth (regList, !curIdx)
@@ -82,7 +82,7 @@ struct
                       SOME r => r
                     | NONE   => (Utils.throwErr NoRegisterForTemp
                                     ("[regAlloc.sml]:[getReg]: No register is allocated for temp " ^
-                                        Temp.prettyValue k)
+                                        (Temp.prettyValue k) ^ "\n")
                                 )
 
     (* Returns the register allocation performed by the compiler *)

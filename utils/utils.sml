@@ -84,7 +84,7 @@ struct
       | updateLastVal (x :: xs) y = (x :: (updateLastVal xs y))
 
     (* Returns the last value of the list *)
-    fun getLastVal []        = raise EmptyList "[utils.sml]:[getLastVal]: List is Empty"
+    fun getLastVal []        = raise EmptyList "[utils.sml]:[getLastVal]: List is Empty\n"
       | getLastVal [x]       = x
       | getLastVal (x :: xs) = getLastVal xs
 end
