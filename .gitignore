@@ -7,4 +7,5 @@
 *.s
 *.o
 *.so
+.ideas
 tc
