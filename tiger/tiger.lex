@@ -9,15 +9,19 @@ type ('a, 'b) token = ('a, 'b) Tokens.token
 type lexresult      = (svalue, pos) token
 
 (* Keeps track of the line number *)
-val lineNo    : pos ref = ref 0
+val lineNo    : pos ref = ref 1
+
+(* Keeps track of the position in line
+  It is different from `yypos` as `yypos` is relative to the start of the file *)
+val posInLine : pos ref = ref 1
 
 (* Updates the input reference variable *)
 fun incRef   x n = (x := !x + n)
 fun decRef   x n = (x := !x - n)
-fun resetRef x   = (x := 0)
+fun resetRef x   = (x := 1)
 
 (* Called by the lexer when the end of the input stream is reached. *)
-fun eof () = ((resetRef lineNo); Tokens.EOF (!lineNo, !lineNo))
+fun eof () = ((resetRef lineNo); (resetRef posInLine); Tokens.EOF (!lineNo, !lineNo))
 
 (* Some helper functions during lexing *)
 
@@ -36,6 +40,20 @@ val toInt = toSigned o String.explode
 (* Counts number of newlines based on the \n's encountered in the input *)
 val newLineCount = List.length o List.filter (fn x => x = #"\n") o String.explode
 
+(* Syntax error handling *)
+exception SyntaxError of string
+
+fun syntaxErr text =
+        let
+            val _ = Utils.printErr ("Syntax error on line " ^ (Int.toString (!lineNo)) ^ ".\n" ^
+                                            "Illegal character '" ^ text ^ "' found at position " ^
+                                                (Int.toString (!posInLine)) ^ ".\n")
+            val _ = resetRef lineNo
+            val _ = resetRef posInLine
+        in
+            raise SyntaxError "Syntax Error"
+        end
+
 %%
 
 %header (functor TigerLexFun(structure Tokens: Tiger_TOKENS));
@@ -50,29 +68,73 @@ alpha    = [a-zA-Z];
 
 %%
 
-<INITIAL> {nl}({ws}*{nl})*      => (incRef lineNo (newLineCount yytext); lex());
-<INITIAL> {ws}+                 => (lex());
+<INITIAL> {nl}({ws}*{nl})*      => ((incRef lineNo (newLineCount yytext)); (resetRef posInLine);
+                                    lex()
+                                  );
+<INITIAL> {space}+              => ((incRef posInLine (size yytext));
+                                    lex()
+                                  );
 
-<INITIAL> "print"               => (Tokens.PRINT  (yypos, yypos + (size yytext)));
-<INITIAL> "println"             => (Tokens.PRINTLN(yypos, yypos + (size yytext)));
+<INITIAL> {tabspace}+           => ((incRef posInLine (8 * (size yytext)));
+                                    lex()
+                                  );
 
-<INITIAL> "for"                 => (Tokens.FOR (yypos, yypos + (size yytext)));
-<INITIAL> "to"                  => (Tokens.TO  (yypos, yypos + (size yytext)));
-<INITIAL> "by"                  => (Tokens.BY  (yypos, yypos + (size yytext)));
-<INITIAL> "do"                  => (Tokens.DO  (yypos, yypos + (size yytext)));
-<INITIAL> "done"                => (Tokens.DONE(yypos, yypos + (size yytext)));
+<INITIAL> "print"               => ((incRef posInLine (size yytext));
+                                    Tokens.PRINT  (yypos, yypos + (size yytext))
+                                  );
+<INITIAL> "println"             => ((incRef posInLine (size yytext));
+                                    Tokens.PRINTLN(yypos, yypos + (size yytext))
+                                  );
 
-<INITIAL> ":="                  => (Tokens.ASSIGN   (yypos, yypos + (size yytext)));
-<INITIAL> ";"                   => (Tokens.SEMICOLON(yypos, yypos + (size yytext)));
+<INITIAL> "for"                 => ((incRef posInLine (size yytext));
+                                    Tokens.FOR (yypos, yypos + (size yytext))
+                                  );
+<INITIAL> "to"                  => ((incRef posInLine (size yytext));
+                                    Tokens.TO  (yypos, yypos + (size yytext))
+                                  );
+<INITIAL> "by"                  => ((incRef posInLine (size yytext));
+                                    Tokens.BY  (yypos, yypos + (size yytext))
+                                  );
+<INITIAL> "do"                  => ((incRef posInLine (size yytext));
+                                    Tokens.DO  (yypos, yypos + (size yytext))
+                                  );
+<INITIAL> "done"                => ((incRef posInLine (size yytext));
+                                    Tokens.DONE(yypos, yypos + (size yytext))
+                                  );
 
-<INITIAL> "+"                   => (Tokens.PLUS (yypos, yypos + (size yytext)));
-<INITIAL> "-"                   => (Tokens.MINUS(yypos, yypos + (size yytext)));
-<INITIAL> "*"                   => (Tokens.MUL  (yypos, yypos + (size yytext)));
-<INITIAL> "/"                   => (Tokens.DIV  (yypos, yypos + (size yytext)));
+<INITIAL> ":="                  => ((incRef posInLine (size yytext));
+                                    Tokens.ASSIGN   (yypos, yypos + (size yytext))
+                                  );
+<INITIAL> ";"                   => ((incRef posInLine (size yytext));
+                                    Tokens.SEMICOLON(yypos, yypos + (size yytext))
+                                  );
 
-<INITIAL> "("                   => (Tokens.LPAREN(yypos, yypos + (size yytext)));
-<INITIAL> ")"                   => (Tokens.RPAREN(yypos, yypos + (size yytext)));
+<INITIAL> "+"                   => ((incRef posInLine (size yytext));
+                                    Tokens.PLUS (yypos, yypos + (size yytext))
+                                  );
+<INITIAL> "-"                   => ((incRef posInLine (size yytext));
+                                    Tokens.MINUS(yypos, yypos + (size yytext))
+                                  );
+<INITIAL> "*"                   => ((incRef posInLine (size yytext));
+                                    Tokens.MUL  (yypos, yypos + (size yytext))
+                                  );
+<INITIAL> "/"                   => ((incRef posInLine (size yytext));
+                                    Tokens.DIV  (yypos, yypos + (size yytext))
+                                  );
+
+<INITIAL> "("                   => ((incRef posInLine (size yytext));
+                                    Tokens.LPAREN(yypos, yypos + (size yytext))
+                                  );
+<INITIAL> ")"                   => ((incRef posInLine (size yytext));
+                                    Tokens.RPAREN(yypos, yypos + (size yytext))
+                                  );
 
 
-<INITIAL> {digit}+              => (Tokens.INT(toInt yytext, yypos, yypos + (size yytext)));
-<INITIAL> {id}                  => (Tokens.ID (yytext, yypos, yypos + (size yytext)));
+<INITIAL> {digit}+              => ((incRef posInLine (size yytext));
+                                    Tokens.INT(toInt yytext, yypos, yypos + (size yytext))
+                                  );
+<INITIAL> {id}                  => ((incRef posInLine (size yytext));
+                                    Tokens.ID (yytext, yypos, yypos + (size yytext))
+                                  );
+
+.                               => (syntaxErr yytext);
