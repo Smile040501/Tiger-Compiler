@@ -4,6 +4,32 @@ All the weekly changes made in the project as a summary.
 
 ## [Unreleased]
 
+## [Improvements1] - 2022-03-29
+
+### Added
+
+-   Added workflow for Makefile tests and `tests` directory to contain all the unit tests.
+-   `SYNTAX.md` for the specifications of syntax for the SubTiger language.
+-   `DESIGN.md` for the information about the design of the compiler.
+-   `notes/CommandLine.sml` and `notes/OS.sml`: Contains notes for referencing some SML built-in structures.
+-   `target/mips`: Added more utility functions to create different types of records
+-   Added support for `println` command in Tiger language
+-   Added input file extension validation for the compiler.
+
+### Updated
+
+-   The compiler now by default creates a file `filename.s` for the generated assembly where the filename is the input `filename.tig` without the extension.
+-   Lexer now supports better syntax error handling
+-   `INSTRUCTIONS.md` for better instruction usage.
+-   `.gitignore` file to ignore some more temporary files generated.
+-   `README.md` file for the project.
+-   Better comments and indentation in many files
+
+### Fixed
+
+-   Fixed **For-loops** always checking the greater than condition for loop termination in the generated assembly code. Now it checks based on the start and the end of the loop.
+-   Fixed pretty printing of ascii directives in MIPS assembly.
+
 ## [2022-02-24] - 2022-03-15
 
 ### Added
@@ -76,7 +102,8 @@ All the weekly changes made in the project as a summary.
     -   `make clean`: remove all generated/intermediate files from the repository (in this case only the executable file `tc`)
 -   `.gitignore`: Global gitignore file.
 
-[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-24...master
+[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/improvements1...master
+[improvements1]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-24...improvements1
 [2022-02-24]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-17...2022-02-24
 [2022-02-17]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-01-10...2022-02-17
 [2022-02-10]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-01-27...2022-02-10
