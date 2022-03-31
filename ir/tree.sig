@@ -13,7 +13,7 @@ sig
 
                (* BINOP(o, e1, e2): The application of binary operation o to operands e1 and e2
                   e1 is evaulated before e2 *)
-               |  BINOP of {left: Exr, oper: Binop, right: Exp}
+               |  BINOP of {left: Exp, oper: Binop, right: Exp}
 
                (* Contents of `wordSize` bytes of memory starting at address Exp
                   `wordSize` is defined in the FRAME module *)
@@ -70,7 +70,7 @@ sig
                |  ULT | ULE | UGT | UGE
 
    (* Utilitiy functions *)
-   val getBinOpRec : Exp -> Binop -> Exp -> {left: Exp, oper: Binop, right: Exp}
+   val getBinopRec : Exp -> Binop -> Exp -> {left: Exp, oper: Binop, right: Exp}
    val getCallRec  : Exp -> Exp list -> {func: Exp, args: Exp list}
    val getEseqRec  : Stm -> Exp -> {stm: Stm, res: Exp}
    val getMoveRec  : Exp -> Exp -> {lhs: Exp, rhs: Exp}
@@ -78,4 +78,5 @@ sig
    val getCjumpRec : Exp -> Relop -> Exp -> Temp.label -> Temp.label ->
                               {left: Exp, oper: Relop, right: Exp, tLab: Temp.label, fLab: Temp.label}
    val getSeqRec   : Stm -> Stm -> {s1: Stm, s2: Stm}
+   val seq         : Stm list -> Stm
 end

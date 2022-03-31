@@ -13,7 +13,7 @@ struct
 
                (* BINOP(o, e1, e2): The application of binary operation o to operands e1 and e2
                   e1 is evaulated before e2 *)
-               |  BINOP of {left: Exr, oper: Binop, right: Exp}
+               |  BINOP of {left: Exp, oper: Binop, right: Exp}
 
                (* Contents of `wordSize` bytes of memory starting at address Exp
                   `wordSize` is defined in the FRAME module *)
@@ -70,13 +70,21 @@ struct
                |  ULT | ULE | UGT | UGE
 
 
+   exception EmptySeq of string
+
    (* Utility functions *)
    fun getBinopRec left oper right = {left = left, oper = oper, right = right}
    fun getCallRec  func args       = {func = func, args = args}
    fun getEseqRec  stm  res        = {stm = stm, res = res}
    fun getMoveRec  lhs  rhs        = {lhs = lhs, rhs = rhs}
    fun getJumpRec  addr labs       = {addr = addr, labs = labs}
+
    fun getCjumpRec left oper right tLab fLab =
                                  {left = left, oper = oper, right = right, tLab = tLab, fLab = fLab}
+
    fun getSeqRec   s1   s2        = {s1 = s1, s2 = s2}
+
+   fun seq [x]       = x
+      | seq (x :: xs) = SEQ (getSeqRec x (seq xs))
+      | seq _         = Utils.throwErr EmptySeq ("[seq]: Empty list")
 end
