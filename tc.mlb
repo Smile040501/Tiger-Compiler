@@ -5,6 +5,7 @@ $(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
 utils/utils.sml
 utils/temp.sml
 utils/env.sml
+utils/basicBlocks.sml
 
 tiger/ast.sig
 tiger/ast.sml
