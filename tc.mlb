@@ -23,5 +23,8 @@ tiger/tiger.lex.sml
 ir/ir.sml
 ir/regAlloc.sml
 ir/translate.sml
+ir/tree.sig
+ir/tree.sml
+ir/translate2.sml
 
 tc.sml
