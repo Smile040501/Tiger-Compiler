@@ -16,6 +16,7 @@ target/mips.sig
 target/mips.sml
 target/convToMIPS.sml
 target/prettyMips.sml
+target/mipsInst.sml
 
 tiger/tiger.grm.sig
 tiger/tiger.grm.sml
