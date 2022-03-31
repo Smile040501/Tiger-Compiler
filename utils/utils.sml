@@ -33,6 +33,14 @@ struct
     fun throwErr (ex : string -> exn) (msg : string) =
                 (printErr msg; raise ex ("\nERROR: " ^ msg ^ "\n"))
 
+    (* Outputs the `man` string and terminates the program *)
+    (* val OS.Process.failure : OS.Process.status *)
+    (* val OS.Process.exit : OS.Process.status -> 'a *)
+    fun failExit msg = (printErr msg; OS.Process.exit OS.Process.failure)
+
+    (* Successfully exit from the program *)
+	  fun successExit () = OS.Process.exit OS.Process.success
+
     (* Returns true if an element satisfy the binary predicate with all the elements of the list *)
     (* val all : ('a * 'b -> bool) -> 'a -> 'b list -> bool *)
     fun all f x [] = true
