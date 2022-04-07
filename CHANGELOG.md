@@ -4,6 +4,16 @@ All the weekly changes made in the project as a summary.
 
 ## [Unreleased]
 
+## [2022-03-31] - 2022-04-07
+
+### Added
+
+-   `utils/graph.sml`: **MkGraph** functor to represent a graph
+
+### Updated
+
+-   `tc.mlb`: Includes the new files added in their respective order
+
 ## [2022-03-24] - 2022-03-31
 
 ### Added
@@ -113,7 +123,8 @@ All the weekly changes made in the project as a summary.
     -   `make clean`: remove all generated/intermediate files from the repository (in this case only the executable file `tc`)
 -   `.gitignore`: Global gitignore file.
 
-[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-03-24...master
+[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-03-31...master
+[2022-03-31]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-03-24...2022-03-31
 [2022-03-24]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/improvements1...2022-03-24
 [improvements1]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-24...improvements1
 [2022-02-24]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-02-17...2022-02-24
