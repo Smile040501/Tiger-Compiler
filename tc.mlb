@@ -6,6 +6,7 @@ utils/utils.sml
 utils/temp.sml
 utils/env.sml
 utils/basicBlocks.sml
+utils/graph.sml
 
 tiger/ast.sig
 tiger/ast.sml
