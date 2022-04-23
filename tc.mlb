@@ -5,6 +5,8 @@ $(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
 utils/utils.sml
 utils/temp.sml
 utils/env.sml
+utils/basicBlocks.sml
+utils/graph.sml
 
 tiger/ast.sig
 tiger/ast.sml
@@ -15,6 +17,7 @@ target/mips.sig
 target/mips.sml
 target/convToMIPS.sml
 target/prettyMips.sml
+target/mipsInst.sml
 
 tiger/tiger.grm.sig
 tiger/tiger.grm.sml
