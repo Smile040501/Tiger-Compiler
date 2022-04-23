@@ -15,7 +15,7 @@ See [`INSTALL.md`](INSTALL.md)
 
 ## Syntax for the Language
 
-See [`SYNTAX.md`](SYNTAX.md)
+See [`SYNTAX.md`](../SYNTAX.md)
 
 ## Using the Compiler
 
@@ -27,7 +27,7 @@ See [`DESIGN.md`](DESIGN.md)
 
 ## License
 
-[MIT](LICENSE)
+[MIT](../LICENSE)
 
 ## Author
 
