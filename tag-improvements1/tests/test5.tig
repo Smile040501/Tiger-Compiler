@@ -1,0 +1,11 @@
+x := -1;
+
+for x := 1 to 10 by 2 do
+    println x;
+done;
+
+for x := 10 to 1 by -3 do
+    println x;
+done;
+
+println x;
