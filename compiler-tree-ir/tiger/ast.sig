@@ -5,6 +5,9 @@ sig
     (* The id's used for identification of variable names *)
     type id = string
 
+    (* Structure for IDKey as required by map functors *)
+    structure IDKey : ORD_KEY
+
     (* Expressions datatype *)
     datatype Expr =
                 (* Literals *)

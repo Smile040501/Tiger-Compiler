@@ -5,6 +5,13 @@ struct
     (* The id's used for identification of variable names *)
     type id = string
 
+    (* Structure for IDKey as required by map functors *)
+    structure IDKey =
+    struct
+        type ord_key = id
+        val compare  = String.compare
+    end
+
     (* Expressions datatype *)
     datatype Expr =
                 (* Literals *)
