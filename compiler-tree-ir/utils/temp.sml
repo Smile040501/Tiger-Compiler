@@ -6,8 +6,9 @@ sig
 
     val DUMMY_VALUE : value
 
-    val newValue    : unit  -> value
-    val newLabel    : unit  -> label
+    val newValue    : unit   -> value
+    val newLabel    : unit   -> label
+    val strToLabel  : string -> label
 
     val areEq       : value * value -> bool
     val compare     : value * value -> order
@@ -43,6 +44,10 @@ structure Temp :> TEMP = struct
                       in
                         (curLabel := oldLabel + 1); "_TL" ^ (Int.toString oldLabel)
                       end
+
+    (* Converts a string to a `Temp.label` *)
+    (* strToLabel : string -> label *)
+    fun strToLabel (s : string) = "_TSL" ^ "_" ^ s
 
     (* Check if two values are equal *)
     (* areEq : value * value -> bool *)
