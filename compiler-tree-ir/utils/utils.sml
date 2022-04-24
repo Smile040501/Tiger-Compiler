@@ -95,4 +95,13 @@ struct
     fun getLastVal []        = raise EmptyList "[utils.sml]:[getLastVal]: List is Empty\n"
       | getLastVal [x]       = x
       | getLastVal (x :: xs) = getLastVal xs
+
+    (* Separate the last value from the list *)
+    fun separateLastVal []        = raise EmptyList "[utils.sml]:[separateLastVal]: List is Empty\n"
+      | separateLastVal [x]       = ([], x)
+      | separateLastVal (x :: xs) = let
+                                        val (ls, lastVal) = separateLastVal xs
+                                    in
+                                        (x :: ls, lastVal)
+                                    end
 end
