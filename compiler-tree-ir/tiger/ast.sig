@@ -6,7 +6,7 @@ sig
     type id = string
 
     (* Structure for IDKey as required by map functors *)
-    structure IDKey : ORD_KEY
+    structure IDKey : ORD_KEY where type ord_key = id
 
     (* Expressions datatype *)
     datatype Expr =
