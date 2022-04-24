@@ -69,6 +69,14 @@ struct
    and Relop   =  EQ | NE | LT | GT | LE | GE
                |  ULT | ULE | UGT | UGE
 
+   (* Already allocated special temporary values *)
+   val argTemp1       = TEMP Temp.argTemp1
+   val argTemp2       = TEMP Temp.argTemp2
+   val resultTemp     = TEMP Temp.resultTemp
+   val frameTemp      = TEMP Temp.framePointer
+   val stackTemp      = TEMP Temp.stackPointer
+   val returnTemp     = TEMP Temp.returnValue
+   val returnAddrTemp = TEMP Temp.returnAddr
 
    exception EmptySeq of string
 
@@ -82,9 +90,15 @@ struct
    fun getCjumpRec left oper right tLab fLab =
                                  {left = left, oper = oper, right = right, tLab = tLab, fLab = fLab}
 
-   fun getSeqRec   s1   s2        = {s1 = s1, s2 = s2}
+   fun getSeqRec   s1   s2         = {s1 = s1, s2 = s2}
 
-   fun seq [x]       = x
+   fun  seq [x]       = x
       | seq (x :: xs) = SEQ (getSeqRec x (seq xs))
       | seq _         = Utils.throwErr EmptySeq ("[seq]: Empty list")
+
+   fun moveTempToFrame var_offset temp =
+         MOVE (getMoveRec (MEM (BINOP (getBinopRec frameTemp PLUS (CONST var_offset)))) temp)
+
+   fun moveFrameToTemp temp var_offset =
+         MOVE (getMoveRec temp (MEM (BINOP (getBinopRec frameTemp PLUS (CONST var_offset)))))
 end

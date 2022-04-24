@@ -69,6 +69,15 @@ sig
    and Relop   =  EQ | NE | LT | GT | LE | GE
                |  ULT | ULE | UGT | UGE
 
+   (* Already allocated special temporary values *)
+   val argTemp1       : Exp
+   val argTemp2       : Exp
+   val resultTemp     : Exp
+   val frameTemp      : Exp
+   val stackTemp      : Exp
+   val returnTemp     : Exp
+   val returnAddrTemp : Exp
+
    (* Utilitiy functions *)
    val getBinopRec : Exp -> Binop -> Exp -> {left: Exp, oper: Binop, right: Exp}
    val getCallRec  : Exp -> Exp list -> {func: Exp, args: Exp list}
@@ -79,4 +88,7 @@ sig
                               {left: Exp, oper: Relop, right: Exp, tLab: Temp.label, fLab: Temp.label}
    val getSeqRec   : Stm -> Stm -> {s1: Stm, s2: Stm}
    val seq         : Stm list -> Stm
+
+   val moveTempToFrame : int -> Exp -> Stm
+   val moveFrameToTemp : Exp -> int -> Stm
 end
