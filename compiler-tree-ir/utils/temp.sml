@@ -6,6 +6,15 @@ sig
 
     val DUMMY_VALUE : value
 
+    (* Already allocated special temporary values *)
+    val argTemp1     : value
+    val argTemp2     : value
+    val resultTemp   : value
+    val framePointer : value
+    val stackPointer : value
+    val returnAddr   : value
+    val returnValue  : value
+
     val newValue    : unit   -> value
     val newLabel    : unit   -> label
     val strToLabel  : string -> label
@@ -26,7 +35,17 @@ structure Temp :> TEMP = struct
 
     val DUMMY_VALUE = ~1  (* Dummy value *)
 
-    val curValue : value ref = ref 0 (* Keeps track of how many temps have been allocated   *)
+    (* Already allocated special temporary values *)
+    val argTemp1     = 1
+    val argTemp2     = 2
+    val resultTemp   = 3
+    val framePointer = 4
+    val stackPointer = 5
+    val returnAddr   = 6
+    val returnValue  = 7
+
+    (* Make sure to update the below count based on the special temp vals assigned *)
+    val curValue : value ref = ref 8 (* Keeps track of how many temps have been allocated   *)
     val curLabel : int ref   = ref 0 (* Keeps track of how many strings have been allocated *)
 
     (* Allocates a new `Temp.value` *)
