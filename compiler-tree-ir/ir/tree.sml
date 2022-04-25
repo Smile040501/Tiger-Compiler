@@ -92,13 +92,19 @@ struct
 
    fun getSeqRec   s1   s2         = {s1 = s1, s2 = s2}
 
+   (* val seq : Stm list -> Stm *)
+   (* Converts a sequence of statements list to a single Tree.Stm *)
    fun  seq [x]       = x
       | seq (x :: xs) = SEQ (getSeqRec x (seq xs))
       | seq _         = Utils.throwErr EmptySeq ("[seq]: Empty list")
 
+   (* val moveTempToFrame : int -> Exp -> Stm *)
+   (* Moves the value of a temporary to the frame at offset given *)
    fun moveTempToFrame var_offset temp =
          MOVE (getMoveRec (MEM (BINOP (getBinopRec frameTemp PLUS (CONST var_offset)))) temp)
 
+   (* val moveFrameToTemp : Exp -> int -> Stm *)
+   (* Moves the value from the frame at the offset given to a temporary *)
    fun moveFrameToTemp temp var_offset =
          MOVE (getMoveRec temp (MEM (BINOP (getBinopRec frameTemp PLUS (CONST var_offset)))))
 end
