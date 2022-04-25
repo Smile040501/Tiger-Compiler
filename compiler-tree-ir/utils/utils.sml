@@ -12,7 +12,8 @@ struct
     val NL_Label : string = "nl"  (* For newline label *)
 
     (* Exceptions *)
-    exception EmptyList of string
+    exception EmptyList           of string
+    exception ImplementationError of string
 
     (* Identity Functions *)
     fun identity     x           = x
@@ -32,6 +33,11 @@ struct
     (* Raises an Exception *)
     fun throwErr (ex : string -> exn) (msg : string) =
                 (printErr msg; raise ex ("\nERROR: " ^ msg ^ "\n"))
+
+    (* Make sures that the input list is not empty *)
+    fun assertNonEmptyList (l : 'a list) = case l of
+                  [] => throwErr ImplementationError "[utils.sml]:[assertNonEmptyList]: Empty list"
+                |  _ => ()
 
     (* Outputs the `man` string and terminates the program *)
     (* val OS.Process.failure : OS.Process.status *)
@@ -95,6 +101,10 @@ struct
     fun getLastVal []        = raise EmptyList "[utils.sml]:[getLastVal]: List is Empty\n"
       | getLastVal [x]       = x
       | getLastVal (x :: xs) = getLastVal xs
+
+    (* Separate the first value from the list *)
+    fun separateFirstVal []        = raise EmptyList "[utils.sml]:[separateFirstVal]: List is Empty\n"
+      | separateFirstVal (x :: xs) = (x, xs)
 
     (* Separate the last value from the list *)
     fun separateLastVal []        = raise EmptyList "[utils.sml]:[separateLastVal]: List is Empty\n"
