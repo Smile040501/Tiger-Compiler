@@ -28,6 +28,9 @@ struct
 					\-A\n\
 					\--ast\n\
 					\    Display the AST generated from the source file.\n\n\
+					\-C\n\
+					\--canon\n\
+					\    Display the canonicalized IR generated from the source file.\n\n\
 					\-D\n\
 					\--debug\n\
 					\   Display all the required information for debugging.\n\n\
@@ -37,37 +40,24 @@ struct
 					\-I\n\
 					\--ir\n\
 					\    Display the IR generated from the source file.\n\n\
-					\-R\n\
-					\--reg-alloc\n\
-					\    Display the register allocation performed by the compiler.\n\n\
-					\-T\n\
-					\--temp-alloc\n\
-					\    Display the temporaries allocation performed by the compiler.\n\n\
 					\-S\n\
 					\--asm\n\
 					\    Display the final assembler code.\n\n"
 
-	(* Outputs the `man` string and terminates the program *)
-	(* val OS.Process.failure : OS.Process.status *)
-	(* val OS.Process.exit : OS.Process.status -> 'a *)
-	fun failExit () = (Utils.printErr manString; OS.Process.exit OS.Process.failure)
-
-	(* Successfully exit from the program *)
-	fun successExit () = OS.Process.exit OS.Process.success
 
 	(* Returns the flag and the filename from the input *)
 	(* val getFlagAndFile : stirng -> string -> string * string *)
 	fun getFlagAndFile x y =
 		let
-			val flagsList = ["-?", "--help", "-A", "--ast", "-D", "--debug", "-F", "--file", "-I", "--ir", "-R", "--reg-alloc", "-T", "--temp-alloc", "-S", "--asm"]
+			val flagsList = ["-?", "--help", "-A", "--ast", "-C", "--canon", "-D", "--debug", "-F", "--file", "-I", "--ir", "-S", "--asm"]
 			val flagX = List.exists (fn a => a = x) flagsList
 			val flagY = List.exists (fn a => a = y) flagsList
 		in
 			(case (flagX, flagY) of
-				  (true, true)   => failExit()
+				  (true, true)   => Utils.failExit manString
 				| (true, false)  => (x, y)
 				| (false, true)  => (y, x)
-				| (false, false) => failExit()
+				| (false, false) => Utils.failExit manString
 			)
 		end
 
@@ -76,10 +66,7 @@ struct
 
 	(* Terminates the process due to wrong input file extension *)
 	fun wrongFileExtension () = (Utils.printErr "The file extension must be \027[31m.tig\027[0m.\n\n";
-										failExit())
-
-	(* Returns the file name and the flag from the input *)
-	(* val getFlagAndFile : stirng -> string -> string * string *)
+										Utils.failExit manString)
 
 	(* Validates the file extension of the input file and stores the file name if correct *)
 	fun checkFileExtension file =   let
@@ -111,14 +98,14 @@ struct
 				in
 					makeFileLexer file
 				end
-			|  _     => failExit()
+			|  _     => Utils.failExit manString
 
 
 	(* Displays the `man` string for compiler usage *)
 	fun displayHelpMsg () = Utils.printOut manString
 
 	val _ = if (!flagRef = "-?" orelse !flagRef = "--help") then
-				(displayHelpMsg(); successExit(); ())
+				(displayHelpMsg(); Utils.successExit(); ())
 			else ()
 
 
@@ -134,48 +121,21 @@ struct
 	fun displayTigerAST () = Utils.printOut (PrettyTigerAST.prettyTig tigerProgram)
 
 	val _ = if (!flagRef = "-A" orelse !flagRef = "--ast") then
-				(displayTigerAST(); successExit(); ())
+				(displayTigerAST(); Utils.successExit(); ())
 			else ()
 
 
 	(* Generating the intermediate representation of the Tiger AST *)
-	val (_: Env.mp list, irProgram: Ir.Prog)  = Translate.compileToIR tigerProgram
+	val irCodeStmt = Translate.compileToIR tigerProgram
 
 	(* Displays the intermediate representation of the Tiger AST *)
-	fun displayIR () = Utils.printOut (Ir.prettyProg irProgram)
+	fun displayIR () = Utils.printOut (PrettyTree.prettyTreeStm irCodeStmt)
 
 	val _ = if (!flagRef = "-I" orelse !flagRef = "--ir") then
-				(displayIR(); successExit(); ())
+				(displayIR(); Utils.successExit(); ())
 			else ()
 
-	(* Display the temporaries allocation performed by the compiler *)
-	fun displayTempAlloc () =
-				let
-					val temps = !Translate.temps
-					(* The temporaries allocation performed by the compiler *)
-					(* val temps : (string * Temp.value) list *)
-				in
-					Utils.printPairList Utils.identity Temp.prettyValue temps
-				end
-
-	val _ = if (!flagRef = "-T" orelse !flagRef = "--temp-alloc") then
-				(displayTempAlloc(); successExit(); ())
-			else ()
-
-	(* Displays the register allocation performed by the compiler *)
-	fun displayRegAlloc () =
-					let
-						val regs = RegAlloc.listItems ()
-						(* The register allocation performed by the compiler *)
-						(* val regs : (string * string) list *)
-					in
-						Utils.printPairList Utils.identity Utils.identity regs
-					end
-
-	val _ = if (!flagRef = "-R" orelse !flagRef = "--reg-alloc") then
-				(displayRegAlloc(); successExit(); ())
-			else ()
-
+	(*
 	(* Generating the final MIPS program *)
 	val mipsProgram = Translate.compileToMips irProgram
 
@@ -201,4 +161,5 @@ struct
 
 	(* Write the assembly code to `fileName.s` *)
 	val _ = TextIO.output(TextIO.openOut ((!fileName) ^ ".s"), assemblerCode)
+	*)
 end
