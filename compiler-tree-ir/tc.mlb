@@ -4,7 +4,6 @@ $(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
 
 utils/utils.sml
 utils/temp.sml
-utils/env.sml
 utils/basicBlocks.sml
 utils/graph.sml
 
@@ -23,11 +22,7 @@ tiger/tiger.grm.sig
 tiger/tiger.grm.sml
 tiger/tiger.lex.sml
 
-ir/ir.sml
-ir/regAlloc.sml
-ir/translate.sml
 ir/tree.sig
 ir/tree.sml
-ir/translate2.sml
 
 tc.sml
