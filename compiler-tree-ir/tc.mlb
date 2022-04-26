@@ -25,5 +25,6 @@ tiger/tiger.lex.sml
 ir/tree.sig
 ir/tree.sml
 ir/frame.sml
+ir/info.sml
 
 tc.sml
