@@ -7,13 +7,14 @@ sig
     val DUMMY_VALUE : value
 
     (* Already allocated special temporary values *)
-    val argTemp1     : value
-    val argTemp2     : value
-    val resultTemp   : value
-    val framePointer : value
-    val stackPointer : value
-    val returnAddr   : value
-    val returnValue  : value
+    val resultTemp      : value
+    val argTemp1        : value
+    val argTemp2        : value
+    val framePointer    : value
+    val stackPointer    : value
+    val returnAddr      : value
+    val returnValue     : value
+    val newSpecialValue : unit -> value
 
     val newValue    : unit   -> value
     val newLabel    : unit   -> label
@@ -36,17 +37,34 @@ structure Temp :> TEMP = struct
     val DUMMY_VALUE = ~1  (* Dummy value *)
 
     (* Already allocated special temporary values *)
+    val resultTemp   = 0
     val argTemp1     = 1
     val argTemp2     = 2
-    val resultTemp   = 3
-    val framePointer = 4
-    val stackPointer = 5
-    val returnAddr   = 6
-    val returnValue  = 7
+    val framePointer = 10
+    val stackPointer = 11
+    val returnAddr   = 12
+    val returnValue  = 13
+
+    val currSpecialValue : value ref = ref 3  (* Current special value *)
+
+    exception NoRegistersAvailable of string
+
+    (* Returns a new special value for the temporary registers T3-T9 *)
+    (* val newSpecialValue : unit -> value *)
+    fun newSpecialValue () =  let
+                                  val n = !currSpecialValue
+                                  val _ = if n = 10 then
+                                              (Utils.throwErr NoRegistersAvailable
+                                                    "[temp.sml]:[newSpecialValue]: No more registers available\n"
+                                              )
+                                          else ()
+                              in
+                                (currSpecialValue := n + 1; n)
+                              end
 
     (* Make sure to update the below count based on the special temp vals assigned *)
-    val curValue : value ref = ref 8 (* Keeps track of how many temps have been allocated   *)
-    val curLabel : int ref   = ref 0 (* Keeps track of how many strings have been allocated *)
+    val curValue : value ref = ref 14 (* Keeps track of how many temps have been allocated   *)
+    val curLabel : int ref   = ref 0  (* Keeps track of how many strings have been allocated *)
 
     (* Allocates a new `Temp.value` *)
     (* newValue : unit  -> value *)

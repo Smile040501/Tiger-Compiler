@@ -70,13 +70,16 @@ sig
                |  ULT | ULE | UGT | UGE
 
    (* Already allocated special temporary values *)
+   val resultTemp     : Exp
    val argTemp1       : Exp
    val argTemp2       : Exp
-   val resultTemp     : Exp
    val frameTemp      : Exp
    val stackTemp      : Exp
    val returnTemp     : Exp
    val returnAddrTemp : Exp
+
+   (* Allocates a new special temporary register *)
+   val newSpecialTemp : unit -> Exp
 
    (* Utilitiy functions *)
    val getBinopRec : Exp -> Binop -> Exp -> {left: Exp, oper: Binop, right: Exp}

@@ -70,13 +70,17 @@ struct
                |  ULT | ULE | UGT | UGE
 
    (* Already allocated special temporary values *)
+   val resultTemp     = TEMP Temp.resultTemp
    val argTemp1       = TEMP Temp.argTemp1
    val argTemp2       = TEMP Temp.argTemp2
-   val resultTemp     = TEMP Temp.resultTemp
    val frameTemp      = TEMP Temp.framePointer
    val stackTemp      = TEMP Temp.stackPointer
    val returnTemp     = TEMP Temp.returnValue
    val returnAddrTemp = TEMP Temp.returnAddr
+
+   (* Allocates a new special temporary register *)
+   (* val newSpecialTemp : unit -> Exp *)
+   fun newSpecialTemp () = TEMP (Temp.newSpecialValue ())
 
    exception EmptySeq of string
 
