@@ -4,7 +4,6 @@ $(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
 
 utils/utils.sml
 utils/temp.sml
-utils/env.sml
 utils/basicBlocks.sml
 utils/graph.sml
 
@@ -13,18 +12,22 @@ tiger/ast.sml
 tiger/convToTiger.sml
 tiger/prettyTigerAST.sml
 
+tiger/tiger.grm.sig
+tiger/tiger.grm.sml
+tiger/tiger.lex.sml
+
+ir/tree.sig
+ir/tree.sml
+ir/prettyTree.sml
+ir/frame.sml
+ir/info.sml
+ir/translate.sml
+ir/canon.sml
+
 target/mips.sig
 target/mips.sml
 target/convToMIPS.sml
 target/prettyMips.sml
 target/mipsInst.sml
-
-tiger/tiger.grm.sig
-tiger/tiger.grm.sml
-tiger/tiger.lex.sml
-
-ir/ir.sml
-ir/regAlloc.sml
-ir/translate.sml
 
 tc.sml
