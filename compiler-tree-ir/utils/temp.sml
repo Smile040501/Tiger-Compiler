@@ -19,6 +19,7 @@ sig
     val newValue    : unit   -> value
     val newLabel    : unit   -> label
     val strToLabel  : string -> label
+    val valToInt    : value  -> int
 
     val areEq       : value * value -> bool
     val compare     : value * value -> order
@@ -85,6 +86,10 @@ structure Temp :> TEMP = struct
     (* Converts a string to a `Temp.label` *)
     (* strToLabel : string -> label *)
     fun strToLabel (s : string) = "_TSL" ^ "_" ^ s
+
+    (* Converts a `value` to an integer *)
+    (* val valToInt : value  -> int *)
+    fun valToInt (v : value) = v
 
     (* Check if two values are equal *)
     (* areEq : value * value -> bool *)
