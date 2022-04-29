@@ -91,6 +91,7 @@ sig
                               {left: Exp, oper: Relop, right: Exp, tLab: Temp.label, fLab: Temp.label}
    val getSeqRec   : Stm -> Stm -> {s1: Stm, s2: Stm}
 
+   val shorten_seq : Stm -> Stm -> Stm
    val seq         : Stm list -> Stm
    val moveTempToFrame : int -> Exp -> Stm
    val moveFrameToTemp : Exp -> int -> Stm

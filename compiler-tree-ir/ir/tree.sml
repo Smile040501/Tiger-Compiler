@@ -96,10 +96,16 @@ struct
 
    fun getSeqRec   s1   s2         = {s1 = s1, s2 = s2}
 
+   (* This function shortens the SEQ expression by removing unnecessary sub-expressions *)
+   (* val shorten_seq : Stm -> Stm -> Stm *)
+   fun shorten_seq (EXP(CONST _)) s2             = s2
+     | shorten_seq s1             (EXP(CONST _)) = s1
+     | shorten_seq s1             s2             = SEQ (getSeqRec s1 s2)
+
    (* val seq : Stm list -> Stm *)
    (* Converts a sequence of statements list to a single Tree.Stm *)
    fun  seq [x]       = x
-      | seq (x :: xs) = SEQ (getSeqRec x (seq xs))
+      | seq (x :: xs) = shorten_seq x (seq xs)
       | seq _         = Utils.throwErr EmptySeq ("[seq]: Empty list")
 
    (* val moveTempToFrame : int -> Exp -> Stm *)
