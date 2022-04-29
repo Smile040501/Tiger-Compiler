@@ -135,6 +135,26 @@ struct
 				(displayIR(); Utils.successExit(); ())
 			else ()
 
+
+	(* Generating the canonicalized intermediate representation of the Tiger AST *)
+	val canonicalizedIR = Canon.linearize irCodeStmt
+
+	(* Displays the canonicalized intermediate representation of the Tiger AST *)
+	fun displayCanonicalizedIR () = map (Utils.printOut o PrettyTree.prettyTreeStm) canonicalizedIR
+
+	val _ = if (!flagRef = "-C" orelse !flagRef = "--canon") then
+				(displayCanonicalizedIR(); Utils.successExit(); ())
+			else ()
+
+	(* Debugging mode *)
+	val _ = if (!flagRef = "-D" orelse !flagRef = "--debug") then
+				(Utils.printOut "---------------TIGER AST---------------\n"; displayTigerAST();
+				Utils.printOut "---------------IR---------------\n"; displayIR();
+				Utils.printOut "---------------CANONICALIZED IR---------------\n"; displayCanonicalizedIR();
+				(* Utils.printOut "---------------ASSEMBLER CODE---------------\n"; displayAssembler(); *)
+				())
+			else ()
+
 	(*
 	(* Generating the final MIPS program *)
 	val mipsProgram = Translate.compileToMips irProgram
@@ -147,16 +167,6 @@ struct
 
 	val _ = if (!flagRef = "-S" orelse !flagRef = "--asm") then
 				(displayAssembler(); successExit(); ())
-			else ()
-
-	(* Debugging mode *)
-	val _ = if (!flagRef = "-D" orelse !flagRef = "--debug") then
-				(Utils.printOut "---------------TIGER AST---------------\n"; displayTigerAST();
-				Utils.printOut "---------------IR---------------\n"; displayIR();
-				Utils.printOut "---------------TEMP ALLOC---------------\n"; displayTempAlloc();
-				Utils.printOut "---------------REG ALLOC---------------\n"; displayRegAlloc();
-				Utils.printOut "---------------ASSEMBLER CODE---------------\n"; displayAssembler();
-				())
 			else ()
 
 	(* Write the assembly code to `fileName.s` *)

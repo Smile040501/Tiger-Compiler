@@ -12,12 +12,6 @@ tiger/ast.sml
 tiger/convToTiger.sml
 tiger/prettyTigerAST.sml
 
-target/mips.sig
-target/mips.sml
-target/convToMIPS.sml
-target/prettyMips.sml
-target/mipsInst.sml
-
 tiger/tiger.grm.sig
 tiger/tiger.grm.sml
 tiger/tiger.lex.sml
@@ -28,5 +22,12 @@ ir/prettyTree.sml
 ir/frame.sml
 ir/info.sml
 ir/translate.sml
+ir/canon.sml
+
+target/mips.sig
+target/mips.sml
+target/convToMIPS.sml
+target/prettyMips.sml
+target/mipsInst.sml
 
 tc.sml
