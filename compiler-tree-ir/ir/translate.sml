@@ -600,7 +600,9 @@ struct
 
               (* Sequence of statements to be executed *)
               val computeAndMoveToTemp = Tree.seq [
+                  (* resultTemp = eval(ex) *)
                   getStmt ex,
+                  (* CALL(funcName, resultTemp) *)
                   T.EXP (T.CALL (T.getCallRec (T.NAME (Temp.strToLabel funName)) [T.resultTemp]))
               ]
           in

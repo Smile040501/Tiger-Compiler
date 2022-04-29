@@ -115,6 +115,8 @@ struct
     (* For the case there are multiple call statements,
         move its result into a new temporary, so that
         consecutive calls don't overwrite each other's results. *)
+    (* This case should ideally never happen as we put all CALL expressions as child of EXP
+        while translating the Tiger AST to Tree IR *)
       | reorder ((T.CALL {func, args}) :: es) =
             let
                 val nt = T.newSpecialTemp ()    (* New temporary register *)
@@ -173,7 +175,12 @@ struct
     (* val do_exp : Tree.Exp -> Tree.Stm * Tree.Exp *)
     and do_exp (T.BINOP {left, oper, right}) = reorder_exp [left, right] (b_BINOP oper)
       | do_exp (T.MEM e)                     = reorder_exp [e]            b_MEM
+      (* This case should ideally never happen as we put all CALL expressions as child of EXP
+        while translating the Tiger AST to Tree IR *)
       | do_exp (T.CALL {func, args})         = reorder_exp (func :: args) b_CALL
+      (* This case should ideally never happen as we extracted out the statement from
+        it and we are always using one single `resultTemp` register to store its result
+        while translating the Tiger AST to Tree IR *)
       | do_exp (T.ESEQ {stm, res})           =
             let
                 val cs        = do_stmt stm  (* Canonicalized Statement  *)
@@ -190,6 +197,8 @@ struct
             (* Handling special cases when moving to `T.TEMP` or `T.MEM`,
                 as we can directly move to that location without storing the result
                 in another register first... *)
+            (* This case should ideally never happen as we put all CALL expressions as child of EXP
+                while translating the Tiger AST to Tree IR *)
                 (T.TEMP t, T.CALL {func, args}) => (reorder_stmt (func :: args) (
                                                         fn l => b_MOVE [T.TEMP t, b_CALL l]
                                                     ))
