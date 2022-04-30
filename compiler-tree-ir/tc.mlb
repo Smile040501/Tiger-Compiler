@@ -29,5 +29,6 @@ target/mips.sml
 target/convToMIPS.sml
 target/prettyMips.sml
 target/mipsInst.sml
+target/codeGen.sml
 
 tc.sml

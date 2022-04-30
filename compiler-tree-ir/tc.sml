@@ -146,18 +146,9 @@ struct
 				(displayCanonicalizedIR(); Utils.successExit(); ())
 			else ()
 
-	(* Debugging mode *)
-	val _ = if (!flagRef = "-D" orelse !flagRef = "--debug") then
-				(Utils.printOut "---------------TIGER AST---------------\n"; displayTigerAST();
-				Utils.printOut "---------------IR---------------\n"; displayIR();
-				Utils.printOut "---------------CANONICALIZED IR---------------\n"; displayCanonicalizedIR();
-				(* Utils.printOut "---------------ASSEMBLER CODE---------------\n"; displayAssembler(); *)
-				())
-			else ()
 
-	(*
 	(* Generating the final MIPS program *)
-	val mipsProgram = Translate.compileToMips irProgram
+	val mipsProgram = CodeGen.generateMipsProg canonicalizedIR
 
 	(* The stringified representation of the MIPS program that SPIM will understand *)
 	val assemblerCode = PrettyMips.prettyMapProg Utils.identity PrettyMips.prettyReg mipsProgram
@@ -166,10 +157,22 @@ struct
 	fun displayAssembler () = Utils.printOut assemblerCode
 
 	val _ = if (!flagRef = "-S" orelse !flagRef = "--asm") then
-				(displayAssembler(); successExit(); ())
+				(displayAssembler(); Utils.successExit(); ())
+			else ()
+
+	(* Debugging mode *)
+	val _ = if (!flagRef = "-D" orelse !flagRef = "--debug") then
+				(Utils.printOut "---------------TIGER AST---------------\n";
+				displayTigerAST();
+				Utils.printOut "---------------IR---------------\n";
+				displayIR();
+				Utils.printOut "---------------CANONICALIZED IR---------------\n"; displayCanonicalizedIR();
+				Utils.printOut "---------------ASSEMBLER CODE---------------\n";
+				displayAssembler();
+				Utils.successExit();
+				())
 			else ()
 
 	(* Write the assembly code to `fileName.s` *)
 	val _ = TextIO.output(TextIO.openOut ((!fileName) ^ ".s"), assemblerCode)
-	*)
 end

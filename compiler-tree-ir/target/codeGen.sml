@@ -8,7 +8,7 @@ end
         the child of EXP(), and we will store their return value in the `resultTemp` register
         after they have been successfully called.
         Hence, there will be no nested calls.
-        If there are consecutive calls, then there values will be overwritten which is also
+    -   If there are consecutive calls, then there values will be overwritten which is also
         correct as there is only one `returnValue` register in MIPS.
     -   We will only handle those cases which we generated while translating and canonizing and
         the rest will raise exceptions.
