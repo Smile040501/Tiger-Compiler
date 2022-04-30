@@ -85,7 +85,7 @@ structure Temp :> TEMP = struct
 
     (* Converts a string to a `Temp.label` *)
     (* strToLabel : string -> label *)
-    fun strToLabel (s : string) = "_TSL" ^ "_" ^ s
+    fun strToLabel (s : string) = s
 
     (* Converts a `value` to an integer *)
     (* val valToInt : value  -> int *)
@@ -93,7 +93,7 @@ structure Temp :> TEMP = struct
 
     (* Check if two values are equal *)
     (* areEq : value * value -> bool *)
-    fun areEq (v1, v2) = (v1 = v2)
+    fun areEq (v1 : value, v2 : value) = (v1 = v2)
 
     (* Compare two values *)
     (* compare : value * value -> order *)
