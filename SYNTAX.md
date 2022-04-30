@@ -40,4 +40,4 @@ Everything in SubTiger is actually an expression, and hence always evaluates to 
 
 # Example Programs
 
-Please refer to the example programs in the directory `tests/`
+Please refer to the example programs in the directory [**tests/**](compiler-tree-ir/tests/)
