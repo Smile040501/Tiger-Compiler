@@ -9,21 +9,33 @@ The SubTiger language is the subset of the [Tiger language][tiger-resource]. Cur
 
 -   Standard ML
 
+## Summary of the Compilers Lab
+
+See [`SUMMARY.md`](SUMMARY.md).
+
 ## Installation
 
-See [`INSTALL.md`](INSTALL.md)
+See [`INSTALL.md`](INSTALL.md).
 
 ## Syntax for the Language
 
-See [`SYNTAX.md`](SYNTAX.md)
+See [`SYNTAX.md`](SYNTAX.md) to know about the syntax of the language supported by the compiler.
 
 ## Using the Compiler
 
-See [`INSTRUCTIONS.md`](INSTRUCTIONS.md)
+See the below files for the usage of the two versions of the compiler.\
+**Includes info for using the `Makefile` and the `binary executable`.**
 
-## Design of the Compiler
+-   [Compiler-Without-Tree-IR](tag-improvements1/INSTRUCTIONS.md)
+-   [Compiler-With-Tree-IR](compiler-tree-ir/INSTRUCTIONS.md)
 
-See [`DESIGN.md`](DESIGN.md)
+## Design
+
+See the below files for the design of the two versions fo the compiler.\
+**Includes info about the directory structure and implementation details.**
+
+-   [Compiler-Without-Tree-IR](tag-improvements1/README.md)
+-   [Compiler-With-Tree-IR](compiler-tree-ir/README.md)
 
 ## License
 
