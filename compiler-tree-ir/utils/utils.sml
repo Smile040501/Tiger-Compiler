@@ -1,15 +1,6 @@
 (* Common utilities *)
 structure Utils =
 struct
-    (* Constants *)
-    val PRINT_INT_SYSCALL    : int = 1
-    val PRINT_STRING_SYSCALL : int = 4
-    val EXIT_SYSCALL         : int = 10
-
-    val A0_REG : string = "$a0"   (* For register a0 *)
-    val V0_REG : string = "$v0"   (* For register v0 *)
-
-    val NL_Label : string = "nl"  (* For newline label *)
 
     (* Exceptions *)
     exception EmptyList           of string
