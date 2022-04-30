@@ -1,52 +1,32 @@
-# Compiler for SubTiger Language
+# Design of the SubTiger Compiler (Without Tree IR)
 
-**Name**: Mayank Singla\
-**Roll No.**: 111901030
+The source code of the compiler is distributed across the following directories and files:
 
-The SubTiger language is the subset of the [Tiger language][tiger-resource]. Currently, the language supports only integers, but would be extended to strings and floating point computation. Currently, the compiler compiles to [MIPS] assembly code, which can be run using [SPIM] simulator.
+-   `ir/`
+    -   `ir.sml`: Contains structure of the Intermediate Representation (IR)
+    -   `regAlloc.sml`: Greedy register allocation
+    -   `translate.sml`: Contains the code for translating the source of Tiger AST to the Intermediate Representation and the code for translating the Intermediate Representation to the assembly code
+-   `target/`
+    -   `convToMIPS.sml`: Contains helper functions to create MIPS assembly statements
+    -   `mips.sig` and `mips.sml`: Signature and structure of the MIPS AST
+    -   `prettyMips.sml`: Contains helper functions for the pretty printing of the MIPS assembly code
+-   `tiger/`
+    -   `ast.sig` and `ast.sml`: Signature and structure of the Tiger AST
+    -   `convToTiger.sml`: Contains helper functions to create Tiger expressions
+    -   `prettyTigerAST.sml`: Contains helper functions for the pretty printing of the Tiger expressions
+    -   `tiger.grm`: Grammar of the Tiger language
+    -   `tiger.lex`: Lexical analysis file
+-   `utils/`
+    -   `env.sml`: Structure to create an environment from user variable to temporaries
+    -   `temp.sml`: Structure to create new temporary values and labels
+    -   `utils.sml`: General purpose helper functions
+-   `tc.mlb`: The ML-Basis file for compilation
+-   `tc.sml`: The main code where the execution begins. This uses the lexer-parser, translator and pretty printers to generate MIPS assembly from the Tiger source code
 
-## Technologies Used
+# Design Choices
 
--   Standard ML
+We have used the following design choices:
 
-## Installation
-
-See [`INSTALL.md`](INSTALL.md)
-
-## Syntax for the Language
-
-See [`SYNTAX.md`](../SYNTAX.md)
-
-## Using the Compiler
-
-See [`INSTRUCTIONS.md`](INSTRUCTIONS.md)
-
-## Design of the Compiler
-
-See [`DESIGN.md`](DESIGN.md)
-
-## License
-
-[MIT](../LICENSE)
-
-## Author
-
-<a href="https://github.com/Smile040501">
-    <img
-        src="https://avatars.githubusercontent.com/u/62458127?v=4&s=150"
-        alt="Mayank Singla"
-        width="150px"
-        style="border-radius:7px"
-    />
-</a>
-
-**Mayank Singla**
-
--   [**GitHub**][github]
--   [**LinkedIn**][linkedin]
-
-[github]: https://github.com/Smile040501
-[linkedin]: https://www.linkedin.com/in/mayank-singla-001pt
-[tiger-resource]: https://www.lrde.epita.fr/~tiger/tiger.html
-[mips]: https://en.wikipedia.org/wiki/MIPS_architecture "MIPS architecture"
-[spim]: http://spimsimulator.sourceforge.net/ "SPIM: A MIPS Simulator"
+1. Currently register allocation is implemented as a greedy register allocation and if the compiler runs out of registers just, it just flags an error
+2. There are built-in functions for printing expression values, they are `print` and `println` which print the value without or with a newline respectively
+3. The error checking mechanism is quite week as of now
