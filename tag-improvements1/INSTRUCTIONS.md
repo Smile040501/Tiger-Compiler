@@ -1,4 +1,4 @@
-# Using the Compiler
+# Using the Compiler (Without Tree IR)
 
 Once the installation is complete, the `tc` executable will be generated which is the final tiger compiler executable in the root directory of the project.\
 You may run the compiler on an input tiger source file as follows to get the MIPS assembly code.
@@ -43,6 +43,14 @@ The compiler will by default generate and store the MIPS assembly code in the fi
 -S
 --asm
     Display the final assembler code.
+```
+
+## Examples
+
+```sh
+./tc -A program.tig  # Display the AST
+./tc -I program.tig  # Display the IR
+./tc -S program.tig  # Display the MIPS assembly code generated
 ```
 
 # Using the Makefile
