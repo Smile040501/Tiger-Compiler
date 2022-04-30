@@ -4,6 +4,19 @@ All the weekly changes made in the project as a summary.
 
 ## [Unreleased]
 
+## [final] - 2022-04-30
+
+### Added
+
+-   Code to generate the MIPS assembly code from the canonicalized Tree IR code.
+-   `SUMMARY.md` file containing the summary of the compilers lab
+-   Re-added the `INSTALL.md` file and moved from sub-directories to the root directory
+
+### Updated
+
+-   The files `README.md`, `INSTRUCTIONS.md`
+-   Renamed `DESIGN.md` in sub-directories to `README.md` for the sub-directories
+
 ## [2022-03-03] - 2022-04-29
 
 ### Added
@@ -11,15 +24,16 @@ All the weekly changes made in the project as a summary.
 -   Added code to generate the Tree intermediate representation of the Tiger AST
 -   Added code to canonize the Tree IR code of the Tiger AST
 -   Added copy of the first version of the compiler without Tree IR in the [**tag-improvements1**](tag-improvements1/) directory.
+
 ### Updated
 
 -   Restructured the whole repository directory structure
 -   Summary for quick navigation in various directories:
-    -    [**tag-improvements1**](tag-improvements1/): The first version of the compiler without the Tree IR
-    -    [**others**](others/): Contains notes directory and the [**reverse-polish**](others/reverse-polish/) assignment.
-    -    [**compiler-tree-ir**](compiler-tree-ir/): Contains the code for generating Tree IR from Tiger AST and canonizing the Tree IR code.
-         -    [**compiler-tree-ir / utils / basicBlocks.sml**](compiler-tree-ir/utils/basicBlocks.sml): The basic blocks assignment
-         -    [**compiler-tree-ir / utils / graph.sml**](compiler-tree-ir/utils/graph.sml): The graphs assignment
+    -   [**tag-improvements1**](tag-improvements1/): The first version of the compiler without the Tree IR
+    -   [**others**](others/): Contains notes directory and the [**reverse-polish**](others/reverse-polish/) assignment.
+    -   [**compiler-tree-ir**](compiler-tree-ir/): Contains the code for generating Tree IR from Tiger AST and canonizing the Tree IR code.
+        -   [**compiler-tree-ir / utils / basicBlocks.sml**](compiler-tree-ir/utils/basicBlocks.sml): The basic blocks assignment
+        -   [**compiler-tree-ir / utils / graph.sml**](compiler-tree-ir/utils/graph.sml): The graphs assignment
 
 ### Merged
 
@@ -144,7 +158,8 @@ All the weekly changes made in the project as a summary.
     -   `make clean`: remove all generated/intermediate files from the repository (in this case only the executable file `tc`)
 -   `.gitignore`: Global gitignore file.
 
-[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-03-03...master
+[unreleased]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/final...master
+[final]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-03-03...final
 [2022-03-03]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-03-31...2022-03-03
 [2022-03-31]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/2022-03-24...2022-03-31
 [2022-03-24]: https://gitlab.com/singlamayank001/111901030-compilers/-/compare/improvements1...2022-03-24
